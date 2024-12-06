@@ -9,7 +9,7 @@ from ...settings.settings import Settings
 from ....common.enum import WaterSystem
 
 
-class LoadingFactory():
+class LoadingFactory:
     """
     A factory class to generate the right Loading object for a given Settings object.
 
@@ -18,52 +18,45 @@ class LoadingFactory():
     WATER_SYSTEM_LOADING_MAP : dict
         A dictionary containing the corresponding Loading class for a WaterSystem
     """
+
     # Dictionary with Loading classes for each WaterSystem
     WATER_SYSTEM_LOADING_MAP = {
         # Upper River
-        WaterSystem.RHINE_NON_TIDAL : LoadingUpperRiver,
-        WaterSystem.MEUSE_NON_TIDAL : LoadingUpperRiver,
-        WaterSystem.MEUSE_VALLEY_NON_TIDAL : LoadingUpperRiver,
-
+        WaterSystem.RHINE_NON_TIDAL: LoadingUpperRiver,
+        WaterSystem.MEUSE_NON_TIDAL: LoadingUpperRiver,
+        WaterSystem.MEUSE_VALLEY_NON_TIDAL: LoadingUpperRiver,
         # Lower River
-        WaterSystem.RHINE_TIDAL : LoadingLowerRiver,
-        WaterSystem.MEUSE_TIDAL : LoadingLowerRiver,
+        WaterSystem.RHINE_TIDAL: LoadingLowerRiver,
+        WaterSystem.MEUSE_TIDAL: LoadingLowerRiver,
         # TODO: WaterSystem.EUROPOORT
-
         # Coast
-        WaterSystem.WADDEN_SEA_EAST : LoadingCoast,
-        WaterSystem.WADDEN_SEA_WEST : LoadingCoast,
-        WaterSystem.COAST_NORTH : LoadingCoast,
-        WaterSystem.COAST_CENTRAL : LoadingCoast,
-        WaterSystem.COAST_SOUTH : LoadingCoast,
-        WaterSystem.WESTERN_SCHELDT : LoadingCoast,
-
+        WaterSystem.WADDEN_SEA_EAST: LoadingCoast,
+        WaterSystem.WADDEN_SEA_WEST: LoadingCoast,
+        WaterSystem.COAST_NORTH: LoadingCoast,
+        WaterSystem.COAST_CENTRAL: LoadingCoast,
+        WaterSystem.COAST_SOUTH: LoadingCoast,
+        WaterSystem.WESTERN_SCHELDT: LoadingCoast,
         # Eastern Scheldt
-        WaterSystem.EASTERN_SCHELDT : LoadingEasternScheldt,
-
+        WaterSystem.EASTERN_SCHELDT: LoadingEasternScheldt,
         # Lakes
-        WaterSystem.IJSSEL_LAKE : LoadingLake,
-        WaterSystem.MARKER_LAKE : LoadingLake,
+        WaterSystem.IJSSEL_LAKE: LoadingLake,
+        WaterSystem.MARKER_LAKE: LoadingLake,
         # TODO: WaterSystem.VELUWE_LAKES
         # TODO: WaterSystem.GREVELINGEN
-
         # IJssel-Vecht Delta
-        WaterSystem.VECHT_DELTA : LoadingIJsselVechtdelta,
-        WaterSystem.IJSSEL_DELTA : LoadingIJsselVechtdelta,
-
+        WaterSystem.VECHT_DELTA: LoadingIJsselVechtdelta,
+        WaterSystem.IJSSEL_DELTA: LoadingIJsselVechtdelta,
         # Volkerak-Zoommeer
         # TODO: WaterSystem.VOLKERAK_ZOOMMEER
-
         # Hollandsche IJssel
         # TODO: WaterSystem.HOLLANDSCHE_IJSSEL
-
         # Other
         # WaterSystem.COAST_DUNES
         # WaterSystem.DIEFDIJK
     }
 
     @staticmethod
-    def get_loading(settings : Settings) -> Loading:
+    def get_loading(settings: Settings) -> Loading:
         """
         Returns the Loading object for the specified water system.
 
@@ -83,10 +76,14 @@ class LoadingFactory():
             If loading for the specified water system are not implemented.
         """
         # Obtain the right Loading class
-        loading_class = LoadingFactory.WATER_SYSTEM_LOADING_MAP.get(settings.watersystem)
+        loading_class = LoadingFactory.WATER_SYSTEM_LOADING_MAP.get(
+            settings.watersystem
+        )
 
         # Return if the class is found, otherwise raise an error
         if loading_class:
             return loading_class(settings)
         else:
-            raise NotImplementedError(f"[ERROR] Loading for '{settings.watersystem.name}' not implemented (ID: {settings.watersystem.value})")
+            raise NotImplementedError(
+                f"[ERROR] Loading for '{settings.watersystem.name}' not implemented (ID: {settings.watersystem.value})"
+            )

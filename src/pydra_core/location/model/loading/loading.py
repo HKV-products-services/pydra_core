@@ -5,7 +5,7 @@ from typing import Tuple, Union
 
 from ...settings.settings import Settings
 from ....common.interpolate import InterpStruct
-from ....io.database_hr import DatabaseHR
+# from ....io.database_hr import DatabaseHR
 
 
 class Loading(ABC):
@@ -21,8 +21,8 @@ class Loading(ABC):
     database : DatabaseHR
         Connection with HR Database
     """
-    
-    def __init__(self, settings : Settings):
+
+    def __init__(self, settings: Settings):
         """
         Init the Loading object
 
@@ -34,7 +34,6 @@ class Loading(ABC):
         # Save settings and init dictionary for all models
         self.settings = settings
         self.model = {}
-    
 
     @abstractmethod
     def read_loading(self) -> None:
@@ -42,7 +41,6 @@ class Loading(ABC):
         Read the HR and create Loading Models
         """
         pass
-    
 
     def iter_models(self):
         """
@@ -51,11 +49,10 @@ class Loading(ABC):
         """
         for discreet, model in self.model.items():
             yield discreet, model
-    
 
     def _extend_loadingmodels(self) -> None:
         """
-        Preprocess the LoadingModels. 
+        Preprocess the LoadingModels.
         Makes sure the discretisations in every LoadingModel are the same.
         """
         # Obtain the wind directions and closing situations
@@ -67,27 +64,36 @@ class Loading(ABC):
 
         # Extend the stochasts in each loadingmodel
         for _, model in self.iter_models():
-
             # Extend the wind speed
             model.extend("u", utot)
 
             # Extend for discharge
             if "q" in model.input_variables:
                 if len(model.q) > 1:
-                    model.extend("q", list(filter(None, [self.settings.q_min, self.settings.q_max])))
-            
+                    model.extend(
+                        "q",
+                        list(filter(None, [self.settings.q_min, self.settings.q_max])),
+                    )
+
             # Extend for sea level
             if "m" in model.input_variables:
                 if len(model.m) > 1:
-                    model.extend("m", list(filter(None, [self.settings.m_min, self.settings.m_max])))
-            
+                    model.extend(
+                        "m",
+                        list(filter(None, [self.settings.m_min, self.settings.m_max])),
+                    )
+
             # Extend for lake level
             if "a" in model.input_variables:
                 if len(model.a) > 1:
-                    model.extend("a", list(filter(None, [self.settings.a_min, self.settings.a_max])))
+                    model.extend(
+                        "a",
+                        list(filter(None, [self.settings.a_min, self.settings.a_max])),
+                    )
 
-
-    def repair_loadingmodels(self, result_variables : Union[list, str], epsilon : float = 1e-6) -> None:
+    def repair_loadingmodels(
+        self, result_variables: Union[list, str], epsilon: float = 1e-6
+    ) -> None:
         """
         Repair the result variables for all LoadingModels
         Repairs depending on the '{input_variable}_repair' flag in the Settings
@@ -101,10 +107,8 @@ class Loading(ABC):
         """
         # For each LoadingModel (wind direction and closing situation)
         for _, model in self.iter_models():
-
             # Loop over the inputvariables
             for inpvar in model.input_variables:
-
                 # Only repair base stochastics
                 if inpvar not in ["u", "m", "q", "a"]:
                     continue
@@ -112,19 +116,17 @@ class Loading(ABC):
                 # Only if the flag '{input_variable}_repair' is True
                 if not getattr(self.settings, f"{inpvar}_repair"):
                     continue
-                
+
                 # For each result variable
                 for rv in np.atleast_1d(result_variables):
-
                     # If the result variable from the argument is not in the LoadingModel or if it the wave direction, skip
                     if (rv not in model.result_variables) or (rv == "dir"):
                         continue
 
                     # Repair the LoadingModel
                     model.repair(inpvar, rv, epsilon)
-    
 
-    def get_result_variable_statistic(self, result_variable : str, stat : str, args = ()):
+    def get_result_variable_statistic(self, result_variable: str, stat: str, args=()):
         """
         Obtain statistics for a result variable. (e.g. min, max)
 
@@ -136,7 +138,7 @@ class Loading(ABC):
             NumPy function, e.g. 'max', 'min'
         args : tuple
             Optional if required by NumPy function
-        
+
         Returns
         -------
         statistic : float
@@ -150,9 +152,8 @@ class Loading(ABC):
 
         # Return statistic
         return result
-    
-    
-    def get_result_variable_raveled(self, result_variable : str) -> np.ndarray:
+
+    def get_result_variable_raveled(self, result_variable: str) -> np.ndarray:
         """
         Obtain all values for a result variable in one array
 
@@ -160,20 +161,31 @@ class Loading(ABC):
         ----------
         result_variable : str
             Result variable (h, hs, tp, tspec, hbn, qov, etc.)
-        
+
         Returns
         -------
         np.ndarray
             1D array with all values of a certain result variable
         """
         # Loop over every discrete model and add all result variables values to an array
-        arr = np.concatenate([getattr(model, result_variable).ravel() for _, model in self.iter_models()], axis=-1)
+        arr = np.concatenate(
+            [
+                getattr(model, result_variable).ravel()
+                for _, model in self.iter_models()
+            ],
+            axis=-1,
+        )
 
         # Return the array
         return arr
 
-
-    def get_quantile_range(self, result_variable : str, lower_quantile : float, upper_quantile : float, round_digits : int = None) -> Tuple[float, float]:
+    def get_quantile_range(
+        self,
+        result_variable: str,
+        lower_quantile: float,
+        upper_quantile: float,
+        round_digits: int = None,
+    ) -> Tuple[float, float]:
         """Geef kwantielen van een gekozen variabele. De uitkomst kan worden
         afgerond wanneer 'rounddigits' is gegeven.
 
@@ -208,11 +220,15 @@ class Loading(ABC):
         # Return the quantiles
         return lower, upper
 
-
-    def get_wave_conditions(self, direction : float, waterlevel : Union[int, float, list, np.ndarray], extrapolate : bool = True) -> Tuple[dict, np.ndarray]:
+    def get_wave_conditions(
+        self,
+        direction: float,
+        waterlevel: Union[int, float, list, np.ndarray],
+        extrapolate: bool = True,
+    ) -> Tuple[dict, np.ndarray]:
         """
         Return the wave conditions given a wind direction and wind speed.
-        
+
         The function assumes the wave conditions are a function of:
         - The local water level
         - The wind direction
@@ -226,7 +242,7 @@ class Loading(ABC):
             Water level(s)
         extrapolate : bool, optional
             Whether or not to extrapolate (default : True)
-        
+
         Returns
         -------
         Tuple[dict{str : np.ndarray}, np.ndarray]
@@ -250,15 +266,17 @@ class Loading(ABC):
         first_model = loading_r[0]
 
         # Create an empty dictionary for the wave conditions
-        wave_conditions = {resvar : np.zeros((len(waterlevel), len(first_model.u)), dtype=np.float32) for resvar in resvars}
+        wave_conditions = {
+            resvar: np.zeros((len(waterlevel), len(first_model.u)), dtype=np.float32)
+            for resvar in resvars
+        }
 
         # Change the loading shape such that all wave conditions are available per wind direction and wind speed
         loading_reshaped = {}
 
         # For each loading parameter (resvar)
         for resvar in resvars:
-            
-            # Obtain the loading array for each loading model, stack over the last dimension such 
+            # Obtain the loading array for each loading model, stack over the last dimension such
             # that the input order of the other stochastics are unchanged: e.g. parts[model, u, m, d, p]
             parts = []
             for model in loading_r:
@@ -271,7 +289,7 @@ class Loading(ABC):
                         parts.append(getattr(model, "tp") / 1.1)
                     else:
                         raise KeyError(f'"{resvar}" not present.')
-            
+
             # e.g. arr[u, m, d, p, model]
             arr = np.stack(parts, axis=-1)
 
@@ -280,13 +298,12 @@ class Loading(ABC):
 
             # If the axis of the wind speed is not the first dimension, swap axes
             if upos != 0:
-
                 # Swap to axis with the wind speed to the first dimension
                 tmparr = np.swapaxes(arr, 0, upos)
-                
+
                 # Reshaped [u, comb van (m, d, p en de sluitsituatie (model))]
                 reshaped = tmparr.reshape((tmparr.shape[0], np.prod(tmparr.shape[1:])))
-            
+
             # Otherwise, only reshape the array
             else:
                 reshaped = arr.reshape((arr.shape[0], np.prod(arr.shape[1:])))
@@ -304,7 +321,6 @@ class Loading(ABC):
 
         # Interpolate over the water level, for the wind speed
         for iu in range(len(first_model.u)):
-
             # Prepare interpolation
             index = np.unique(hbelast[iu].round(3), return_index=True)[1]
             h_unique = hbelast[iu][index]
@@ -313,31 +329,34 @@ class Loading(ABC):
             if len(h_unique) == 1:
                 for resvar in resvars:
                     wave_conditions[resvar][:, iu] = loading_reshaped[resvar][iu][index]
-            
+
             # For more water levels, we do need to interpolate
             else:
-                intstr = InterpStruct(x = waterlevel, xp = h_unique)
+                intstr = InterpStruct(x=waterlevel, xp=h_unique)
                 for resvar in resvars:
-
                     # Dont interpolate the water level, we will add this at the end
                     if resvar == "h":
                         continue
                     fp = loading_reshaped[resvar][iu][index]
-                    
+
                     # If all result variables are 0, skip
                     if (fp == 0.0).all():
                         continue
-                    
+
                     # If there is only one result variable, apply this one
                     if (fp == fp[0]).all():
                         intbelast = fp[0]
-                    
+
                     # Otherwise, interpolate the wave loading
                     else:
                         if resvar == "dir":
-                            intbelast = intstr.interp_angle(fp=fp, extrapolate=extrapolate)
+                            intbelast = intstr.interp_angle(
+                                fp=fp, extrapolate=extrapolate
+                            )
                         else:
-                            intbelast = np.maximum(0, intstr.interp(fp=fp, extrapolate=extrapolate))
+                            intbelast = np.maximum(
+                                0, intstr.interp(fp=fp, extrapolate=extrapolate)
+                            )
 
                     # Add the resvar to the result 'wave_conditions' dictionary
                     wave_conditions[resvar][:, iu] = intbelast

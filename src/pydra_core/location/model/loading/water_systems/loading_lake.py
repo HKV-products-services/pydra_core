@@ -9,8 +9,8 @@ class LoadingLake(Loading):
     Loading class for the Lakes
     Water systems: IJssel Lake, Marker Lake, Veluwe Lakes and Grevelingen
     """
-    
-    def __init__(self, settings : Settings):
+
+    def __init__(self, settings: Settings):
         """
         Init the Loading object for the Upper Rivers
 
@@ -24,7 +24,6 @@ class LoadingLake(Loading):
 
         # Read and process the loading
         self.read_loading()
-    
 
     def read_loading(self) -> None:
         """
@@ -39,7 +38,7 @@ class LoadingLake(Loading):
         # Check if there are wave conditions present or whether they should be derived with Bretschneider
         if "hs" not in table.columns:
             raise NotImplementedError("[ERROR] Bretschneider")
-        
+
         # Init LoadingModels for each combination of wind direction (r) and closing situation (k)
         for comb, deeltabel in table.groupby(["r", "k"]):
             direction, closing_situation = comb

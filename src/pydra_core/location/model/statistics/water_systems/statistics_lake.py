@@ -14,8 +14,8 @@ class StatisticsLake(Statistics):
     Statistics class for the Lakes
     Water systems: IJssel Lake, Marker Lake, Veluwe Lakes and Grevelingen
     """
-    
-    def __init__(self, settings : Settings):
+
+    def __init__(self, settings: Settings):
         """
         Init the Statistics class
 
@@ -38,12 +38,16 @@ class StatisticsLake(Statistics):
         self.model_uncertainties = ModelUncertainty(settings)
 
         # Discrete, slow, fast stochatics
-        self.stochastics_discrete = {"r" : self.wind_direction.get_discretisation(), "k" : [1]}
-        self.stochastics_fast = {"u" : self.wind_speed.get_discretisation()}
-        self.stochastics_slow = {"a" : self.lake_level.get_discretisation()}
-    
+        self.stochastics_discrete = {
+            "r": self.wind_direction.get_discretisation(),
+            "k": [1],
+        }
+        self.stochastics_fast = {"u": self.wind_speed.get_discretisation()}
+        self.stochastics_slow = {"a": self.lake_level.get_discretisation()}
 
-    def calculate_probability(self, wind_direction: float, closing_situation: int = 1, given: list = []):
+    def calculate_probability(
+        self, wind_direction: float, closing_situation: int = 1, given: list = []
+    ):
         """
         Calculate the probability of occurence for the discretisation given the wind direction.
 
@@ -58,7 +62,10 @@ class StatisticsLake(Statistics):
         """
         # Wind speed
         ir = self.wind_direction.get_discretisation().tolist().index(wind_direction)
-        p_wind = ProbabilityFunctions.probability_density(self.wind_speed.get_discretisation(), self.wind_speed.get_exceedance_probability()[:, ir]).probability[:, None]
+        p_wind = ProbabilityFunctions.probability_density(
+            self.wind_speed.get_discretisation(),
+            self.wind_speed.get_exceedance_probability()[:, ir],
+        ).probability[:, None]
         if "u" in given:
             p_wind[:] = 1.0
 
@@ -67,7 +74,10 @@ class StatisticsLake(Statistics):
             p_lake_level = np.ones_like(self.lake_level.get_discretisation())
         else:
             # If not given, use the instantaneous probability
-            p_lake_level = ProbabilityFunctions.probability_density(self.lake_level.get_discretisation(), 1 - self.lake_level.get_exceedance_probability()).probability
+            p_lake_level = ProbabilityFunctions.probability_density(
+                self.lake_level.get_discretisation(),
+                1 - self.lake_level.get_exceedance_probability(),
+            ).probability
 
         # Probability of wind direction
         p_direction = 1.0 if "r" in given else self.wind_direction.get_probability()[ir]

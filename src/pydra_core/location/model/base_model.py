@@ -9,7 +9,7 @@ from ...common.probability import ProbabilityFunctions
 
 
 class BaseModel(ABC):
-    def __init__(self, settings : Settings):
+    def __init__(self, settings: Settings):
         """
         Base class
         """
@@ -17,9 +17,15 @@ class BaseModel(ABC):
         self.settings = settings
         self.statistics = None
         self.loading = None
-    
 
-    def calculate_probability_loading(self, result_variable : str, levels : np.ndarray, model_uncertainty : bool = True, split_input_variables : list = [], given : list = []):
+    def calculate_probability_loading(
+        self,
+        result_variable: str,
+        levels: np.ndarray,
+        model_uncertainty: bool = True,
+        split_input_variables: list = [],
+        given: list = [],
+    ):
         """
         Determine the probability that the load (water level, hbn, qov, etc.) falls within a range.
 
@@ -60,23 +66,26 @@ class BaseModel(ABC):
         probability = np.zeros(shp)
 
         # Seperate the discrete stochastics from the continuous stochastics (slow and fast)
-        contvars = [var for var in split_input_variables if var not in statistics.stochastics_discrete]
+        contvars = [
+            var
+            for var in split_input_variables
+            if var not in statistics.stochastics_discrete
+        ]
 
         # Loop through all loading models (per r, k)
         for (direction, closing_situation), _ in loading.iter_models():
-            
             # Get the IDs of the wind direction and closing situation
             ir = loading.r.index(direction)
             ik = loading.k.index(closing_situation)
 
             # Calculate the probability of the loading
             probability_loading = self.split_load_model(
-                direction = direction,
-                closing_situation = closing_situation,
-                result_variable = result_variable,
-                levels = levels,
-                split_input_variables = contvars,
-                given = given,
+                direction=direction,
+                closing_situation=closing_situation,
+                result_variable=result_variable,
+                levels=levels,
+                split_input_variables=contvars,
+                given=given,
             )
 
             # If the combination of r, k is non-existent
@@ -85,23 +94,26 @@ class BaseModel(ABC):
 
             # Process model uncertainty
             if model_uncertainty:
-
                 # Check
-                if (result_variable not in ["h", "hs", "tspec", "tp"]):
-                    raise NotImplementedError("[ERROR] Processing model uncertainties is only possible for database result variables.")
-                
+                if result_variable not in ["h", "hs", "tspec", "tp"]:
+                    raise NotImplementedError(
+                        "[ERROR] Processing model uncertainties is only possible for database result variables."
+                    )
+
                 # Bepaal grenzen
                 boundaries = ProbabilityFunctions.calculate_boundaries(levels)
 
                 # Verwerk de onzekerheid gegeven de sluitsituatie
-                probability_loading = statistics.get_model_uncertainties().process_model_uncertainty(
-                    closing_situation = closing_situation,
-                    result_variable = result_variable,
-                    levels = boundaries,
-                    exceedance_probability = probability_loading,
-                    haxis = 0,
+                probability_loading = (
+                    statistics.get_model_uncertainties().process_model_uncertainty(
+                        closing_situation=closing_situation,
+                        result_variable=result_variable,
+                        levels=boundaries,
+                        exceedance_probability=probability_loading,
+                        haxis=0,
+                    )
                 )
-            
+
             # Create an index to accumulate the probabilities.
             # If the discrete variables are included in the splitting, assign a specific position here.
             # Otherwise, they are added to the rest of the probabilities.
@@ -113,9 +125,16 @@ class BaseModel(ABC):
             probability[tuple(idx)] += probability_loading
 
         return probability
-    
-    
-    def split_load_model(self, direction : float, closing_situation : int, result_variable : str, levels : np.ndarray, split_input_variables : list = [], given : list = []) -> np.ndarray:
+
+    def split_load_model(
+        self,
+        direction: float,
+        closing_situation: int,
+        result_variable: str,
+        levels: np.ndarray,
+        split_input_variables: list = [],
+        given: list = [],
+    ) -> np.ndarray:
         """
         Integrates the loads over the given levels and variables to split over.
 
@@ -152,28 +171,38 @@ class BaseModel(ABC):
 
         # Refine the loading onto the (finer) grid used in the statistics
         comb_fast_slow = {**statistics.stochastics_fast, **statistics.stochastics_slow}
-        comb_fast_slow = {key : comb_fast_slow[key] for key in loading_model.input_variables}
+        comb_fast_slow = {
+            key: comb_fast_slow[key] for key in loading_model.input_variables
+        }
         refined_load = loading_model.refine(result_variable, comb_fast_slow)
 
         # Calculate the probability of these loading combinations
-        loading_probability = statistics.calculate_probability(loading_model.direction, loading_model.closing_situation, given = given)
-        
+        loading_probability = statistics.calculate_probability(
+            loading_model.direction, loading_model.closing_situation, given=given
+        )
+
         # Check the dimension from the loading and probability arrays
-        assert refined_load.shape == tuple(loading_probability.shape[: refined_load.ndim])
+        assert refined_load.shape == tuple(
+            loading_probability.shape[: refined_load.ndim]
+        )
         if refined_load.size != loading_probability.size:
-            
-            # When the dimensions of the interpolated load (refined_load) and the probabilities do not match, 
-            # this must be due to an additional dimension in the probabilities where the load is equal. 
+            # When the dimensions of the interpolated load (refined_load) and the probabilities do not match,
+            # this must be due to an additional dimension in the probabilities where the load is equal.
             # The assumption is that this variable is dependent on the given conditions.
-            loading_probability = loading_probability.reshape((refined_load.size,) + loading_probability.shape[refined_load.ndim :])
+            loading_probability = loading_probability.reshape(
+                (refined_load.size,) + loading_probability.shape[refined_load.ndim :]
+            )
             extra_kansvar = given[:]
-        
+
         else:
             loading_probability = loading_probability.ravel()
             extra_kansvar = []
-        
+
         # Determine the dimensions of the variables to split over
-        var_sizes = [len({**statistics.stochastics_fast, **statistics.stochastics_slow}[var]) for var in split_input_variables]
+        var_sizes = [
+            len({**statistics.stochastics_fast, **statistics.stochastics_slow}[var])
+            for var in split_input_variables
+        ]
 
         # Create an array to allocate probabilities, this is an array for the load variable,
         # plus the determined dimensions
@@ -185,7 +214,7 @@ class BaseModel(ABC):
         # Create an array with ones, which will be used to place the probability
         # in the correct position in the array by multiplying [1, 2, 3, ...] along the relevant axis,
         # and then raveling (flattening into 1D)
-        ones = np.ones(refined_load.shape, dtype = digitized.dtype)
+        ones = np.ones(refined_load.shape, dtype=digitized.dtype)
         base_shape = [1] * ones.ndim
 
         # Create a list of index arrays, with the load class as the first element
@@ -193,17 +222,18 @@ class BaseModel(ABC):
 
         # Loop through all other variables
         for var_size, var in zip(var_sizes, split_input_variables):
-            
             # Check if the variable exists
             if (var not in list(comb_fast_slow)) and (var not in extra_kansvar):
-                raise ValueError(f"'{var}' is not in list ({', '.join(list(comb_fast_slow))}).")
+                raise ValueError(
+                    f"'{var}' is not in list ({', '.join(list(comb_fast_slow))})."
+                )
             if var in extra_kansvar:
                 continue
-            
+
             # Create the dimensions for assigning the arange
             shape = base_shape[:]
             shape[list(comb_fast_slow).index(var)] = -1
-            
+
             # Determine the splitting positions, reshape and add to the list
             idxs.append((ones * np.arange(var_size).reshape(tuple(shape))).ravel())
 
@@ -213,10 +243,9 @@ class BaseModel(ABC):
                 probability[idx] += loading_probability[i]
         else:
             np.add.at(probability, tuple(idxs), loading_probability)
-        
+
         # Return the probabilities
         return probability
-    
 
     def get_statistics(self) -> Statistics:
         """
@@ -228,7 +257,6 @@ class BaseModel(ABC):
             The Statistics object for this Location
         """
         return self.statistics
-    
 
     def get_loading(self) -> Loading:
         """

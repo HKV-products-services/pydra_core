@@ -10,7 +10,7 @@ from ..common.enum import WaterSystem
 from ..location.settings.settings import Settings
 
 
-class DatabaseHR():
+class DatabaseHR:
     """
     HR database sqlite
     """
@@ -19,23 +19,20 @@ class DatabaseHR():
         # Check if the path is valid
         if not os.path.exists(path_to_database):
             raise OSError(path_to_database)
-        
+
         # Save the path
         self.path_to_database = path_to_database
         self.con = None
 
-
-    def __enter__(self) -> 'DatabaseHR':
+    def __enter__(self) -> "DatabaseHR":
         # Init the connection
         self.con = sqlite3.connect(self.path_to_database)
         return self
-
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         # Close the connection
         self.con.close()
 
-    
     def get_water_system(self) -> WaterSystem:
         """
         Obtain the water system from the .sqlite database
@@ -51,7 +48,6 @@ class DatabaseHR():
         # Return the WaterSystem
         return WaterSystem(wsid)
 
-
     def get_hrdlocations_names(self) -> List[str]:
         """
         Obtain a list with all names of the hrdlocations
@@ -66,12 +62,11 @@ class DatabaseHR():
 
         # Convert the result to a list of strings
         names = [row[0] for row in hrdlocations]
-        
+
         # Return names
         return names
-    
 
-    def get_hrdlocation_id(self, hrdlocation : Union[str, Settings]) -> int:
+    def get_hrdlocation_id(self, hrdlocation: Union[str, Settings]) -> int:
         """
         Returns the HRDLocationID
 
@@ -90,13 +85,16 @@ class DatabaseHR():
             hrdlocation = hrdlocation.location
 
         # Obtain the water system ID from the sqlite
-        hrdlocationid = self.con.execute(f"SELECT HRDLocationId FROM HRDLocations WHERE Name = '{hrdlocation}'").fetchone()[0]
+        hrdlocationid = self.con.execute(
+            f"SELECT HRDLocationId FROM HRDLocations WHERE Name = '{hrdlocation}'"
+        ).fetchone()[0]
 
         # Return HRDLocationId
         return hrdlocationid
-    
 
-    def get_hrdlocation_xy(self, hrdlocation : Union[str, Settings]) -> Union[float, float]:
+    def get_hrdlocation_xy(
+        self, hrdlocation: Union[str, Settings]
+    ) -> Union[float, float]:
         """
         Returns the X and Y coordinate of the HRDLocation
 
@@ -115,12 +113,13 @@ class DatabaseHR():
             hrdlocation = hrdlocation.location
 
         # Obtain the water system ID from the sqlite
-        hrdlocationid = self.con.execute(f"SELECT XCoordinate, YCoordinate FROM HRDLocations WHERE Name = '{hrdlocation}'").fetchone()
+        hrdlocationid = self.con.execute(
+            f"SELECT XCoordinate, YCoordinate FROM HRDLocations WHERE Name = '{hrdlocation}'"
+        ).fetchone()
 
         # Return HRDLocationId
         return hrdlocationid
-    
-    
+
     def get_input_variables(self) -> list:
         """
         Return the input variables
@@ -143,10 +142,9 @@ class DatabaseHR():
         if "u" in data:
             data.pop(data.index("u"))
             data.insert(0, "u")
-        
+
         # Return results
         return data
-    
 
     def get_result_variables(self) -> list:
         """
@@ -167,15 +165,23 @@ class DatabaseHR():
         data = [rvids[i[0]] for i in data]
 
         # For the coast, if not defined, the local water level is equal to the sea level
-        if self.get_water_system() in [WaterSystem.WADDEN_SEA_EAST, WaterSystem.WADDEN_SEA_WEST, WaterSystem.COAST_NORTH, WaterSystem.COAST_CENTRAL, WaterSystem.COAST_SOUTH, WaterSystem.WESTERN_SCHELDT]:
+        if self.get_water_system() in [
+            WaterSystem.WADDEN_SEA_EAST,
+            WaterSystem.WADDEN_SEA_WEST,
+            WaterSystem.COAST_NORTH,
+            WaterSystem.COAST_CENTRAL,
+            WaterSystem.COAST_SOUTH,
+            WaterSystem.WESTERN_SCHELDT,
+        ]:
             if "h" not in rvids:
                 data.insert(0, "h")
-        
+
         # Return results
         return data
-    
 
-    def get_model_uncertainties(self, hrdlocation : Union[int, str, Settings]) -> pd.DataFrame:
+    def get_model_uncertainties(
+        self, hrdlocation: Union[int, str, Settings]
+    ) -> pd.DataFrame:
         """
         Return the model uncertainties
 
@@ -183,7 +189,7 @@ class DatabaseHR():
         ----------
         hrdlocation : Union[int, str, Settings]
             HRDLocation in form of HRDLocationId, HRDLocationName or Settings object
-        
+
         Returns
         -------
         pd.DataFrame
@@ -194,26 +200,35 @@ class DatabaseHR():
             hrdlocation = self.get_hrdlocation_id(hrdlocation)
 
         # Obtain all model uncertainties from the database for the hrdlocation
-        sql =   f"""
+        sql = f"""
                 SELECT umf.HRDLocationId, umf.ClosingSituationId, hrv.ResultVariableId, umf.Mean, umf.Standarddeviation
                 FROM UncertaintyModelFactor umf
                 INNER JOIN HRDResultVariables hrv
                 ON umf.HRDResultColumnId = hrv.HRDResultColumnId
                 WHERE umf.HRDLocationId = {hrdlocation}
                 """
-        data = pd.read_sql(sql, self.con, index_col = "HRDLocationId")
+        data = pd.read_sql(sql, self.con, index_col="HRDLocationId")
 
         # Adjust dataframe
         with DatabaseSettings() as database:
             rvids = database.get_result_variable_ids()
-        data.rename(columns = {"ClosingSituationId" : "k", "ResultVariableId" : "rvid", "Mean" : "mean", "Standarddeviation" : "stdev"}, inplace = True)
-        data['rvid'].replace(rvids, inplace = True)
+        data.rename(
+            columns={
+                "ClosingSituationId": "k",
+                "ResultVariableId": "rvid",
+                "Mean": "mean",
+                "Standarddeviation": "stdev",
+            },
+            inplace=True,
+        )
+        data["rvid"].replace(rvids, inplace=True)
 
         # Return the model uncertainties
         return data
-    
 
-    def get_correlation_uncertainties(self, hrdlocation : Union[int, str, Settings]) -> pd.DataFrame:
+    def get_correlation_uncertainties(
+        self, hrdlocation: Union[int, str, Settings]
+    ) -> pd.DataFrame:
         """
         Return the correlation between model uncertainties
 
@@ -232,47 +247,66 @@ class DatabaseHR():
 
         # Data uit correlatie tabel
         try:
-            sql =   f"""
+            sql = f"""
                     SELECT ucf.HRDLocationId, ucf.ClosingSituationId, hrv.ResultVariableId, ucf.HRDResultColumnId2, ucf.Correlation
                     FROM UncertaintyCorrelationFactor ucf
                     INNER JOIN HRDResultVariables hrv
                     ON ucf.HRDResultColumnId = hrv.HRDResultColumnId
                     WHERE ucf.HRDLocationId = {hrdlocation}
                     """
-            data = pd.read_sql(sql, self.con, index_col = "HRDLocationId")
+            data = pd.read_sql(sql, self.con, index_col="HRDLocationId")
 
             # Vertaal tabel naar HRDResultColumnId2
             # Zo niet, negeer en ga verder, neem aan dat de HRDResultColumnId2 heeft dezelfde Ids als HRDResultColumnId
             try:
-                sql =   f"""
+                sql =  """
                         SELECT HRDResultColumnId2, ResultVariableId
                         FROM HRDResultVariables2 hrv2
                         INNER JOIN HRDResultVariables hrv ON hrv.HRDResultColumnId = hrv2.HRDResultColumnId
                         """
                 data_hrdid2 = self.con.execute(sql).fetchall()
-                hrdid2_to_rvid = {_hrdid : _hrdid2 for _hrdid, _hrdid2 in data_hrdid2}
-                data = data.replace({"HRDResultColumnId2" : hrdid2_to_rvid})
-            except:
+                hrdid2_to_rvid = {_hrdid: _hrdid2 for _hrdid, _hrdid2 in data_hrdid2}
+                data = data.replace({"HRDResultColumnId2": hrdid2_to_rvid})
+            except Exception as e:
+                print(f"ERROR: {e}, continuing without")
                 pass
-        
+
         # Geen correlaties aanwezig, return leeg dataframe
-        except:
-            data = pd.DataFrame(columns = ["HRDLocationId", "ClosingSituationId", "ResultVariableId", "HRDResultColumnId2", "Correlation"])
+        except  Exception as e:
+            print(f'ERROR: {e}, continuing without correlation')
+            data = pd.DataFrame(
+                columns=[
+                    "HRDLocationId",
+                    "ClosingSituationId",
+                    "ResultVariableId",
+                    "HRDResultColumnId2",
+                    "Correlation",
+                ]
+            )
 
         # Replace column names
-        data.rename(columns = {"ClosingSituationId" : "k", "ResultVariableId" : "rvid", "HRDResultColumnId2" : "rvid2", "Correlation" : "rho"}, inplace = True)
-        
+        data.rename(
+            columns={
+                "ClosingSituationId": "k",
+                "ResultVariableId": "rvid",
+                "HRDResultColumnId2": "rvid2",
+                "Correlation": "rho",
+            },
+            inplace=True,
+        )
+
         # Check of alle ResultVariableId(2) rvids zijn
-        if not set(data['rvid']).issubset(set(rvids)) or not set(data['rvid2']).issubset(set(rvids)):
+        if not set(data["rvid"]).issubset(set(rvids)) or not set(
+            data["rvid2"]
+        ).issubset(set(rvids)):
             raise ValueError("ERROR")
 
         # Change ResultVariableId(2) to rvids
-        data['rvid'].replace(rvids, inplace = True)
-        data['rvid2'].replace(rvids, inplace = True)
+        data["rvid"].replace(rvids, inplace=True)
+        data["rvid2"].replace(rvids, inplace=True)
 
         # Return the model uncertainties
         return data
-    
 
     def get_wind_directions(self) -> dict:
         """
@@ -291,9 +325,8 @@ class DatabaseHR():
 
         # Return wind direction dictionary
         return wind_direction
-    
 
-    def get_result_table(self, hrdlocation : Union[str, Settings]) -> pd.DataFrame:
+    def get_result_table(self, hrdlocation: Union[str, Settings]) -> pd.DataFrame:
         """
         Function to read the load combinations of a location to a pandas DataFrame
 
@@ -301,7 +334,7 @@ class DatabaseHR():
         ----------
         hrdlocation : Union[str, Settings]
             HRDLocation
-        
+
         Returns
         -------
         pd.DataFrame
@@ -313,20 +346,24 @@ class DatabaseHR():
             ivids = database.get_input_variable_ids()
             rvids = database.get_result_variable_ids()
 
-        # Obtain all data from the HydroDynamicData table 
+        # Obtain all data from the HydroDynamicData table
         # (HydroDynamicDataId, HRDLocationId, ClosingSituationId, HRDWindDirectionID)
         query = f"SELECT * FROM HydroDynamicData WHERE HRDLocationId = {hrdlocationid}"
         hydrodynamicdata = pd.read_sql(query, self.con, index_col="HydroDynamicDataId")
 
         # Obtain all data from the HydroDynamicInputData table
-        hydrodynamicdataids = ",".join(hydrodynamicdata.index.values.astype(str).tolist())
+        hydrodynamicdataids = ",".join(
+            hydrodynamicdata.index.values.astype(str).tolist()
+        )
         query = """
         SELECT ID.HydroDynamicDataId, IV.InputVariableId, ID.Value
         FROM HydroDynamicInputData ID
         INNER JOIN HRDInputVariables IV ON ID.HRDInputColumnId = IV.HRDInputColumnId
         WHERE HydroDynamicDataId IN ({});
         """.format(hydrodynamicdataids)
-        hydrodynamicinputdata = pd.read_sql(query, self.con, index_col=["HydroDynamicDataId", "InputVariableId"]).unstack()
+        hydrodynamicinputdata = pd.read_sql(
+            query, self.con, index_col=["HydroDynamicDataId", "InputVariableId"]
+        ).unstack()
         ivcols = [ivids[i] for i in hydrodynamicinputdata.columns.get_level_values(1)]
         hydrodynamicinputdata.columns = ivcols
 
@@ -337,23 +374,31 @@ class DatabaseHR():
         INNER JOIN HRDResultVariables RV ON RD.HRDResultColumnId = RV.HRDResultColumnId
         WHERE HydroDynamicDataId IN ({});
         """.format(hydrodynamicdataids)
-        hydrodynamicresultdata = pd.read_sql(query, self.con, index_col=["HydroDynamicDataId", "ResultVariableId"]).unstack()
+        hydrodynamicresultdata = pd.read_sql(
+            query, self.con, index_col=["HydroDynamicDataId", "ResultVariableId"]
+        ).unstack()
         rvcols = [rvids[i] for i in hydrodynamicresultdata.columns.get_level_values(1)]
         hydrodynamicresultdata.columns = rvcols
 
         # Merge the three tables
-        results = hydrodynamicdata.join(hydrodynamicinputdata).join(hydrodynamicresultdata)
-        
+        results = hydrodynamicdata.join(hydrodynamicinputdata).join(
+            hydrodynamicresultdata
+        )
+
         # Vervang windrichting
         windrdict = self.get_wind_directions()
         for wid, r in windrdict.items():
             if r == 0.0:
                 windrdict[wid] = 360.0
-        results["Wind direction"] = [windrdict[i] for i in results["HRDWindDirectionId"].array]
+        results["Wind direction"] = [
+            windrdict[i] for i in results["HRDWindDirectionId"].array
+        ]
         results.drop(["HRDLocationId", "HRDWindDirectionId"], axis=1, inplace=True)
 
         # Replace discrete stochasts
-        results.rename(columns = {"Wind direction" : "r", "ClosingSituationId" : "k"}, inplace = True)
+        results.rename(
+            columns={"Wind direction": "r", "ClosingSituationId": "k"}, inplace=True
+        )
 
         # Move r to the front
         results.insert(0, "r", results.pop("r"))
@@ -361,7 +406,6 @@ class DatabaseHR():
 
         # Return results
         return results
-    
 
     def get_closing_levels_table_europoort(self) -> dict:
         """
@@ -376,32 +420,53 @@ class DatabaseHR():
         # If there is a table called 'Sluitfunctie Europoortkering', use it
         try:
             # Read the table
-            table = pd.read_sql("SELECT * FROM [Sluitfunctie Europoortkering]", con = self.con)
-        
+            table = pd.read_sql(
+                "SELECT * FROM [Sluitfunctie Europoortkering]", con=self.con
+            )
+
         # Otherwise use the default functions
-        except:
-            PATH = os.path.join(os.path.split(os.path.dirname(__file__))[0], "data", "statistics", "Sluitpeilen")
-            if self.get_water_system() in [WaterSystem.RHINE_TIDAL, WaterSystem.EUROPOORT]:
-                table = pd.read_csv(os.path.join(PATH, "Sluitfunctie Europoortkering Rijn 2017.csv"), delimiter = ";")
+        except Exception as e:
+            print(f'{e}: Using default functions')
+            PATH = os.path.join(
+                os.path.split(os.path.dirname(__file__))[0],
+                "data",
+                "statistics",
+                "Sluitpeilen",
+            )
+            if self.get_water_system() in [
+                WaterSystem.RHINE_TIDAL,
+                WaterSystem.EUROPOORT,
+            ]:
+                table = pd.read_csv(
+                    os.path.join(PATH, "Sluitfunctie Europoortkering Rijn 2017.csv"),
+                    delimiter=";",
+                )
             elif self.get_water_system() == WaterSystem.MEUSE_TIDAL:
-                table = pd.read_csv(os.path.join(PATH, "Sluitfunctie Europoortkering Maas 2017.csv"), delimiter = ";")
+                table = pd.read_csv(
+                    os.path.join(PATH, "Sluitfunctie Europoortkering Maas 2017.csv"),
+                    delimiter=";",
+                )
             else:
-                raise(f"[ERROR] No closing levels for water system '{self.get_water_system().name}'.")
+                raise (
+                    f"[ERROR] No closing levels for water system '{self.get_water_system().name}'."
+                )
 
         # All columns to lower
         table.columns = table.columns.str.lower()
-        
+
         # Rename
-        table.rename(columns = {
-            "windrichting" : "r",
-            "afvoer" : "q",
-            "windsnelheid" : "u",
-            "zeewaterstand" : "m"
-            }, inplace = True)
-        
+        table.rename(
+            columns={
+                "windrichting": "r",
+                "afvoer": "q",
+                "windsnelheid": "u",
+                "zeewaterstand": "m",
+            },
+            inplace=True,
+        )
+
         # Return table
         return table
-    
 
     def get_closing_levels_table_eastern_scheldt(self):
         """
@@ -413,21 +478,23 @@ class DatabaseHR():
             A Dataframe with the closing level (h_rpb), given r, u, m, d, p
         """
         # Read the table from the ClosingCriterionsOSK
-        table = pd.read_sql("SELECT * FROM ClosingCriterionsOSK", con = self.con)
-        
+        table = pd.read_sql("SELECT * FROM ClosingCriterionsOSK", con=self.con)
+
         # Rename the entries
-        table.rename(columns = {
-            "WindDirection" : "r",
-            "WindSpeed" : "u",
-            "WaterLevel" : "m",
-            "StormDuration" : "d",
-            "PhaseDifference" : "p",
-            "WaterLevelRPB" : "h_rpb",
-            }, inplace = True)
-        
+        table.rename(
+            columns={
+                "WindDirection": "r",
+                "WindSpeed": "u",
+                "WaterLevel": "m",
+                "StormDuration": "d",
+                "PhaseDifference": "p",
+                "WaterLevelRPB": "h_rpb",
+            },
+            inplace=True,
+        )
+
         # Return table
         return table
-    
 
     def get_closing_situations_eastern_scheldt(self) -> dict:
         """
@@ -438,24 +505,27 @@ class DatabaseHR():
         """
         # Check watersystem
         if self.get_water_system() != WaterSystem.EASTERN_SCHELDT:
-            raise ValueError(f"[ERROR] Function can only be called for the Eastern Scheldt")
-        
+            raise ValueError(
+                "[ERROR] Function can only be called for the Eastern Scheldt"
+            )
+
         # Read table
-        sql =   """
+        sql = """
                 SELECT C.ClosingSituationId, T.Description, C.FailingLocks
                 FROM ClosingSituations C
                 INNER JOIN ClosingSituationTypes T ON C.ClosingSituationTypeId = T.ClosingSituationTypeId
                 """
         results = self.con.execute(sql).fetchall()
-        
+
         # Post processing into an dictionary
         results = {i[0]: (i[1], i[2]) for i in results}
 
         # Return
         return results
 
-    
-    def get_result_table_eastern_scheldt(self, hrdlocation : Union[str, Settings]) -> pd.DataFrame:
+    def get_result_table_eastern_scheldt(
+        self, hrdlocation: Union[str, Settings]
+    ) -> pd.DataFrame:
         """
         Function to export the loadcombinations of a location to a pandas DataFrame
 
@@ -476,7 +546,9 @@ class DatabaseHR():
         FROM HydroDynamicData D
         INNER JOIN HRDWindDirections W ON D.HRDWindDirectionId=W.HRDWindDirectionId;"""
         dataids = pd.read_sql(SQL, self.con, index_col="HydraulicLoadId")
-        dataids.rename(columns = {"Wind direction" : "r", "ClosingSituationId" : "k"}, inplace = True)
+        dataids.rename(
+            columns={"Wind direction": "r", "ClosingSituationId": "k"}, inplace=True
+        )
 
         # Collect the result data. Replace HRDResultColumnId with variable id's
         SQL = """
@@ -484,23 +556,33 @@ class DatabaseHR():
         FROM HydroDynamicResultData RD
         INNER JOIN HRDResultVariables RV ON RD.HRDResultColumnId = RV.HRDResultColumnId
         WHERE HRDLocationId = {};""".format(hrdlocationid)
-        resultdata = pd.read_sql(SQL, self.con, index_col=["HydraulicLoadId", "ResultVariableId"]).unstack()
-        
+        resultdata = pd.read_sql(
+            SQL, self.con, index_col=["HydraulicLoadId", "ResultVariableId"]
+        ).unstack()
+
         # Reduce columnindex to single level index (without 'Value')
-        resultdata.columns = [rvids[rid] for rid in resultdata.columns.get_level_values(1)]
+        resultdata.columns = [
+            rvids[rid] for rid in resultdata.columns.get_level_values(1)
+        ]
 
         # Create dictionary for mapping HRDInputColumnId to InputVariableId
         SQL = """
         SELECT ID.HydraulicLoadId, IV.InputVariableId, ID.Value
         FROM HydroDynamicInputData ID
         INNER JOIN HRDInputVariables IV ON ID.HRDInputColumnId = IV.HRDInputColumnId"""
-        inputdata = pd.read_sql(SQL, self.con, index_col=["HydraulicLoadId", "InputVariableId"]).unstack()
-        
+        inputdata = pd.read_sql(
+            SQL, self.con, index_col=["HydraulicLoadId", "InputVariableId"]
+        ).unstack()
+
         # Reduce columnindex to single level index (without 'Value')
-        inputdata.columns = [ivids[ivid] for ivid in inputdata.columns.get_level_values(1)]
+        inputdata.columns = [
+            ivids[ivid] for ivid in inputdata.columns.get_level_values(1)
+        ]
 
         # Join data and sort values
-        resultaat = (dataids.join(inputdata).join(resultdata).sort_values(by=["r", "u", "m"]))
+        resultaat = (
+            dataids.join(inputdata).join(resultdata).sort_values(by=["r", "u", "m"])
+        )
 
         # In the WBI2023 the water levels and waves are in the same table, but have different input variables
         # Split the water levels and wave results
@@ -510,7 +592,7 @@ class DatabaseHR():
         waveconditions = resultaat.loc[~idx].dropna(how="all", axis=1)
 
         # Replace m_os by m for the water level and m for h for the wave conditions
-        waterlevels.rename(columns = {"m_os" : "m"}, inplace = True)
-        waveconditions.rename(columns = {"m" : "h"}, inplace = True)
+        waterlevels.rename(columns={"m_os": "m"}, inplace=True)
+        waveconditions.rename(columns={"m": "h"}, inplace=True)
 
         return waterlevels, waveconditions

@@ -6,14 +6,14 @@ from numpy.ctypeslib import ndpointer
 from typing import Tuple
 
 
-class Foreland():
+class Foreland:
     """
     This module will use the Dam and Foreland module (DaF) to transform wave conditions
     based on the schematized foreshore. The DaF module can be used to transform wave conditions
     over a breakwater and/or foreshore.
     """
-    
-    def __init__(self, profile, log : bool = False):
+
+    def __init__(self, profile, log: bool = False):
         # Path to the library
         lib_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "lib"))
 
@@ -37,7 +37,6 @@ class Foreland():
 
         # Set profile
         self.profile = profile
-    
 
     def add_profile(self, profile) -> None:
         """
@@ -49,9 +48,14 @@ class Foreland():
             A Profile object
         """
         self.profile = profile
-    
 
-    def transform_wave_conditions(self, water_level : np.ndarray, significant_wave_height : np.ndarray, peak_wave_period : np.ndarray, wave_direction : np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def transform_wave_conditions(
+        self,
+        water_level: np.ndarray,
+        significant_wave_height: np.ndarray,
+        peak_wave_period: np.ndarray,
+        wave_direction: np.ndarray,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Transform the wave conditions for the schematized foreland
 
@@ -65,7 +69,7 @@ class Foreland():
             Peak wave period
         wave_direction : np.ndarray
             Wave direction
-        
+
         Returns
         -------
         Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]
@@ -79,15 +83,27 @@ class Foreland():
         N = mask.sum()
 
         # Allocate output arrays as single dimension
-        hm0dike = np.zeros(N, order = "F")
-        tpdike = np.zeros(N, order = "F")
-        refractedwaveangledike = np.zeros(N, order = "F")
+        hm0dike = np.zeros(N, order="F")
+        tpdike = np.zeros(N, order="F")
+        refractedwaveangledike = np.zeros(N, order="F")
         message = "".ljust(1000).encode("utf-8")
         messagelength = c_int(1000)
-        n_vl = len(self.profile.foreland_x_coordinates) if self.profile.foreland_x_coordinates is not None else 1
-        x_vl = np.array(self.profile.foreland_x_coordinates).astype(np.float64) if self.profile.foreland_x_coordinates is not None else np.array([0]).astype(np.float64)
-        y_vl = np.array(self.profile.foreland_y_coordinates).astype(np.float64) if self.profile.foreland_x_coordinates is not None else np.array([-999]).astype(np.float64)
-        
+        n_vl = (
+            len(self.profile.foreland_x_coordinates)
+            if self.profile.foreland_x_coordinates is not None
+            else 1
+        )
+        x_vl = (
+            np.array(self.profile.foreland_x_coordinates).astype(np.float64)
+            if self.profile.foreland_x_coordinates is not None
+            else np.array([0]).astype(np.float64)
+        )
+        y_vl = (
+            np.array(self.profile.foreland_y_coordinates).astype(np.float64)
+            if self.profile.foreland_x_coordinates is not None
+            else np.array([-999]).astype(np.float64)
+        )
+
         res = self.daf_library.C_FORTRANENTRY_RollerModel5(
             byref(c_int(self.profile.breakwater_type.value)),
             byref(c_double(self.profile.breakwater_level)),
@@ -130,10 +146,13 @@ class Foreland():
 
         # If not all input conditions were non-zero, put the calculated conditions on the original grid again.
         if not mask.all():
-            
             # Copy original values
-            hm0_tmp, tp_tmp, wdir_tmp = significant_wave_height.copy(), peak_wave_period.copy(), wave_direction.copy()
-            
+            hm0_tmp, tp_tmp, wdir_tmp = (
+                significant_wave_height.copy(),
+                peak_wave_period.copy(),
+                wave_direction.copy(),
+            )
+
             # Insert calculated values
             hm0_tmp[mask] = hm0dike
             tp_tmp[mask] = tpdike
@@ -151,7 +170,6 @@ class Foreland():
 
         # Return the transformed conditions
         return conditions
-    
 
     def __initialize_dll_entries(self) -> None:
         """

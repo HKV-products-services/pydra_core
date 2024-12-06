@@ -13,7 +13,7 @@ class SeaLevelLowerRiver(SeaLevel):
     Sea level statistics are conditional on the wind direction.
     """
 
-    def __init__(self, settings : Settings):
+    def __init__(self, settings: Settings):
         """
         Initialise the sea level statistics for Rhine Tidal, Meuse Tidal,
         EuroPoort, Volkerak-Zoommeer and Hollandsche IJssel.
@@ -35,7 +35,9 @@ class SeaLevelLowerRiver(SeaLevel):
         self.translation_m = 0.02 - settings.sea_level_rise
 
         # Equidistant filling vector with seawater levels
-        self.m = ProbabilityFunctions.get_hnl_disc_array(settings.m_min, settings.m_max, settings.m_step)
+        self.m = ProbabilityFunctions.get_hnl_disc_array(
+            settings.m_min, settings.m_max, settings.m_step
+        )
 
         # Alloceer matrices
         self.nm = len(self.m)
@@ -46,15 +48,23 @@ class SeaLevelLowerRiver(SeaLevel):
             iszero = epm[:, ir] == 0.0
             if iszero.any():
                 zeroidx = np.where(iszero)[0][-1]
-                
+
                 # Interpoleer of extrapoleer logaritmisch tot de 0
-                self.epm[:zeroidx, ir] = np.exp(Interpolate.inextrp1d(x=self.m[:zeroidx], xp=m[~iszero], fp=np.log(epm[~iszero, ir])))
-               
+                self.epm[:zeroidx, ir] = np.exp(
+                    Interpolate.inextrp1d(
+                        x=self.m[:zeroidx], xp=m[~iszero], fp=np.log(epm[~iszero, ir])
+                    )
+                )
+
                 # Interpoleer of extrapoleer lineair vanaf 0
-                self.epm[zeroidx:, ir] = np.maximum(0.0, Interpolate.inextrp1d(self.m[zeroidx:], m, epm[:, ir]))
-            
+                self.epm[zeroidx:, ir] = np.maximum(
+                    0.0, Interpolate.inextrp1d(self.m[zeroidx:], m, epm[:, ir])
+                )
+
             else:
-                self.epm[:, ir] = np.exp(Interpolate.inextrp1d(x=self.m, xp=m, fp=np.log(epm[:, ir])))
+                self.epm[:, ir] = np.exp(
+                    Interpolate.inextrp1d(x=self.m, xp=m, fp=np.log(epm[:, ir]))
+                )
 
         # Limit the upper limit of the excedaance probability to 1.0
         self.epm = np.minimum(1.0, self.epm)
@@ -68,11 +78,15 @@ class SeaLevelLowerRiver(SeaLevel):
 
         #  Berekenen kansdichtheid zeewaterstand gegeven de windrichting
         for ir in range(nr):
-            self.pm[:, ir] = ProbabilityFunctions.probability_density(self.m, self.epm[:, ir]).density
+            self.pm[:, ir] = ProbabilityFunctions.probability_density(
+                self.m, self.epm[:, ir]
+            ).density
 
         #  Inlezen parameters kansverdeling gezamenlijke kansdichtheid zeewaterstand, windsnelheid
         #  en windrichting
-        _, self.pwinds = FileHydraNL.read_file_ncolumns(settings.wind_sea_level_probability)
+        _, self.pwinds = FileHydraNL.read_file_ncolumns(
+            settings.wind_sea_level_probability
+        )
         self.pwinds = self.pwinds.T
 
         #  Geef twee instellingen van het gegevensblok mee in de structure self

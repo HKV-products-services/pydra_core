@@ -19,8 +19,8 @@ class StatisticsEasternScheldt(Statistics):
     Statistics class for the Eastern Scheldt
     Water systems: Eastern Scheldt
     """
-    
-    def __init__(self, settings : Settings):
+
+    def __init__(self, settings: Settings):
         """
         Init the Statistics class for the Eastern Scheldt
 
@@ -36,10 +36,14 @@ class StatisticsEasternScheldt(Statistics):
         self.sea_level = SeaLevelPoint(settings)
 
         # Storm surge duration
-        self.storm_surge_duration = DiscreteProbability(settings.storm_surge_duration_probability)
+        self.storm_surge_duration = DiscreteProbability(
+            settings.storm_surge_duration_probability
+        )
 
         # Fase differences (between surge and tide)
-        self.phase_surge_tide = DiscreteProbability(settings.phase_surge_tide_probability)
+        self.phase_surge_tide = DiscreteProbability(
+            settings.phase_surge_tide_probability
+        )
 
         # Sigma function
         self.sigma_function = SigmaFunction(settings)
@@ -47,24 +51,37 @@ class StatisticsEasternScheldt(Statistics):
         # Wind
         self.wind_direction = DiscreteProbability(settings.wind_direction_probability)
         self.wind_speed = WindSpeed(settings)
-        self.wind_speed.correct_with_sigma_function(self.sigma_function, self.wind_direction)
+        self.wind_speed.correct_with_sigma_function(
+            self.sigma_function, self.wind_direction
+        )
 
         # Calculate P(u, m, r)
         self.__calculate_combined_probabilities()
 
         # Eastern Scheldt Barrier
-        self.barrier = BarrierEasternScheldt(settings, self.wind_direction, self.wind_speed, self.sea_level)
+        self.barrier = BarrierEasternScheldt(
+            settings, self.wind_direction, self.wind_speed, self.sea_level
+        )
 
         # Model uncertainty
         self.model_uncertainties = ModelUncertainty(settings)
 
         # Discrete, slow, fast stochatics
-        self.stochastics_discrete = {"r" : self.wind_direction.get_discretisation(), "k" : [1, 2, 3, 4, 5, 6, 7, 8]}
-        self.stochastics_fast = {"u" : self.wind_speed.get_discretisation(), "m" : self.sea_level.get_discretisation(), "d" : self.storm_surge_duration.get_discretisation(), "p" : self.phase_surge_tide.get_discretisation()}
+        self.stochastics_discrete = {
+            "r": self.wind_direction.get_discretisation(),
+            "k": [1, 2, 3, 4, 5, 6, 7, 8],
+        }
+        self.stochastics_fast = {
+            "u": self.wind_speed.get_discretisation(),
+            "m": self.sea_level.get_discretisation(),
+            "d": self.storm_surge_duration.get_discretisation(),
+            "p": self.phase_surge_tide.get_discretisation(),
+        }
         self.stochastics_slow = {}
-    
 
-    def calculate_probability(self, wind_direction : float, closing_situation : int = 1, given : list = []):
+    def calculate_probability(
+        self, wind_direction: float, closing_situation: int = 1, given: list = []
+    ):
         """
         Calculate the probability of occurence for the discretisation given the wind direction.
 
@@ -80,9 +97,15 @@ class StatisticsEasternScheldt(Statistics):
         # Probability of wind direction
         ir = self.wind_direction.get_discretisation().tolist().index(wind_direction)
         pwr = 1.0 if "r" in given else self.wind_direction.get_probability()[ir]
-        
+
         # Probability of closing given a wind direction
-        p_k = 1.0 if "k" in given else self.barrier.calculate_closing_probability(wind_direction, closing_situation)
+        p_k = (
+            1.0
+            if "k" in given
+            else self.barrier.calculate_closing_probability(
+                wind_direction, closing_situation
+            )
+        )
 
         # Probability of a sea level and wind speed given a wind direction
         p_um_r = self.p_mur[:, :, ir]
@@ -105,7 +128,6 @@ class StatisticsEasternScheldt(Statistics):
         # Return probability
         return probability
 
-
     def __calculate_combined_probabilities(self):
         # Statistics
         m = self.sea_level
@@ -118,28 +140,38 @@ class StatisticsEasternScheldt(Statistics):
 
         # Per wind direction
         for ir in range(len(r)):
-            
             # Calculate the probability density of the sea level given the wind direction
-            pd_m = ProbabilityFunctions.probability_density(m.get_discretisation(), m.get_exceedance_probability()[:, ir])
+            pd_m = ProbabilityFunctions.probability_density(
+                m.get_discretisation(), m.get_exceedance_probability()[:, ir]
+            )
 
             # If there is correlation (sigma > 0)
             if s.correlation[ir]:
-                
                 # Calculate sigma
-                sigma = Interpolate.inextrp1d(x = m.get_discretisation(), xp = s.sigma_sea_level, fp = s.sigma[:, ir])
+                sigma = Interpolate.inextrp1d(
+                    x=m.get_discretisation(), xp=s.sigma_sea_level, fp=s.sigma[:, ir]
+                )
                 if np.min(sigma) < 0.0:
                     raise ValueError()
-                
+
                 # Exceedance probability of the wind speed given the sea water level epm_r[Nwind, Nswl]
-                snorm = (self.wind_speed.k_u[:, ir][:, None] - m.epm_exp[:, ir][None, :]) / sigma[None, :]
+                snorm = (
+                    self.wind_speed.k_u[:, ir][:, None] - m.epm_exp[:, ir][None, :]
+                ) / sigma[None, :]
                 ovkansen = 1 - norm.cdf(snorm)
 
                 # Per sea level
                 for im in range(len(m)):
-                    pd_u = ProbabilityFunctions.probability_density(u.get_discretisation(), ovkansen[:, im])
+                    pd_u = ProbabilityFunctions.probability_density(
+                        u.get_discretisation(), ovkansen[:, im]
+                    )
                     self.p_mur[:, im, ir] = pd_u.probability * pd_m.probability[im]
-            
+
             # If there is no correlation (sigma <= 0)
             else:
-                pd_u = ProbabilityFunctions.probability_density(u.get_discretisation(), u.get_exceedance_probability()[:, ir])
-                self.p_mur[:, :, ir] = pd_m.probability[None, :] * pd_u.probability[:, None]
+                pd_u = ProbabilityFunctions.probability_density(
+                    u.get_discretisation(), u.get_exceedance_probability()[:, ir]
+                )
+                self.p_mur[:, :, ir] = (
+                    pd_m.probability[None, :] * pd_u.probability[:, None]
+                )

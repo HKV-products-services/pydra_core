@@ -9,8 +9,8 @@ class LoadingIJsselVechtdelta(Loading):
     Loading class for the IJssel-Vechtdelta
     Water systems: IJssel Delta, Vecht Delta
     """
-    
-    def __init__(self, settings : Settings):
+
+    def __init__(self, settings: Settings):
         """
         Init the Loading object for the Upper Rivers
 
@@ -24,7 +24,6 @@ class LoadingIJsselVechtdelta(Loading):
 
         # Read and process the loading
         self.read_loading()
-    
 
     def read_loading(self) -> None:
         """
@@ -39,7 +38,7 @@ class LoadingIJsselVechtdelta(Loading):
         # Check if there are wave conditions present or whether they should be derived with Bretschneider
         if "hs" not in table.columns:
             raise NotImplementedError("[ERROR] Bretschneider")
-        
+
         # Init LoadingModels for each combination of wind direction (r) and closing situation (k)
         for comb, deeltabel in table.groupby(["r", "k"]):
             direction, closing_situation = comb

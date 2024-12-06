@@ -3,12 +3,12 @@ import numpy as np
 from .....io.file_hydranl import FileHydraNL
 
 
-class DiscreteProbability():
+class DiscreteProbability:
     """
     Class to describe the discrete statistics.
     """
 
-    def __init__(self, statistics_file_path : str):
+    def __init__(self, statistics_file_path: str):
         """
         Constructor class for the discrete statistics.
 
@@ -17,8 +17,9 @@ class DiscreteProbability():
         statistics_file_path : str
             Path to the statistics file
         """
-        self.discretisation, self.probability = FileHydraNL.read_file_2columns(statistics_file_path)
-    
+        self.discretisation, self.probability = FileHydraNL.read_file_2columns(
+            statistics_file_path
+        )
 
     def __len__(self):
         """
@@ -30,7 +31,6 @@ class DiscreteProbability():
             Number of discretisations
         """
         return len(self.discretisation)
-    
 
     def get_discretisation(self) -> np.ndarray:
         """
@@ -42,7 +42,6 @@ class DiscreteProbability():
             1D array with discretisation
         """
         return self.discretisation
-
 
     def get_probability(self) -> np.ndarray:
         """

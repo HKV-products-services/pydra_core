@@ -9,8 +9,8 @@ class LoadingCoast(Loading):
     Loading class for the Coast
     Water systems: Coast (North, Central, South), Waddensea (West, East) and Western scheldt
     """
-    
-    def __init__(self, settings : Settings):
+
+    def __init__(self, settings: Settings):
         """
         Init the Loading object for the Coast
 
@@ -24,7 +24,6 @@ class LoadingCoast(Loading):
 
         # Read and process the loading
         self.read_loading()
-    
 
     def read_loading(self) -> None:
         """
@@ -38,7 +37,7 @@ class LoadingCoast(Loading):
 
         # For the coast, the sea level (m) is equal to the local water level (h)
         table["h"] = table["m"]
-        
+
         # Init LoadingModels for each combination of wind direction (r) and closing situation (k)
         for comb, deeltabel in table.groupby(["r", "k"]):
             direction, closing_situation = comb

@@ -5,15 +5,21 @@ from collections import namedtuple
 pdstruct = namedtuple("pdstruct", ["delta", "probability", "density", "edges"])
 
 
-class ProbabilityFunctions():
+class ProbabilityFunctions:
     """
     A class with common functions used within statistics.
     """
 
     @staticmethod
-    def probability_density(values : np.ndarray, exceedance_probability : np.ndarray, bounded : bool = True, check : bool = True, axis : int = None) -> pdstruct:
+    def probability_density(
+        values: np.ndarray,
+        exceedance_probability: np.ndarray,
+        bounded: bool = True,
+        check: bool = True,
+        axis: int = None,
+    ) -> pdstruct:
         """
-        Function to convert the exceedance probability into a probability 
+        Function to convert the exceedance probability into a probability
         density function.
 
         Parameters
@@ -23,19 +29,19 @@ class ProbabilityFunctions():
         exceedance_probability : np.ndarray
             Exceedance probability of the values
         bounded : bool, optional
-            If bounded, add the first and last element based on the min and max 
-            in the exceedance probability. Otherwise between 1.0 and 0.0 
+            If bounded, add the first and last element based on the min and max
+            in the exceedance probability. Otherwise between 1.0 and 0.0
             (default : True)
         check : bool, optional
-            Check whether the values and exceedance probabilities are 
+            Check whether the values and exceedance probabilities are
             monotonously increasing (default : True)
         axis : int, optional
             Axis (default : None)
-            
+
         Raises
         ------
         ValueError
-            If the values or exceedance probabilities are not monotonously 
+            If the values or exceedance probabilities are not monotonously
             increasing
 
         Returns
@@ -45,22 +51,32 @@ class ProbabilityFunctions():
         """
         # For multiple dimensions, use the _nd function
         if exceedance_probability.ndim > 1:
-            return ProbabilityFunctions.probability_density_nd(values, exceedance_probability, bounded, axis = axis)
-        
+            return ProbabilityFunctions.probability_density_nd(
+                values, exceedance_probability, bounded, axis=axis
+            )
+
         # Check whether the values and exceedance probabilities are monotonously increasing
         if check:
-            for arr, tag in zip([values, exceedance_probability], ["Values", "Exceedance probabilities"]):
+            for arr, tag in zip(
+                [values, exceedance_probability], ["Values", "Exceedance probabilities"]
+            ):
                 diff = arr[1:] - arr[:-1]
                 if not (all(diff >= 0) or all(diff <= 0)):
-                    raise ValueError(tag + "are not monotonously increasing or decreasing.", arr, diff)
-        
+                    raise ValueError(
+                        tag + "are not monotonously increasing or decreasing.",
+                        arr,
+                        diff,
+                    )
+
         # Determine the exceedance probability bins
         bins_edges = (exceedance_probability[1:] + exceedance_probability[:-1]) / 2.0
-        
+
         # If bounded, add the first and last element based on the min and max in the exceedance probability
         if bounded:
-            bins_edges = np.concatenate([[exceedance_probability[0]], bins_edges, [exceedance_probability[-1]]])
-        
+            bins_edges = np.concatenate(
+                [[exceedance_probability[0]], bins_edges, [exceedance_probability[-1]]]
+            )
+
         # Else, determine the bins between the 0 and 1
         else:
             if exceedance_probability[0] < exceedance_probability[-1]:
@@ -72,7 +88,9 @@ class ProbabilityFunctions():
         bins_probability = np.absolute(bins_edges[1:] - bins_edges[:-1])
 
         # Determine the delta of the values
-        bins_values = np.concatenate([[values[0]], (values[1:] + values[:-1]) / 2.0, [values[-1]]])
+        bins_values = np.concatenate(
+            [[values[0]], (values[1:] + values[:-1]) / 2.0, [values[-1]]]
+        )
         bins_deltas = np.absolute(np.diff(bins_values))
 
         # Probability density is the bins_probability divided by the delta
@@ -81,31 +99,35 @@ class ProbabilityFunctions():
         # Return as a structure
         return pdstruct(bins_deltas, bins_probability, probability_density, bins_edges)
 
-
     @staticmethod
-    def probability_density_nd(values : np.ndarray, exceedance_probability : np.ndarray, bounded : bool = True, axis : int = None) -> pdstruct:
+    def probability_density_nd(
+        values: np.ndarray,
+        exceedance_probability: np.ndarray,
+        bounded: bool = True,
+        axis: int = None,
+    ) -> pdstruct:
         """
-        Convert the exceedance probability into a probability density function 
+        Convert the exceedance probability into a probability density function
         for multidimensional arrays.
 
-        This function converts the exceedance probabilities 
-        (exceedance_probability) into a probability density function (PDF) for 
-        multidimensional arrays represented by 'values' and 
+        This function converts the exceedance probabilities
+        (exceedance_probability) into a probability density function (PDF) for
+        multidimensional arrays represented by 'values' and
         'exceedance_probability'.
 
         Parameters
         ----------
         values : np.ndarray
-            Values, e.g., wind speed discretization, for which the PDF is 
+            Values, e.g., wind speed discretization, for which the PDF is
             calculated.
         exceedance_probability : np.ndarray
             Exceedance probability of the values.
-        bounded (bool): 
-            If True, add the first and last element based on the min and max in 
-            the exceedance probability. Otherwise, create the PDF between 1.0 
+        bounded (bool):
+            If True, add the first and last element based on the min and max in
+            the exceedance probability. Otherwise, create the PDF between 1.0
             and 0.0.
         axis : int, optional
-            The axis along which the PDF is calculated. By default, axis 0 is 
+            The axis along which the PDF is calculated. By default, axis 0 is
             used.
 
         Returns
@@ -113,46 +135,61 @@ class ProbabilityFunctions():
         pdstruct
             Probability density structure containing the calculated PDF.
         """
-        # If bounded, add the first and last element based on the min and max 
+        # If bounded, add the first and last element based on the min and max
         # in the exceedance probability
         if bounded:
-            bins_edges = np.concatenate([[exceedance_probability[0]], (exceedance_probability[1:] + exceedance_probability[:-1]) / 2.0, [exceedance_probability[-1]]])
-        
+            bins_edges = np.concatenate(
+                [
+                    [exceedance_probability[0]],
+                    (exceedance_probability[1:] + exceedance_probability[:-1]) / 2.0,
+                    [exceedance_probability[-1]],
+                ]
+            )
+
         # If not
         else:
             bins_edges = np.pad(
                 (exceedance_probability[1:] + exceedance_probability[:-1]) / 2,
                 pad_width=(1, 1),
                 mode="constant",
-                constant_values=(0, 1) if (exceedance_probability[0] < exceedance_probability[-1]).all() else (1, 0),
+                constant_values=(0, 1)
+                if (exceedance_probability[0] < exceedance_probability[-1]).all()
+                else (1, 0),
             )
 
         # The difference between the bin_edges are the bins_probabilities
         bins_probability = np.absolute(bins_edges[1:, ...] - bins_edges[:-1, ...])
 
         # Edges between consecutive values, the difference gives the bin_deltas
-        bins_deltas = np.absolute(np.diff(np.concatenate([[values[0]], (values[1:] + values[:-1]) / 2.0, [values[-1]]])))
+        bins_deltas = np.absolute(
+            np.diff(
+                np.concatenate(
+                    [[values[0]], (values[1:] + values[:-1]) / 2.0, [values[-1]]]
+                )
+            )
+        )
 
         # Probability density is the bins_probability divided by the delta
         shp = [1] * bins_probability.ndim
         if axis is None:
             axis = 0
         shp[axis] = -1
-        probability_density = np.absolute(bins_probability / bins_deltas.reshape(tuple(shp)))
+        probability_density = np.absolute(
+            bins_probability / bins_deltas.reshape(tuple(shp))
+        )
 
         # Return as a structure
         return pdstruct(bins_deltas, bins_probability, probability_density, bins_edges)
 
-
     @staticmethod
-    def get_hnl_disc_array(vmin : float, vmax : float, step : float) -> np.ndarray:
+    def get_hnl_disc_array(vmin: float, vmax: float, step: float) -> np.ndarray:
         """
-        Get a discretized array of values between vmin and vmax with the given 
+        Get a discretized array of values between vmin and vmax with the given
         step size.
 
-        This function generates a discretized array of values in the specified 
-        range [vmin, vmax] with a given step size. The array includes the vmin 
-        and vmax values and is uniformly spaced with steps of the specified 
+        This function generates a discretized array of values in the specified
+        range [vmin, vmax] with a given step size. The array includes the vmin
+        and vmax values and is uniformly spaced with steps of the specified
         size.
 
         Parameters
@@ -169,7 +206,7 @@ class ProbabilityFunctions():
         np.array
             Discretized array of values.
         """
-        # Calculate the number of steps between vmin and vmax and create the 
+        # Calculate the number of steps between vmin and vmax and create the
         # discretized array
         n = round((vmax - vmin) / step)
         levels = np.arange(vmin, vmin + (n + 0.1) * step, step)
@@ -178,17 +215,16 @@ class ProbabilityFunctions():
         levels[-1] = vmax
         return levels
 
-
     @staticmethod
-    def conditional_probability(probability : np.ndarray, axis : int) -> np.ndarray:
+    def conditional_probability(probability: np.ndarray, axis: int) -> np.ndarray:
         """
-        Calculate the conditional probability along an axis, taking into account 
+        Calculate the conditional probability along an axis, taking into account
         dividing by zero.
 
-        This function calculates the conditional probability along the 
-        specified 'axis' of the input 'probability' array. The conditional 
-        probability is the probability of an event occurring given that another 
-        event has occurred. If the denominator is zero along the specified 
+        This function calculates the conditional probability along the
+        specified 'axis' of the input 'probability' array. The conditional
+        probability is the probability of an event occurring given that another
+        event has occurred. If the denominator is zero along the specified
         'axis', the result is set to zero to avoid division by zero errors.
 
         Parameters
@@ -197,36 +233,40 @@ class ProbabilityFunctions():
             Array with probabilities
         axis : int
             Axis for which the conditional probability has to be calculated
-        
+
         Returns
         -------
         np.ndarray
             Conditional probability
         """
-        # Calculate the denominator as the sum of probabilities along the 
+        # Calculate the denominator as the sum of probabilities along the
         # specified 'axis'
-        denominator  = np.sum(probability, axis=axis)
+        denominator = np.sum(probability, axis=axis)
 
-        # Create a shape with all ones, except for the axis that will be used 
+        # Create a shape with all ones, except for the axis that will be used
         # for broadcasting
         shape = list(denominator.shape)
         shape.insert(axis, -1)
 
-        # Calculate the conditional probability using element-wise division, 
+        # Calculate the conditional probability using element-wise division,
         # handling division by zero
-        cond = np.divide(probability, denominator.reshape(shape), out = np.zeros_like(probability), where = (denominator != 0).reshape(shape))
-        
+        cond = np.divide(
+            probability,
+            denominator.reshape(shape),
+            out=np.zeros_like(probability),
+            where=(denominator != 0).reshape(shape),
+        )
+
         return cond
-    
 
     @staticmethod
-    def calculate_boundaries(levels : np.ndarray):
+    def calculate_boundaries(levels: np.ndarray):
         """
         Calculate the boundaries for the input array.
 
-        This function calculates the boundaries between adjacent elements in 
-        the input 'arr' array. The boundaries are computed as the midpoints 
-        between consecutive elements, with additional values added at the start 
+        This function calculates the boundaries between adjacent elements in
+        the input 'arr' array. The boundaries are computed as the midpoints
+        between consecutive elements, with additional values added at the start
         and end based on the step differences.
 
         Parameters
@@ -246,7 +286,7 @@ class ProbabilityFunctions():
         # Calculate midpoints between consecutive elements
         mid = (levels[1:] + levels[:-1]) / 2
 
-        # Calculate the boundaries array by concatenating the midpoints with 
+        # Calculate the boundaries array by concatenating the midpoints with
         # additional boundary values
         bounds = np.concatenate([[mid[0] - lower_step], mid, [mid[-1] + upper_step]])
 

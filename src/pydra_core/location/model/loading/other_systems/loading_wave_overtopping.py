@@ -13,8 +13,8 @@ class LoadingWaveOvertopping(Loading):
     """
     This Loading is used to calculate HBNs
     """
-    
-    def __init__(self, location : Location, ws_range : np.ndarray):
+
+    def __init__(self, location: Location, ws_range: np.ndarray):
         """
         Init the Loading object for the Waves Overtopping
 
@@ -31,7 +31,6 @@ class LoadingWaveOvertopping(Loading):
         self.ws_range = ws_range
         self.read_loading()
 
-
     def read_loading(self) -> None:
         """
         Read the HR and create Loading Models
@@ -43,30 +42,41 @@ class LoadingWaveOvertopping(Loading):
 
         # Bepaal de golfcondities bij deze waterstanden
         for richting, waterstanden in ws_per_r.items():
-            
             # Leidt golfcondities af voor een bepaalde richting
-            golfcond_r, windsnelheden = self.ws_loading.get_wave_conditions(richting, waterstanden, extrapolate=True)
-            
+            golfcond_r, windsnelheden = self.ws_loading.get_wave_conditions(
+                richting, waterstanden, extrapolate=True
+            )
+
             # Create a DataFrame
-            df = pd.DataFrame(columns = ["wlev", "u"] + list(golfcond_r.keys()))
+            df = pd.DataFrame(columns=["wlev", "u"] + list(golfcond_r.keys()))
 
             # Iterate over the windspeed and waterlevel arrays
             ws_u = np.array(list(product(waterstanden, windsnelheden)))
-            golf = np.array([golfcond_r[key].ravel() for key in list(golfcond_r.keys())]).T
-            df = pd.DataFrame(np.concatenate((ws_u, golf), axis = 1), columns = ["wlev", "u"] + list(golfcond_r.keys()))
-            
+            golf = np.array(
+                [golfcond_r[key].ravel() for key in list(golfcond_r.keys())]
+            ).T
+            df = pd.DataFrame(
+                np.concatenate((ws_u, golf), axis=1),
+                columns=["wlev", "u"] + list(golfcond_r.keys()),
+            )
+
             # Create a Loading Model
             model = LoadingModel(richting, None, ["wlev", "u"], list(golfcond_r.keys()))
             model.initialise(df)
 
             # Save the model
             self.model[(richting, model.closing_situation)] = model
- 
+
         # Extend the loading models
         self._extend_loadingmodels()
-    
 
-    def calculate_hbn(self, profile : Profile, qcrit : float = 10, factor_hs : float = 1.0, factor_tspec : float = 1.0) -> None:
+    def calculate_hbn(
+        self,
+        profile: Profile,
+        qcrit: float = 10,
+        factor_hs: float = 1.0,
+        factor_tspec: float = 1.0,
+    ) -> None:
         """
         Add hbn result variables to each of the LoadingModels.
         If 'hbn' is already defined, it will overwrite the old result variable.
@@ -85,7 +95,6 @@ class LoadingWaveOvertopping(Loading):
         for _, model in self.iter_models():
             model.calculate_hbn(profile, qcrit, factor_hs, factor_tspec)
 
-
     def bepaal_kh_waterstanden(self, ws_belasting, ws_range):
         """
         Bepaal waterstanden waarvoor kruinhoogtes berekend moeten worden.
@@ -100,7 +109,9 @@ class LoadingWaveOvertopping(Loading):
             ws_per_r[richting] += np.unique(model.h).tolist()
 
         for richting, waterstanden in ws_per_r.items():
-            h_all = np.array(waterstanden)[np.unique(np.round(waterstanden, 3), return_index=True)[1]]
+            h_all = np.array(waterstanden)[
+                np.unique(np.round(waterstanden, 3), return_index=True)[1]
+            ]
             # Als er minder waterstanden voorkomen bij deze richting, dan de voorgenomen
             # range, kies dan deze waterstanden
             if len(h_all) <= len(ws_range):

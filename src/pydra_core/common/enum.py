@@ -6,10 +6,11 @@ class WaterSystem(Enum):
     A class representing different water systems in the Netherlands.
 
     WaterSystem is an enumeration representing a specific water system in The
-    Netherlands and is defined with a unique integer value (WBI2017 Appendix 
-    II). The enumeration members include both tidal and non-tidal water 
+    Netherlands and is defined with a unique integer value (WBI2017 Appendix
+    II). The enumeration members include both tidal and non-tidal water
     systems, such as rivers, lakes, seas, and coastal regions.
     """
+
     RHINE_NON_TIDAL = 1
     MEUSE_NON_TIDAL = 2
     RHINE_TIDAL = 3
@@ -39,9 +40,10 @@ class Breakwater(Enum):
     """
     Breakwater classes for profiles.
 
-    The 'Breakwater' is an enumeration representing specific types of 
+    The 'Breakwater' is an enumeration representing specific types of
     breakwaters located in front of the profile.
     """
+
     NO_BREAKWATER = 0
     CAISSON = 1
     VERTICAL_WALL = 2
@@ -52,9 +54,10 @@ class WaveShapeType(Enum):
     """
     Different wave form types.
 
-    The 'WaveShapeType' is an enumeration representing specific types of wave 
-    forms used for slow stochastics. It can either be a discharge wave or a 
+    The 'WaveShapeType' is an enumeration representing specific types of wave
+    forms used for slow stochastics. It can either be a discharge wave or a
     lake level wave.
     """
+
     DISCHARGE = 0
     LAKE_LEVEL = 1

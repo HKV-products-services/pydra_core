@@ -5,7 +5,7 @@ import sqlite3
 from ..common.enum import WaterSystem
 
 
-class DatabaseSettings():
+class DatabaseSettings:
     """
     Settings database
     """
@@ -13,19 +13,23 @@ class DatabaseSettings():
     def __init__(self) -> None:
         self.con = None
 
-
-    def __enter__(self) -> 'DatabaseSettings':
+    def __enter__(self) -> "DatabaseSettings":
         # Init the connection
-        self.con = sqlite3.connect(os.path.join(os.path.split(os.path.dirname(__file__))[0], "data", "settings", "calculation_settings.sqlite"))
+        self.con = sqlite3.connect(
+            os.path.join(
+                os.path.split(os.path.dirname(__file__))[0],
+                "data",
+                "settings",
+                "calculation_settings.sqlite",
+            )
+        )
         return self
-
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         # Close the connection
         self.con.close()
-    
 
-    def get_settings(self, watersystem : WaterSystem) -> pd.DataFrame:
+    def get_settings(self, watersystem: WaterSystem) -> pd.DataFrame:
         """
         Return all settings from the database
 
@@ -33,7 +37,7 @@ class DatabaseSettings():
         ----------
         watersystem : WaterSystem
             WaterSystem to get the settings for
-        
+
         Returns
         -------
         pd.DataFrame
@@ -45,13 +49,12 @@ class DatabaseSettings():
 
         # Parse to int and float if possible
         for n, row in settings.iterrows():
-            settings.loc[n, 'SettingValue'] = self.__parse_value(row['SettingValue'])
-        
+            settings.loc[n, "SettingValue"] = self.__parse_value(row["SettingValue"])
+
         # Return the settings
         return settings
-    
 
-    def get_sea_level_statistic_points(self, watersystem : WaterSystem) -> pd.DataFrame:
+    def get_sea_level_statistic_points(self, watersystem: WaterSystem) -> pd.DataFrame:
         """
         Return the reference points for sea level statistics
 
@@ -66,21 +69,28 @@ class DatabaseSettings():
             All reference points
         """
         # Obtain the right table name
-        if watersystem in [WaterSystem.COAST_SOUTH, WaterSystem.COAST_CENTRAL, WaterSystem.COAST_NORTH]:
+        if watersystem in [
+            WaterSystem.COAST_SOUTH,
+            WaterSystem.COAST_CENTRAL,
+            WaterSystem.COAST_NORTH,
+        ]:
             tablename = "CoastReferencePoints"
         elif watersystem in [WaterSystem.WADDEN_SEA_WEST, WaterSystem.WADDEN_SEA_EAST]:
             tablename = "WaddenSeaReferencePoints"
         else:
-            raise NotImplementedError(f"[ERROR] No sea level reference points implemented for {watersystem}.")
+            raise NotImplementedError(
+                f"[ERROR] No sea level reference points implemented for {watersystem}."
+            )
 
         # SQL
-        data = pd.read_sql(f"SELECT Name, X, Y FROM {tablename}", self.con, index_col = "Name")
+        data = pd.read_sql(
+            f"SELECT Name, X, Y FROM {tablename}", self.con, index_col="Name"
+        )
 
         # Return data
         return data
 
-
-    def get_sea_level_sub_systems(self, watersystem : WaterSystem) -> pd.DataFrame:
+    def get_sea_level_sub_systems(self, watersystem: WaterSystem) -> pd.DataFrame:
         """
         Return all subsystems of the coast or Wadden sea.
 
@@ -92,22 +102,31 @@ class DatabaseSettings():
         Returns
         -------
         pd.DataFrame
-            All subsystems        
+            All subsystems
         """
         # Obtain the right table name
-        if watersystem in [WaterSystem.COAST_SOUTH, WaterSystem.COAST_CENTRAL, WaterSystem.COAST_NORTH]:
+        if watersystem in [
+            WaterSystem.COAST_SOUTH,
+            WaterSystem.COAST_CENTRAL,
+            WaterSystem.COAST_NORTH,
+        ]:
             tablename = "CoastSubSystems"
         elif watersystem in [WaterSystem.WADDEN_SEA_WEST, WaterSystem.WADDEN_SEA_EAST]:
             tablename = "WaddenSeaSubSystems"
         else:
-            raise NotImplementedError(f"[ERROR] No sea level reference points implemented for {watersystem}.")
+            raise NotImplementedError(
+                f"[ERROR] No sea level reference points implemented for {watersystem}."
+            )
 
         # SQL
-        data = pd.read_sql(f"SELECT SubSystemId, Point1, Point2, Point3 FROM {tablename}", self.con, index_col = "SubSystemId")
+        data = pd.read_sql(
+            f"SELECT SubSystemId, Point1, Point2, Point3 FROM {tablename}",
+            self.con,
+            index_col="SubSystemId",
+        )
 
         # Return data
         return data
-    
 
     def get_input_variable_ids(self) -> dict:
         """
@@ -123,11 +142,10 @@ class DatabaseSettings():
         data = self.con.execute(sql).fetchall()
 
         # Process data
-        results = {data[i][0] : data[i][1] for i in range(len(data))}
-        
+        results = {data[i][0]: data[i][1] for i in range(len(data))}
+
         # Return the dictionary
         return results
-
 
     def get_result_variable_ids(self) -> dict:
         """
@@ -143,11 +161,10 @@ class DatabaseSettings():
         data = self.con.execute(sql).fetchall()
 
         # Process data
-        results = {data[i][0] : data[i][1] for i in range(len(data))}
-        
+        results = {data[i][0]: data[i][1] for i in range(len(data))}
+
         # Return the dictionary
         return results
-    
 
     def __parse_value(self, value):
         # Parse value from string

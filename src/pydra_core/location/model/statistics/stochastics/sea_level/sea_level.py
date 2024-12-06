@@ -8,7 +8,7 @@ class SeaLevel(ABC):
     Class to describe the sea (water) level statistics.
     Sea level statistics are conditional on the wind direction.
     """
-    
+
     def __init__(self):
         """
         Constructor class for the SeaLevel statistics.
@@ -16,7 +16,6 @@ class SeaLevel(ABC):
         self.nm = 0
         self.m = None
         self.epm = None
-    
 
     def __len__(self):
         """
@@ -29,7 +28,6 @@ class SeaLevel(ABC):
         """
         return self.nm
 
-
     def get_discretisation(self) -> np.ndarray:
         """
         Return the sea level discretisation.
@@ -40,11 +38,10 @@ class SeaLevel(ABC):
             1D array with discretisation
         """
         return self.m
-    
 
     def get_exceedance_probability(self) -> np.ndarray:
         """
-        Return exceedance probility of the sea level, conditional on the wind 
+        Return exceedance probility of the sea level, conditional on the wind
         direction.
 
         Returns

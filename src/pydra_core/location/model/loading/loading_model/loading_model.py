@@ -7,14 +7,20 @@ from ....profile.profile import Profile
 from .....common.interpolate import InterpStruct
 
 
-class LoadingModel():
+class LoadingModel:
     """
     A LoadingModel is a model for one combination of wind direction and closing situation
 
     The LoadingModel allows to process the data (e.g. extend, refine or repair)
     """
-    
-    def __init__(self, direction : float, closing_situation : int, input_variables : list, result_variables : list):
+
+    def __init__(
+        self,
+        direction: float,
+        closing_situation: int,
+        input_variables: list,
+        result_variables: list,
+    ):
         """
         Init the LoadingModel.
 
@@ -35,11 +41,10 @@ class LoadingModel():
         self.input_variables = input_variables
         self.result_variables = result_variables
 
-
-    def initialise(self, table : pd.DataFrame) -> None:
+    def initialise(self, table: pd.DataFrame) -> None:
         """
         Create a LoadingModel from a pandas DataFrame.
-        
+
         Parameters
         ----------
         table : pd.DataFrame
@@ -47,7 +52,9 @@ class LoadingModel():
         """
         # Rename columns
         if any(ivar not in table.columns for ivar in self.input_variables):
-            raise KeyError(f"Not all input variables are present. Expected a column for each of: {', '.join(self.input_variables)}, got: {', '.join(table.columns.tolist())}.")
+            raise KeyError(
+                f"Not all input variables are present. Expected a column for each of: {', '.join(self.input_variables)}, got: {', '.join(table.columns.tolist())}."
+            )
 
         # Add the discretisation of each input variable to the object
         for key in self.input_variables:
@@ -71,7 +78,7 @@ class LoadingModel():
             # If the result variable is in the dataframe
             if rvid in table.columns:
                 arr[tuple(idxs)] = table[rvid].to_numpy()
-            
+
             # Otherwise, translate tspec to tp, or tp to tspec
             else:
                 if rvid == "tspec" and ("tp" in table.columns):
@@ -81,8 +88,13 @@ class LoadingModel():
                 else:
                     raise KeyError(rvid)
 
-
-    def extend(self, input_variable: str, grid: Union[list, np.ndarray], include_bounds: bool = False, merge_grid: bool = True) -> None:
+    def extend(
+        self,
+        input_variable: str,
+        grid: Union[list, np.ndarray],
+        include_bounds: bool = False,
+        merge_grid: bool = True,
+    ) -> None:
         """
         Extend the grid of the input variable and therefore also the output variables.
 
@@ -103,8 +115,14 @@ class LoadingModel():
 
         # If include_bounds = True, add values between the min and max, otherwise add all
         if not include_bounds:
-            x = np.array([val for val in np.atleast_1d(grid) if not (xp.min() <= val <= xp.max())])
-        
+            x = np.array(
+                [
+                    val
+                    for val in np.atleast_1d(grid)
+                    if not (xp.min() <= val <= xp.max())
+                ]
+            )
+
         # If merge_grid, add the grid to the existing values
         if merge_grid:
             x = np.array(sorted(set(np.atleast_1d(grid)).union(xp)))
@@ -116,36 +134,38 @@ class LoadingModel():
         # Extend all result variables
         intstr = InterpStruct(x=x, xp=xp)
         for resvar in self.result_variables:
-
             # Obtain the result variable
             arr = getattr(self, resvar)
             if np.isnan(arr).any():
-                raise ValueError(f'[ERROR] NaN values ({np.isnan(arr).sum()}) in array "{resvar}" to interpolate.')
+                raise ValueError(
+                    f'[ERROR] NaN values ({np.isnan(arr).sum()}) in array "{resvar}" to interpolate.'
+                )
 
             # Interpolate wave conditions
             if resvar in ["hs", "tp", "tspec"]:
                 arr = np.maximum(0.0, intstr.interp(fp=arr, axis=axis))
-            
+
             # Interpoleer wave angle
             elif resvar == "dir":
                 arr = intstr.interp_angle(fp=arr, axis=axis)
-            
+
             # Use of VZM, (TODO find out: interpolate between 0 and 1?)
             elif resvar == "vzm":
                 arr = intstr.interp(fp=arr, axis=axis)
-            
+
             # Interpolate other values
             else:
                 arr = intstr.interp(fp=arr, axis=axis)
 
             # Add the extended result variable array back to the object
             setattr(self, resvar, arr)
-        
+
         # Add the extended input variable back to the object
         setattr(self, input_variable, x)
-    
 
-    def refine(self, result_variable : str, grid : Dict[str, Union[list, np.ndarray]]) -> np.ndarray:
+    def refine(
+        self, result_variable: str, grid: Dict[str, Union[list, np.ndarray]]
+    ) -> np.ndarray:
         """
         Extend the grid of the input variable and therefore also the output variables.
 
@@ -165,7 +185,9 @@ class LoadingModel():
         """
         # Controleer of variabele aanwezig is
         if result_variable not in self.result_variables:
-            raise KeyError(f"[ERROR] Result variable '{result_variable}' not in loading model.")
+            raise KeyError(
+                f"[ERROR] Result variable '{result_variable}' not in loading model."
+            )
 
         # Obtain the array from the result variable
         belasting_int = getattr(self, result_variable)
@@ -173,7 +195,9 @@ class LoadingModel():
         # Loop over the different grid items
         for inpvar, x in grid.items():
             if inpvar not in self.input_variables:
-                raise KeyError(f"[ERROR] Input variable '{inpvar}' not in loading model ({', '.join(self.input_variables)})")
+                raise KeyError(
+                    f"[ERROR] Input variable '{inpvar}' not in loading model ({', '.join(self.input_variables)})"
+                )
 
             # Obtain the current grid and axis
             xp = getattr(self, inpvar)
@@ -186,20 +210,24 @@ class LoadingModel():
             # If all x in xp, just select the requested values
             if np.isin(x, xp).all():
                 idx = np.isin(xp, x)
-                belasting_int = np.take(belasting_int, indices=np.where(idx)[0], axis=axis)
+                belasting_int = np.take(
+                    belasting_int, indices=np.where(idx)[0], axis=axis
+                )
                 continue
 
             # If xp is just one value, duplicate
             if len(xp) == 1:
                 belasting_int = np.tile(belasting_int, (1, 1, len(x)))
                 continue
-            
+
             # Interpolate
-            intstr = InterpStruct(x = x, xp = xp)
+            intstr = InterpStruct(x=x, xp=xp)
 
             # Interpolate wave conditions
             if result_variable in ["hs", "tp", "tspec"]:
-                belasting_int = np.maximum(0.0, intstr.interp(fp=belasting_int, axis=axis))
+                belasting_int = np.maximum(
+                    0.0, intstr.interp(fp=belasting_int, axis=axis)
+                )
 
             # Interpolate wave direction
             elif result_variable == "dir":
@@ -208,7 +236,7 @@ class LoadingModel():
             # Use of VZM, (TODO find out: interpolate between 0 and 1?)
             elif result_variable == "vzm":
                 belasting_int = intstr.interp(fp=belasting_int, axis=axis)
-            
+
             # Interpolate other values
             else:
                 belasting_int = intstr.interp(fp=belasting_int, axis=axis)
@@ -216,8 +244,12 @@ class LoadingModel():
         # Return the interpolated array for the result variable
         return belasting_int
 
-
-    def repair(self, input_variable: str, result_variables: Union[str, list] = None, epsilon: float = 1e-6) -> None:
+    def repair(
+        self,
+        input_variable: str,
+        result_variables: Union[str, list] = None,
+        epsilon: float = 1e-6,
+    ) -> None:
         """
         Make the result values of the given output variable monotonically increasing along the axis of a given input variable.
 
@@ -239,7 +271,6 @@ class LoadingModel():
 
         # Loop over the result variables
         for var in np.atleast_1d(result_variables):
-
             # Obtain the result variable grid
             arr = getattr(self, var)
             rows = [np.take(arr, indices=0, axis=axis)]
@@ -250,11 +281,12 @@ class LoadingModel():
                 nxtt = np.take(arr, indices=i, axis=axis)
                 rows.append(np.maximum(last + epsilon, nxtt))
 
-            # Add the adjusted grid to the loadingmodel 
-            setattr(self, var, np.stack(rows, axis = axis))
+            # Add the adjusted grid to the loadingmodel
+            setattr(self, var, np.stack(rows, axis=axis))
 
-
-    def calculate_hbn(self, profile : Profile, qcrit : float, factor_hs : float, factor_tspec : float):
+    def calculate_hbn(
+        self, profile: Profile, qcrit: float, factor_hs: float, factor_tspec: float
+    ):
         """
         Add hbn result variables to each of the LoadingModels.
         If 'hbn' is already defined, it will overwrite the old result variable.
@@ -273,16 +305,20 @@ class LoadingModel():
         # Controleer of de juiste resultaatwaarden aanwezig zijn
         for resvar in ["h", "hs", "tspec", "dir"]:
             if not hasattr(self, resvar):
-                raise KeyError(f"Resultaatvariabele '{resvar}' is nodig voor kruinhoogteberekening, maar niet aanwezig.")
+                raise KeyError(
+                    f"Resultaatvariabele '{resvar}' is nodig voor kruinhoogteberekening, maar niet aanwezig."
+                )
 
         # Prepare wave conditions
         _h = self.h.ravel()
         _hs = np.array(self.hs * factor_hs).ravel()
         _tspec = np.array(self.tspec * factor_tspec).ravel()
         _dir = np.array(self.dir).ravel()
-        
+
         # Calculate HBN
-        self.hbn = np.reshape([profile.calculate_crest_level(qcrit, _h, _hs, _tspec, _dir)], self.h.shape)
+        self.hbn = np.reshape(
+            [profile.calculate_crest_level(qcrit, _h, _hs, _tspec, _dir)], self.h.shape
+        )
 
         # Add the result variable
         self.result_variables.append("hbn")

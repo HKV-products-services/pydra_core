@@ -6,7 +6,7 @@ from ..location.location import Location
 from ..location.settings.settings import Settings
 
 
-class HRDatabase():
+class HRDatabase:
     """
     HRDatabase class
 
@@ -17,8 +17,8 @@ class HRDatabase():
     locations, list
         List with all locations in the database
     """
-    
-    def __init__(self, database_path : str) -> None:
+
+    def __init__(self, database_path: str) -> None:
         # Connect to the database
         self.database_path = database_path
 
@@ -26,11 +26,10 @@ class HRDatabase():
         with DatabaseHR(database_path) as database:
             self.watersystem = database.get_water_system()
             self.locationnames = database.get_hrdlocations_names()
-        
+
         # Empty locations
         self.locations = {}
-    
-    
+
     def __len__(self) -> int:
         """
         Return the number of locations
@@ -42,15 +41,13 @@ class HRDatabase():
         """
         return len(self.locationnames)
 
-
     def __iter__(self):
         """
         Dunder to allow iterating through the locations
         """
         self.__iterindex = -1
         return self
-    
-    
+
     def __next__(self):
         """
         Dunder to allow iterating through the locations
@@ -60,9 +57,8 @@ class HRDatabase():
             return self.locationnames[self.__iterindex]
         else:
             raise StopIteration
-    
 
-    def get_settings(self, hrdlocation : str) -> Settings:
+    def get_settings(self, hrdlocation: str) -> Settings:
         """
         Returns the Settings class of a hrdlocation
         Useful for when you manually want to adjust the settings
@@ -80,16 +76,16 @@ class HRDatabase():
         """
         # Check if the hrdlocation exists
         if self.check_location(hrdlocation):
-
             # Return the settings
             return Settings(hrdlocation, self.database_path)
-        
+
         # Otherwise, raise an exception
         else:
-            raise ValueError(f"[ERROR] HRDLocation '{hrdlocation}' not found in the database.")
-    
+            raise ValueError(
+                f"[ERROR] HRDLocation '{hrdlocation}' not found in the database."
+            )
 
-    def create_location(self, settings : Settings) -> Location:
+    def create_location(self, settings: Settings) -> Location:
         """
         Creates a location based upon the Settings object
 
@@ -109,8 +105,7 @@ class HRDatabase():
         # Return location
         return self.locations[settings.location]
 
-
-    def check_location(self, hrdlocation : str) -> bool:
+    def check_location(self, hrdlocation: str) -> bool:
         """
         Check if a hrdlocation exists within the database
 
@@ -126,8 +121,7 @@ class HRDatabase():
         """
         return hrdlocation in self.locationnames
 
-
-    def get_location(self, hrdlocation : str) -> Location:
+    def get_location(self, hrdlocation: str) -> Location:
         """
         Returns the Location class of a hrdlocation.
         Uses the default set of parameters.
@@ -144,22 +138,21 @@ class HRDatabase():
         """
         # Check if the hrdlocation exists
         if self.check_location(hrdlocation):
-
             # If the location is not cached, create the location
-            if not hrdlocation in self.locations:
-                
+            if hrdlocation not in self.locations:
                 # Default settings and create location
                 settings = self.get_settings(hrdlocation)
                 return self.create_location(settings)
-            
+
             # Return the cached location
             else:
                 return self.locations[hrdlocation]
-        
+
         # Otherwise, raise an exception
         else:
-            raise ValueError(f"[ERROR] HRDLocation '{hrdlocation}' not found in the database.")
-
+            raise ValueError(
+                f"[ERROR] HRDLocation '{hrdlocation}' not found in the database."
+            )
 
     def get_location_names(self) -> List[str]:
         """
@@ -172,7 +165,6 @@ class HRDatabase():
         """
         return self.locationnames
 
-    
     def get_water_system(self) -> WaterSystem:
         """
         A method that returns the water system corresponding to the trajectory.

@@ -13,7 +13,7 @@ class SeaLevelTriangular(SeaLevel):
     Sea level statistics are conditional on the wind direction.
     """
 
-    def __init__(self, settings : Settings, epsilon : float = 1.0e-15):
+    def __init__(self, settings: Settings, epsilon: float = 1.0e-15):
         """
         For Coast systems, we use triangular interpolation of the statistics
         between three points.
@@ -28,7 +28,7 @@ class SeaLevelTriangular(SeaLevel):
         """
         # Inherit
         super().__init__()
-        
+
         #  Read the exceedance probability of the sea level for three stations (triangular interpolation)
         m1, epm1 = FileHydraNL.read_file_ncolumns(settings.sea_level_probability_point1)
         m2, epm2 = FileHydraNL.read_file_ncolumns(settings.sea_level_probability_point2)
@@ -36,22 +36,46 @@ class SeaLevelTriangular(SeaLevel):
 
         # Check whether the amount of wind directions for each point are equal
         if epm1.shape[1] != epm2.shape[1] or epm2.shape[1] != epm3.shape[1]:
-            raise ValueError("aantal windrichtingen per hoekpunt zijn niet aan elkaar gelijk")
+            raise ValueError(
+                "aantal windrichtingen per hoekpunt zijn niet aan elkaar gelijk"
+            )
 
         # Obtain the x and y positions of the three stations
-        x1, y1 = FileHydraNL.read_file_ncolumns_loc(settings.sea_level_probability_point1)
-        x2, y2 = FileHydraNL.read_file_ncolumns_loc(settings.sea_level_probability_point2)
-        x3, y3 = FileHydraNL.read_file_ncolumns_loc(settings.sea_level_probability_point3)
+        x1, y1 = FileHydraNL.read_file_ncolumns_loc(
+            settings.sea_level_probability_point1
+        )
+        x2, y2 = FileHydraNL.read_file_ncolumns_loc(
+            settings.sea_level_probability_point2
+        )
+        x3, y3 = FileHydraNL.read_file_ncolumns_loc(
+            settings.sea_level_probability_point3
+        )
 
         # Check if the exceedance probability of the lowest sea level are all equal to 1
         if any(epm1[0, :] != 1) or any(epm2[0, :] != 1) or any(epm3[0, :] != 1):
-            raise ValueError("[ERROR] Exceedance probability of the lowest sea level is not equal to 1")
-        
+            raise ValueError(
+                "[ERROR] Exceedance probability of the lowest sea level is not equal to 1"
+            )
+
         # Calculate the lowest sea level for the hr location
-        m_min = Interpolate.triangular_interpolation(x1, y1, m1[0], x2, y2, m2[0], x3, y3, m3[0], settings.x_coordinate, settings.y_coordinate)
+        m_min = Interpolate.triangular_interpolation(
+            x1,
+            y1,
+            m1[0],
+            x2,
+            y2,
+            m2[0],
+            x3,
+            y3,
+            m3[0],
+            settings.x_coordinate,
+            settings.y_coordinate,
+        )
 
         # Equidistant filling vector with seawater levels
-        self.m = ProbabilityFunctions.get_hnl_disc_array(m_min, settings.m_max, settings.m_step)
+        self.m = ProbabilityFunctions.get_hnl_disc_array(
+            m_min, settings.m_max, settings.m_step
+        )
         self.nm = len(self.m)
 
         # Number of wind directions
@@ -62,11 +86,10 @@ class SeaLevelTriangular(SeaLevel):
 
         # Iterate over each wind direction
         for ir in range(0, nr):
-            
             # For high sea water levels, the exceedance probability may be 0
-            # Find the location where the highest sea level has the greatest exceedance probability no equal to 0. 
+            # Find the location where the highest sea level has the greatest exceedance probability no equal to 0.
             largest_ep = 0.0
-            i = 1            
+            i = 1
             while largest_ep <= 0.0:
                 corners = [(m1, epm1), (m2, epm2), (m3, epm3)]
                 for _m, _epm in corners:
@@ -77,12 +100,30 @@ class SeaLevelTriangular(SeaLevel):
                 i += 1
 
             # Determine the sea level discretisation for the three stations
-            ir_m1 = Interpolate.inextrp1d_log_probability(ir_epm, epm1[:, ir][::-1], m1[::-1])
-            ir_m2 = Interpolate.inextrp1d_log_probability(ir_epm, epm2[:, ir][::-1], m2[::-1])
-            ir_m3 = Interpolate.inextrp1d_log_probability(ir_epm, epm3[:, ir][::-1], m3[::-1])
+            ir_m1 = Interpolate.inextrp1d_log_probability(
+                ir_epm, epm1[:, ir][::-1], m1[::-1]
+            )
+            ir_m2 = Interpolate.inextrp1d_log_probability(
+                ir_epm, epm2[:, ir][::-1], m2[::-1]
+            )
+            ir_m3 = Interpolate.inextrp1d_log_probability(
+                ir_epm, epm3[:, ir][::-1], m3[::-1]
+            )
 
             # Use triangular interpolation to calculate the sea level at the specified exceedance probability at the given location.
-            ir_m = Interpolate.triangular_interpolation(x1, y1, ir_m1, x2, y2, ir_m2, x3, y3, ir_m3, settings.x_coordinate, settings.y_coordinate)
+            ir_m = Interpolate.triangular_interpolation(
+                x1,
+                y1,
+                ir_m1,
+                x2,
+                y2,
+                ir_m2,
+                x3,
+                y3,
+                ir_m3,
+                settings.x_coordinate,
+                settings.y_coordinate,
+            )
 
             # Als de triangulaire interpolatie wordt toegepast in het geval van extrapolatie
             # kan de vector _m een verloop hebben dat niet langer monotoon is. Dit wordt
@@ -90,10 +131,10 @@ class SeaLevelTriangular(SeaLevel):
             idx = np.diff(ir_m) > 0.0
             if not idx.all():
                 pos = np.where(idx)[0]
-                pos = np.unique(np.concatenate([pos, pos+1]))
+                pos = np.unique(np.concatenate([pos, pos + 1]))
                 ir_m = ir_m[pos]
                 ir_epm = ir_epm[pos]
-            
+
             # Interpoleer logaritmisch de conditionele overschrijdingskansen van de zeewaterstand gegeven de windrichting naar het gewenste rooster
             ir_epm_int = np.exp(Interpolate.inextrp1d(self.m, ir_m, np.log(ir_epm)))
 

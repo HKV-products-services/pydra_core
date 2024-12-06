@@ -14,8 +14,8 @@ class StatisticsUpperRiver(Statistics):
     Statistics class for the Upper Rivers
     Water systems: Rhine Non Tidal and Meuse (Valley) Non Tidal
     """
-    
-    def __init__(self, settings : Settings):
+
+    def __init__(self, settings: Settings):
         """
         Init the Statistics class
 
@@ -38,12 +38,16 @@ class StatisticsUpperRiver(Statistics):
         self.model_uncertainties = ModelUncertainty(settings)
 
         # Discrete, slow, fast stochatics
-        self.stochastics_discrete = {"r" : self.wind_direction.get_discretisation(), "k" : [1]}
-        self.stochastics_fast = {"u" : self.wind_speed.get_discretisation()}
-        self.stochastics_slow = {"q" : self.discharge.get_discretisation()}
-    
+        self.stochastics_discrete = {
+            "r": self.wind_direction.get_discretisation(),
+            "k": [1],
+        }
+        self.stochastics_fast = {"u": self.wind_speed.get_discretisation()}
+        self.stochastics_slow = {"q": self.discharge.get_discretisation()}
 
-    def calculate_probability(self, wind_direction: float, closing_situation: int = 1, given: list = []):
+    def calculate_probability(
+        self, wind_direction: float, closing_situation: int = 1, given: list = []
+    ):
         """
         Calculate the probability of occurence for the discretisation given the wind direction.
 
@@ -58,7 +62,10 @@ class StatisticsUpperRiver(Statistics):
         """
         # Wind speed
         ir = self.wind_direction.get_discretisation().tolist().index(wind_direction)
-        p_wind = ProbabilityFunctions.probability_density(self.wind_speed.get_discretisation(), self.wind_speed.get_exceedance_probability()[:, ir]).probability[:, None]
+        p_wind = ProbabilityFunctions.probability_density(
+            self.wind_speed.get_discretisation(),
+            self.wind_speed.get_exceedance_probability()[:, ir],
+        ).probability[:, None]
         if "u" in given:
             p_wind[:] = 1.0
 
@@ -67,7 +74,10 @@ class StatisticsUpperRiver(Statistics):
             p_discharge = np.ones_like(self.discharge.get_discretisation())
         else:
             # If not given, use the instantaneous probability
-            p_discharge = ProbabilityFunctions.probability_density(self.discharge.get_discretisation(), 1 - self.discharge.get_exceedance_probability()).probability
+            p_discharge = ProbabilityFunctions.probability_density(
+                self.discharge.get_discretisation(),
+                1 - self.discharge.get_exceedance_probability(),
+            ).probability
 
         # Probability of wind direction
         p_direction = 1.0 if "r" in given else self.wind_direction.get_probability()[ir]

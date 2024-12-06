@@ -2,12 +2,16 @@ import numpy as np
 
 from .base_model import BaseModel
 from .loading.other_systems.loading_wave_overtopping import LoadingWaveOvertopping
-from .statistics.other_systems.statistics_wave_overtopping import StatisticsWaveOvertopping
+from .statistics.other_systems.statistics_wave_overtopping import (
+    StatisticsWaveOvertopping,
+)
 from ..location import Location
 
 
 class WaveOvertopping(BaseModel):
-    def __init__(self, location : Location, water_levels : np.ndarray, probability : np.ndarray):
+    def __init__(
+        self, location: Location, water_levels: np.ndarray, probability: np.ndarray
+    ):
         """
         Wave Overtopping model
         """
