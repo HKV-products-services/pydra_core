@@ -7,7 +7,7 @@ website:
   navbar:
     left:
       - text: "Examples"
-        file:  Examples.qmd
+        file:  examples.qmd
       - text: "Python API"
         file: reference/index.qmd
       - text: "Changelog"
@@ -21,7 +21,7 @@ website:
 #         aria-label: GitHub
 
   sidebar:
-      - title: "Examples"
+      - title: "examples"
         contents: 
           - examples/01.Overschrijdingsfrequentielijnen.ipynb
           - examples/02.Profielen.ipynb

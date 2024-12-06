@@ -32,7 +32,7 @@ jobs:
 
       - name: Ruff Lint
         run: pixi run ruff check --output-format=github .
-        working-directory: continu_inzicht
+        working-directory: pydra_core
       - name: Check format
         run: pixi run ruff format --check
-        working-directory: continu_inzicht
+        working-directory: pydra_core

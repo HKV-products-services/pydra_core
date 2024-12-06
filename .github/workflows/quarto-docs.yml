@@ -27,11 +27,11 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          manifest-path: continu_inzicht/pixi.toml
+          manifest-path: pydra_core/pixi.toml
           pixi-version: "latest"
 
       - name: Copy github secrets to environment variables files
-        working-directory: continu_inzicht
+        working-directory: pydra_core
         run: |
             touch .env
             echo host=${{ secrets.HOST }} >> .env
@@ -43,18 +43,18 @@ jobs:
             cat .env
 
       - name: Check Quarto installation and all engines
-        working-directory: continu_inzicht
+        working-directory: pydra_core
         run: pixi run quarto-check
 
       - name: Render Quarto Project
-        working-directory: continu_inzicht
+        working-directory: pydra_core
         run: pixi run quarto-render
 
-      - name: Publish Quarto Project
-        if: github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: continu_inzicht/docs/docs
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Publish Quarto Project
+      #   if: github.ref == 'refs/heads/main'
+      #   uses: peaceiris/actions-gh-pages@v4
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: pydra_core/docs/docs
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

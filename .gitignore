@@ -12,3 +12,4 @@ docs/reference
 # pixi
 .pixi
 *.egg-info
+.quarto
