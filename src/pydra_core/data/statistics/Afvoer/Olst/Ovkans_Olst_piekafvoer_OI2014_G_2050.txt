@@ -1,0 +1,46 @@
+*
+* Overschrijdingskansen piekwaarde IJsselafvoer Olst zonder statistische onzekerheid.
+* OI2014-invoerbestand voor Hydra-NL voor het klimaatscenario G voor het jaar 2050.
+* 
+*
+* De afvoerstatistiek is gemaakt voor W+ in het GRADE-project [Hegnauer, Deltares]. 
+* Voor G is de afvoerstatistiek gemaakt door een schaling van W+ [H. Buiteveld, RWS-WVL]. 
+* De conversie naar het Hydra-format plus een aanpassing bij de laagste afvoeren 
+* voor bruikbaarheid in Hydra-NL is gedaan door Matthijs Duits van HKV.
+*
+*
+* Ten aanzien van de naamgeving van het bestand meldt Robert Vos (Rijkswaterstaat WVL):
+*     "We werken maar met 2 scenario's van KNMI'06; te weten G en W+. 
+*     Dus waar G staat wordt ook G bedoeld en waar W staat wordt W+ bedoeld."
+*
+* 
+* Basisduur trapezia: B = 30 dagen.
+*
+* Piekwaarde IJssel  Overschrijdingskans
+*  Afvoer [m³/s]        [-]
+             200        1.000E+00
+             600        2.242E-01
+             848        8.333E-02
+             970        5.556E-02
+            1140        3.333E-02
+            1368        1.667E-02
+            1565        8.333E-03
+            1673        5.556E-03
+            1815        3.333E-03
+            1960        1.667E-03
+            2086        8.333E-04
+            2153        5.556E-04
+            2222        3.333E-04
+            2305        1.667E-04
+            2331        1.333E-04
+            2385        8.333E-05
+            2432        5.556E-05
+            2464        4.167E-05
+            2489        3.333E-05
+            2574        1.667E-05
+            2672        8.333E-06
+            2733        5.556E-06
+            2810        3.333E-06
+            2927        1.667E-06
+            3052        8.333E-07
+            3124        5.556E-07

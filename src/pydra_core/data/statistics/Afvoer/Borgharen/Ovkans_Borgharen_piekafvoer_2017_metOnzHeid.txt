@@ -1,0 +1,46 @@
+* Overschrijdingskansen piekwaarde Borgharen (Hydra-NL). Met statistische onzekerheid
+* bij gebruik Weismandrempel.
+*
+* 
+* Basisduur trapezia: B = 30 dagen.
+* 
+* Door: G.W.F. Rongen van HKV lijn in water
+* Project: PR3280.20.09
+* 
+* Gegevens gebruikt uit de mail van 14-07-2016 van Henk van den Boogaart
+* aan onder meer Hendrik Buiteveld.
+*
+*
+* Piekwaarde    Overschrijdingskans
+*      [m3/s]       [-]
+        0           1.000e+00       
+        75          9.950e-01       
+        200         8.800e-01       
+        300         7.600e-01       
+        500         5.500e-01       
+        1000        2.640e-01       
+        1200        1.232e-01       
+        1400        8.894e-02       
+        1600        6.413e-02       
+        1800        4.558e-02       
+        2000        3.156e-02       
+        2200        2.102e-02       
+        2400        1.337e-02       
+        2600        8.558e-03       
+        2800        5.497e-03       
+        3000        3.490e-03       
+        3200        2.163e-03       
+        3400        1.283e-03       
+        3600        7.126e-04       
+        3800        3.687e-04       
+        4000        1.816e-04       
+        4200        8.855e-05       
+        4400        4.406e-05       
+        4600        2.263e-05       
+        4800        1.199e-05       
+        5000        6.512e-06       
+        5200        3.613e-06       
+        5400        2.040e-06       
+        5600        1.169e-06       
+        5800        6.791e-07       
+        6000        3.991e-07       

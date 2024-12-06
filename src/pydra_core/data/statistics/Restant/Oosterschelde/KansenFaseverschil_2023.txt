@@ -1,0 +1,8 @@
+*
+* Kansen op faseverschil tussen top van de storm en de getijtop
+* 
+* Bestand om te testen. Gemaakt door Matthijs Duits, HKV Lijn in water, 10-08-2017
+* 
+* Tijd [minuten]  kans [-]
+*
+-320.0            1.0

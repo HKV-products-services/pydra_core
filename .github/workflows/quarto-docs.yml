@@ -1,0 +1,60 @@
+name: Render and Publish Docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# You need these permissions to publish to GitHub pages
+permissions:
+    contents: write
+    pages: write
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          path: continu_inzicht
+
+      - uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          manifest-path: continu_inzicht/pixi.toml
+          pixi-version: "latest"
+
+      - name: Copy github secrets to environment variables files
+        working-directory: continu_inzicht
+        run: |
+            touch .env
+            echo host=${{ secrets.HOST }} >> .env
+            echo database=${{ secrets.DATABASE }} >> .env
+            echo port=${{ secrets.PORT }} >> .env
+            echo password=${{ secrets.PASSWORD }} >> .env
+            echo user=${{ secrets.USER }} >> .env
+            echo schema=${{ secrets.SCHEMA }} >> .env
+            cat .env
+
+      - name: Check Quarto installation and all engines
+        working-directory: continu_inzicht
+        run: pixi run quarto-check
+
+      - name: Render Quarto Project
+        working-directory: continu_inzicht
+        run: pixi run quarto-render
+
+      - name: Publish Quarto Project
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: continu_inzicht/docs/docs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

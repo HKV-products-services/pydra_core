@@ -1,0 +1,21 @@
+*
+* Overschrijdingskansen piekwaarde Lith (Hydra-NL)
+*
+* De getallen zijn zo gekozen dat ze de momentane kans en overschrijdingsfrequentie volgens Hydra-B 
+* HR2006 (= HR2001) opleveren. Wel dient dit bestand in Hydra-NL dan gebruikt te worden in combinatie 
+* met het bestand "Topduur_Lith_v01.txt". Basisduur trapezia: B = 30 dagen.
+*
+*
+* 
+* Door: C.P.M. Geerse van HKV lijn in water
+* Datum: 21 april 2009
+*
+* Piekwaarde Lith           overschrijdingskans
+*          [m3/s]                  [-]
+               0                   1
+              75                   0.995
+             200                   0.88
+             300                   0.76
+             500                   0.55
+            1315.1                 0.16667
+            3652                   0.00013333

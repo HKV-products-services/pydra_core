@@ -1,0 +1,40 @@
+*
+* Overschrijdingskansen piekwaarde IJsselmeer. Met onzekerheid.
+*
+* Door:    C.P.M. Geerse van HKV lijn in water
+* Datum:   11 december 2015
+* Project: PR3216.10
+*
+*
+* Zie voor beschrijving het rapport:
+* Werkwijze uitintegreren onzekerheden basisstochasten voor Hydra-NL.
+* Afvoeren, meerpeilen, zeewaterstanden en windsnelheden. 
+* Chris Geerse. HKV Lijn in Water, december 2015.
+*
+* Basisduur B = 30 dagen.
+*
+* Piekwaarde IJsselmeerpeil       overschrijdingskans
+*          [m+NAP]                    [-]
+           -0.40                   1.000
+            0.05                   0.166667
+            0.40                   0.016667
+            0.50                   5.886E-03
+            0.60                   2.195E-03
+            0.70                   8.379E-04
+            0.80                   3.464E-04
+            0.90                   1.520E-04
+            1.00                   6.982E-05
+            1.10                   3.366E-05
+            1.20                   1.698E-05
+            1.30                   8.909E-06
+            1.40                   4.838E-06
+            1.50                   2.711E-06
+            1.60                   1.563E-06
+            1.70                   9.244E-07
+            1.80                   5.597E-07
+            1.90                   3.459E-07
+            2.00                   2.176E-07
+            2.10                   1.392E-07
+            2.20                   9.030E-08
+            2.30                   5.936E-08
+            2.40                   3.950E-08

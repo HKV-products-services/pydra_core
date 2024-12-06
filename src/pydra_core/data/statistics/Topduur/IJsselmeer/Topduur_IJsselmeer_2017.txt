@@ -1,0 +1,20 @@
+*
+* Topduren van meerpeilgolven van het IJsselmeerpeil
+* voor trapeziumvormige meerpeilgolven. 
+*
+* Door:    C.P.M. Geerse van HKV lijn in water
+* Datum:   16 december 2015
+* Project: PR3216.10
+*
+* Zie voor beschrijving het rapport:
+* Werkwijze uitintegreren onzekerheden basisstochasten voor Hydra-NL.
+* Afvoeren, meerpeilen, zeewaterstanden en windsnelheden. 
+* Chris Geerse. HKV Lijn in Water, december 2015.
+*
+* Basisduur B = 30 dagen
+*
+* Piekwaarde IJsselmeer            topduur meerpeilgolf
+*            [m+NAP]                     [uur]           
+              -0.4                        720
+               0.05                        96
+               1.8                         96

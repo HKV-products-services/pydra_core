@@ -1,0 +1,13 @@
+*
+* Kansen op faseverschil tussen top van de storm en de getijtop
+* 
+* De getallen zijn ontleend aan paragraaf 2.6 van:
+* 'Kansberekeningen meetstation OS11'
+* TNO rapport, Delft, 1 augustus 2007.
+* Auteurs: A.C.W.M. Vrouwenvelder en H.M.G.M. Steenbergen
+* 
+* Tijd [minuten]  kans [-]
+*
+-260.0            0.333333
+0.0               0.333333
+260.0             0.333333

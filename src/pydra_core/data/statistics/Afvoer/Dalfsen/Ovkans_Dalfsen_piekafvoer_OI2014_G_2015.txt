@@ -1,0 +1,44 @@
+*
+* Overschrijdingskansen van piekafvoeren van de Vecht bij Dalfsen/Ommen.
+* Inclusief overstromingen langs de Vecht en de Nederlandse zijleidingen.
+* OI2014-invoerbestand voor Hydra-NL voor het klimaatscenario G voor het jaar 2015.
+*
+* De afvoerstatistiek is gemaakt voor W+ in het GRADE-project [Hegnauer, Deltares]. 
+* Voor G is de afvoerstatistiek gemaakt door een schaling van W+ [H. Buiteveld, RWS-WVL]. 
+* De conversie naar het Hydra-format plus een aanpassing bij de laagste afvoeren 
+* voor bruikbaarheid in Hydra-NL is gedaan door Matthijs Duits van HKV.
+*
+*
+* Ten aanzien van de naamgeving van het bestand meldt Robert Vos (Rijkswaterstaat WVL):
+*     "We werken maar met 2 scenario's van KNMI'06; te weten G en W+. 
+*     Dus waar G staat wordt ook G bedoeld en waar W staat wordt W+ bedoeld."
+*
+*
+* Basisduur trapezia: B = 30 dagen.
+*
+* Piekwaarde Vecht   Overschrijdingskans
+*  Afvoer [m³/s]        [-]
+               0        1.000E+00
+             180        1.667E-01
+             216        8.333E-02
+             264        3.333E-02
+             300        1.667E-02
+             336        8.333E-03
+             347        6.667E-03
+             356        5.556E-03
+             383        3.333E-03
+             419        1.667E-03
+             449        8.333E-04
+             459        6.667E-04
+             467        5.556E-04
+             489        3.333E-04
+             520        1.667E-04
+             530        1.333E-04
+             551        8.333E-05
+             561        6.667E-05
+             569        5.556E-05
+             582        4.167E-05
+             589        3.333E-05
+             609        1.667E-05
+             623        8.333E-06
+             629        5.556E-06

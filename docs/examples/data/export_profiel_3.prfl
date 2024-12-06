@@ -1,0 +1,22 @@
+VERSIE 4.0
+ID test
+
+RICHTING 315.0
+
+DAM 1
+DAMHOOGTE 3
+
+VOORLAND 0
+
+DAMWAND 0
+KRUINHOOGTE 5.28
+DIJK 5
+0.000	-4.000	0.900
+34.368	2.874	0.900
+41.668	2.947	0.900
+42.158	3.110	1.000
+48.675	5.280	1.000
+
+MEMO
+Generated with Pydra for profile 'Profiel vanuit een 1.sql'
+profiel uit de gebu-gekb tool

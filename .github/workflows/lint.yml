@@ -1,0 +1,38 @@
+name: Static code analysis
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# You need these permissions to publish to GitHub pages
+permissions:
+    contents: write
+    pages: write
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          path: continu_inzicht
+
+      - uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          manifest-path: continu_inzicht/pixi.toml
+          pixi-version: "latest"
+
+      - name: Ruff Lint
+        run: pixi run ruff check --output-format=github .
+        working-directory: continu_inzicht
+      - name: Check format
+        run: pixi run ruff format --check
+        working-directory: continu_inzicht

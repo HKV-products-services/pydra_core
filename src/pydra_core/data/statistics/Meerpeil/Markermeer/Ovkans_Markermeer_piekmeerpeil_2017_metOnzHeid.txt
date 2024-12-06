@@ -1,0 +1,38 @@
+*
+* Overschrijdingskansen piekwaarde Markermeer. Met onzekerheid.
+*
+* Door:    C.P.M. Geerse van HKV lijn in water
+* Datum:   17 december 2015
+* Project: PR3216.10
+*
+* Zie voor beschrijving het rapport:
+* Werkwijze uitintegreren onzekerheden basisstochasten voor Hydra-NL.
+* Afvoeren, meerpeilen, zeewaterstanden en windsnelheden. 
+* Chris Geerse. HKV Lijn in Water, december 2015.
+*
+* Basisduur B = 60 dagen.
+*
+* Piekwaarde      overschrijdingskans
+*     [m+NAP]       [-]
+      -0.40         1.000
+      -0.22         0.333300
+       0.10         1.140E-02
+       0.20         4.265E-03
+       0.30         1.652E-03
+       0.40         6.828E-04
+       0.50         2.980E-04
+       0.60         1.364E-04
+       0.70         6.563E-05
+       0.80         3.314E-05
+       0.90         1.746E-05
+       1.00         9.562E-06
+       1.10         5.418E-06
+       1.20         3.165E-06
+       1.30         1.901E-06
+       1.40         1.171E-06
+       1.50         7.366E-07
+       1.60         4.725E-07
+       1.70         3.083E-07
+       1.80         2.043E-07
+       1.90         1.372E-07
+       2.00         9.337E-08

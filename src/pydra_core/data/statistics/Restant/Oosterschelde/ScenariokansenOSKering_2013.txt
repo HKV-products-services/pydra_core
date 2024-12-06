@@ -1,0 +1,19 @@
+* Kansen op een faalscenario van de Oosterscheldekering per sluitvraag
+* gegeven de sluitwijze van de Oosterscheldekering (bemand of onbemand)
+* N.B. Bij een reguliere sluiting is de Oosterscheldekering altijd bemand en 
+*      wordt altijd de kolom 'Bemand' gebruikt. Bij een noodsluiting kan de
+*      kering bemand zijn en onbemand. Bij een noodsluiting worden beide 
+*      kolommen dus gebruikt (bemand en onbemand)
+*
+* Deze kansen worden gebruikt in het Prestatiepeilenmodel van 2013
+* 
+*Falende schuiven    Bemand          Onbemand
+0                    0.9866444289    0.9403299078
+1                    0.0116000000    0.0533000000
+2                    0.0003760000    0.0017900000
+5                    0.0001890000    0.0020000000
+10                   0.0006190000    0.0010000000
+16                   0.0003820000    0.0005950000
+31                   0.0001690000    0.0002300000
+47                   0.0000000711    0.0000000922
+62                   0.0000205000    0.0007550000

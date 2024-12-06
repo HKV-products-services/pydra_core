@@ -1,0 +1,24 @@
+*
+* Kansen op de windrichtingen voor de Waddenzee
+* 
+* 
+* Door: 	Chris Geerse
+* Project:	PR3280.14
+*
+* Kansen overgenomen van Hoek van Holland, conform rapport:
+* Basisstochasten WTI-2017. Statistiek en statistische onzekerheid. 
+* Houcine Cbab. Kenmerk 1209433-012-HYE-0007, 2 december 2015.
+*
+*
+ 30.0	0.042282401
+ 60.0	0.064554903
+ 90.0	0.086615287
+120.0	0.061373117
+150.0	0.063918546
+180.0	0.117301845
+210.0	0.162058969
+240.0	0.143887435
+270.0	0.098635367
+300.0	0.070140706
+330.0	0.048292441
+360.0	0.04093898

@@ -1,0 +1,15 @@
+*
+* Overschrijdingskansen van piekafvoeren van de IJssel bij Olst
+*
+* De getallen zijn ontleend aan Bijlage H.2.2 van:
+* 'Hydraulische Randvoorwaarden 2006 Vecht- en IJsseldelta' -
+* 'Statistiek IJsselmeerpeil, afvoeren en stormverlopen voor Hydra-VIJ'
+* RIZA-werkdocument 2006.036X, Lelystad, maart 2006. 
+* (Auteur: C.P.M. Geerse)
+* 
+* 
+* Piekwaarde IJssel   overschrijdingskans
+*       Afvoer [m³/s]        [-]
+           200             1.0
+           800             0.16666667
+          2720             1.3333E-04

@@ -1,0 +1,59 @@
+* Overschrijdingskansen piekwaarde Maasafvoer Lith met statistische onzekerheid
+* OI2014-invoerbestand voor Hydra-NL voor het klimaatscenario W+ voor het jaar 2100
+*
+* Gebaseerd op uitgeïntegreerde statistiek Borgharen
+* Grootte statistische onzekerheid afkomstig uit WBI2017 (voor Borgharen)
+* Doorvertaald van Borgharen naar Lith met WBI2017-productiesommen
+* Werkwijze wijkt af van WBI2017-werkwijze; 
+*    daar worden de kansverdelingen eerst vertaald en dan uitgeïntegreerd.
+*
+* 
+* De afvoerstatistiek is gemaakt voor W+ in het GRADE-project [Hegnauer, Deltares]. 
+* Voor G is de afvoerstatistiek gemaakt door een schaling van W+ [H. Buiteveld, RWS-WVL]. 
+* De conversie naar het Hydra-format is gedaan door Alfons Smale van Deltares [OI-project].
+*
+* Ten aanzien van de naamgeving van het bestand meldt Robert Vos (Rijkswaterstaat WVL):
+*     "We werken maar met 2 scenario's van KNMI'06; te weten G en W+. 
+*     Dus waar G staat wordt ook G bedoeld en waar W staat wordt W+ bedoeld."
+*
+* 
+* Basisduur trapezia: B = 30 dagen.
+*
+* Piekwaarde Maas    Overschrijdingskans
+*  Afvoer [m³/s]        [-]
+               0        1.000e+00
+              94        8.540e-01
+             335        7.145e-01
+             455        6.183e-01
+             655        4.577e-01
+            1098        2.249e-01
+            1256        1.690e-01
+            1422        1.227e-01
+            1589        9.159e-02
+            1757        6.911e-02
+            1925        5.141e-02
+            2094        3.899e-02
+            2291        2.806e-02
+            2497        2.011e-02
+            2703        1.420e-02
+            2910        1.033e-02
+            3095        7.342e-03
+            3280        5.139e-03
+            3465        3.450e-03
+            3638        2.126e-03
+            3744        1.488e-03
+            3912        9.470e-04
+            4099        6.437e-04
+            4293        4.065e-04
+            4489        2.659e-04
+            4715        1.741e-04
+            4941        1.112e-04
+            5163        6.742e-05
+            5384        4.084e-05
+            5603        2.243e-05
+            5819        1.290e-05
+            6034        7.223e-06
+            6249        3.938e-06
+            6465        1.808e-06
+            6680        8.521e-07
+            6896        3.969e-07

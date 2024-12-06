@@ -1,0 +1,56 @@
+*
+* OI2014-invoerbestand voor Hydra-NL met overschrijdingskansen van de piekwaarde van de Maasafvoer 
+* bij Borgharen met statistische onzekerheid voor het klimaatscenario G voor het jaar 2050.
+* De overschrijdingskansen uit dit bestand zijn inclusief overstromingen in Wallonië.
+*
+*
+* De afvoerstatistiek voor het referentiejaar 2015 is gemaakt in het GRADE-project met SOBEK3 [Hegnauer, Deltares]. 
+* Door toepassing van een toeslag op de afvoeren van deze statistiek is de afvoerstatistiek voor 2050 G gemaakt.
+*     Q_{2050G} = Q_{Ref, SOBEK3} + 0.5 * (Q-{2050W+, HBV} - Q_{Ref, HBV}).
+* De toeslag is dus bepaald uit de HBV-statistiek van de Maasafvoer voor het referentiejaar 2015 
+* en het klimaatscenario W+ voor het jaar 2050 [Hegnauer, Deltares].
+* Aanpassing van de afvoeren met een herhalingstijd groter dan 3000 jaar zodat nieuwe OI2014-
+* waarden lager zijn dan de vorige OI2014-waarden (v4) [Buiteveld en Vos, Rijswaterstaat WVL]
+* De conversie naar het Hydra-format plus een aanpassing bij de laagste afvoeren 
+* voor bruikbaarheid in Hydra-NL is gedaan door Matthijs Duits van HKV.
+*
+*
+* Basisduur trapezia: B = 30 dagen.
+*
+* Piekwaarde Maas    Overschrijdingskans
+*  Afvoer [m³/s]        [-]
+               0        1.000E+00
+              75        9.950E-01
+             200        8.800E-01
+             300        7.600E-01
+             500        5.500E-01
+            1000        2.640E-01
+            1460        8.518E-02
+            1600        6.520E-02
+            1800        4.613E-02
+            2000        3.224E-02
+            2200        2.183E-02
+            2400        1.445E-02
+            2600        9.538E-03
+            2800        6.350E-03
+            3000        4.194E-03
+            3200        2.684E-03
+            3400        1.631E-03
+            3600        9.275E-04
+            3800        4.873E-04
+            4000        2.346E-04
+            4200        1.040E-04
+            4400        4.344E-05
+            4600        1.795E-05
+            4800        7.786E-06
+            5000        3.670E-06
+            5200        1.863E-06
+            5400        9.901E-07
+            5600        5.386E-07
+            5800        2.967E-07
+            6000        1.649E-07
+            6200        9.229E-08
+            6400        5.204E-08
+            6600        2.955E-08
+            6800        1.690E-08
+            7000        9.727E-09

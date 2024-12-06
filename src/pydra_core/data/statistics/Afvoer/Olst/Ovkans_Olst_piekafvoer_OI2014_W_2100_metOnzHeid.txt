@@ -1,0 +1,65 @@
+* Overschrijdingskansen piekwaarde IJsselafvoer Olst met statistische onzekerheid
+* OI2014-invoerbestand voor Hydra-NL voor het klimaatscenario W+ voor het jaar 2100
+*
+* Gebaseerd op uitgeïntegreerde statistiek Lobith
+* Grootte statistische onzekerheid afkomstig uit WBI2017 (voor Lobith)
+* Doorvertaald van Lobith naar Olst met Deltamodel afvoerverdeling
+* Werkwijze wijkt af van WBI2017-werkwijze; 
+*    daar worden de kansverdelingen eerst vertaald en dan uitgeïntegreerd.
+*
+* 
+* De afvoerstatistiek is gemaakt voor W+ in het GRADE-project [Hegnauer, Deltares]. 
+* Voor G is de afvoerstatistiek gemaakt door een schaling van W+ [H. Buiteveld, RWS-WVL]. 
+* De conversie naar het Hydra-format is gedaan door Alfons Smale van Deltares [OI-project].
+* Aanpassing bij laagste afvoeren voor bruikbaarheid in Hydra-NL door Matthijs Duits van HKV.
+*
+* Ten aanzien van de naamgeving van het bestand meldt Robert Vos (Rijkswaterstaat WVL):
+*     "We werken maar met 2 scenario's van KNMI'06; te weten G en W+. 
+*     Dus waar G staat wordt ook G bedoeld en waar W staat wordt W+ bedoeld."
+*
+* 
+* Basisduur trapezia: B = 30 dagen.
+*
+* Piekwaarde    Overschrijdingskans
+*      [m3/s]       [-]
+         200        1.000e+00
+         600        2.262e-01
+         796        1.400e-01
+         865        1.142e-01
+         927        9.840e-02
+         988        8.506e-02
+        1050        7.255e-02
+        1140        6.349e-02
+        1229        5.327e-02
+        1319        4.444e-02
+        1408        3.620e-02
+        1489        3.037e-02
+        1570        2.472e-02
+        1652        2.025e-02
+        1733        1.623e-02
+        1814        1.219e-02
+        1895        1.028e-02
+        1984        7.551e-03
+        2072        5.421e-03
+        2161        3.302e-03
+        2250        2.002e-03
+        2338        1.209e-03
+        2427        7.278e-04
+        2513        4.421e-04
+        2613        2.707e-04
+        2729        1.542e-04
+        2845        9.759e-05
+        2984        5.944e-05
+        3122        3.451e-05
+        3261        1.959e-05
+        3399        1.132e-05
+        3538        6.125e-06
+        3676        3.297e-06
+        3815        1.775e-06
+        3953        9.119e-07
+        4092        4.592e-07
+        4230        2.044e-07
+        4369        1.068e-07
+        4507        4.442e-08
+        4646        2.226e-08
+        4784        9.330e-09

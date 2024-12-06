@@ -1,0 +1,16 @@
+*
+* Overschrijdingskansen piekwaarde Veerse Meer
+*
+* De getallen zijn ontleend aan:
+* 'Statistiek Zeeuwse meren voor Hydra-Zoet'.
+* Rapport van mei 2012, PR1564.14. Auteur: C.P.M. Geerse.
+*
+* Na afloop van de analyses is bij alle meerpeilen 0.30 m opgeteld, vanwege een verwachte
+* peilverhoging.
+*
+*        Piekwaarde        overschrijdingskans
+*          [m+NAP]                 [-]
+           -0.40                   1.0
+            0.10                   3.6667e-001
+            0.28                   1.1111e-001
+            0.66                   1.1111e-005

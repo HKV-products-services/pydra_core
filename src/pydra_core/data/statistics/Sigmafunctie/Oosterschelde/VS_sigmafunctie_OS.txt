@@ -1,0 +1,22 @@
+* Correlatiecoëfficiënten sigma voor de Oosterschelde voor de correlatie tussen 
+* zeewaterstand en windsnelheid per windrichting
+*
+* De correlatiecoëfficiënten zijn ontleend aan Bijlage C van:
+* 'Kansberekeningen meetstation OS11'
+* TNO rapport, Delft, 1 augustus 2007.
+* Auteurs: A.C.W.M. Vrouwenvelder en H.M.G.M. Steenbergen
+*
+* De correlatiecoëfficiënten worden gegeven voor het correlatiemodel met 
+* variabele spreiding (VS). Per zeewaterstand kan er daardoor sprake 
+* zijn van een andere correlatie. Door de correlatiecoëfficiënten voor
+* alle zeewaterstanden hetzelfde te kiezen, wordt het correlatiemodel met 
+* variabele spreiding (VS) ongevormd tot het correlatiemodel met constante
+* spreiding (CS). 
+*
+* De waarde -99.0 betekent: geen correlatie
+*
+* Onderstaand is m de zeewaterstand en r de windrichting
+*
+* m \ r  30      60      90      120     150     180     210     240     270     300     330     360
+0.0      3.03    3.0     -99.0   -99.0   -99.0   1.46    2.52    1.5     0.65    1.29    1.41    1.23
+6.5      3.03    3.0     -99.0   -99.0   -99.0   1.46    2.52    1.5     0.65    1.29    1.41    1.23

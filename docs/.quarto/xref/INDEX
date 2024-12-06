@@ -1,0 +1,59 @@
+{
+  "CHANGELOG.md": {
+    "CHANGELOG.html": "37fa29bb"
+  },
+  "examples/01. Overschrijdingsfrequentielijnen.ipynb": {
+    "01. Overschrijdingsfrequentielijnen.html": "b774bf6d"
+  },
+  "examples/02. Profielen.ipynb": {
+    "02. Profielen.html": "6cbb1b20"
+  },
+  "examples/03. HBN.ipynb": {
+    "03. HBN.html": "a5556d6a"
+  },
+  "Examples.qmd": {
+    "Examples.html": "2ac6e905"
+  },
+  "reference/Breakwater.qmd": {
+    "Breakwater.html": "05e038bd"
+  },
+  "reference/ExceedanceFrequencyLine.qmd": {
+    "ExceedanceFrequencyLine.html": "b5f9f18c"
+  },
+  "reference/ExceedanceFrequencyLineExperimental.qmd": {
+    "ExceedanceFrequencyLineExperimental.html": "f6ce4396"
+  },
+  "reference/HBN.qmd": {
+    "HBN.html": "b3837815"
+  },
+  "reference/HRDatabase.qmd": {
+    "HRDatabase.html": "b4b8b60f"
+  },
+  "reference/index.qmd": {
+    "index.html": "51656423"
+  },
+  "reference/Location.qmd": {
+    "Location.html": "872144e9"
+  },
+  "reference/Profile.qmd": {
+    "Profile.html": "d3e94719"
+  },
+  "reference/WaterSystem.qmd": {
+    "WaterSystem.html": "5c985210"
+  },
+  "examples/01.Overschrijdingsfrequentielijnen.ipynb": {
+    "01.Overschrijdingsfrequentielijnen.html": "2edc9e95"
+  },
+  "examples/02.Profielen.ipynb": {
+    "02.Profielen.html": "02f8fa25"
+  },
+  "examples/03.HBN.ipynb": {
+    "03.HBN.html": "78d896b9"
+  },
+  "examples.qmd": {
+    "examples.html": "e87f3920"
+  },
+  "index.qmd": {
+    "index.html": "7e690198"
+  }
+}

@@ -1,0 +1,28 @@
+*
+* Momentane kansdichtheden van de windrichting
+* 
+* De getallen zijn ontleend aan Tabel 5-3 van:
+* 'Wind-waterstandstatistiek Hoek van Holland.'
+* RIZA/HKV rapport, Lelystad, juli 2002.
+* (Auteurs: C.P.M. Geerse (RIZA), M.T. Duits (HKV), H.J. Kalk (HKV), I.B.M. Lammers, (HKV).)
+*
+* N.B. De getallen uit de genoemde referentie zijn ook nog eens exact op 1.0 genormeerd;
+* vandaar dat onderstaande getallen meer decimalen bevatten.
+*
+*
+ 22.5	0.0452411865
+ 45.0	0.0557275542
+ 67.5	0.0644162589
+ 90.0	0.0575252172
+112.5	0.0414461200
+135.0	0.0444422251
+157.5	0.0582243084
+180.0	0.0745031459
+202.5	0.0906821133
+225.0	0.0959752322
+247.5	0.0908818536
+270.0	0.0759013283
+292.5	0.0575252172
+315.0	0.0508339159
+337.5	0.0495356037
+360.0	0.0471387197

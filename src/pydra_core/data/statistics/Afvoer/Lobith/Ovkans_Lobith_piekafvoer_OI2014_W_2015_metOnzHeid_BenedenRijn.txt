@@ -1,0 +1,65 @@
+* Overschrijdingskansen piekwaarde Rijnafvoer Lobith met statistische onzekerheid
+* OI2014-invoerbestand voor Hydra-NL voor het klimaatscenario W+ voor het jaar 2015
+* Grootte statistische onzekerheid afkomstig uit WBI2017
+* ----->      Dit bestand geldt voor de BenedenRijn door gewijzigde afvoerverdeling
+* 
+*
+* De afvoerstatistiek is gemaakt voor W+ in het GRADE-project [Hegnauer, Deltares]. 
+* Voor G is de afvoerstatistiek gemaakt door een schaling van W+ [H. Buiteveld, RWS-WVL]. 
+* De conversie naar het Hydra-format is gedaan door Alfons Smale van Deltares [OI-project].
+* Verlaging hoogste afvoeren door gewijzigde afvoerverdeling door Alfons Smale van Deltares [OI-project].
+* Aanpassing bij laagste afvoeren voor bruikbaarheid in Hydra-NL door Matthijs Duits van HKV.
+*
+* Ten aanzien van de naamgeving van het bestand meldt Robert Vos (Rijkswaterstaat WVL):
+*     "We werken maar met 2 scenario's van KNMI'06; te weten G en W+. 
+*     Dus waar G staat wordt ook G bedoeld en waar W staat wordt W+ bedoeld."
+*
+* 
+* Basisduur trapezia: B = 30 dagen.
+*
+* Piekwaarde Rijn    Overschrijdingskans
+*  Afvoer [m³/s]        [-]
+             750        1.000E+00
+            1000        9.700E-01
+            1500        8.000E-01
+            3500        3.000E-01
+            4500        2.200E-01
+            5940        8.551E-02
+            6500        6.482E-02
+            7000        5.239E-02
+            7500        4.193E-02
+            8000        3.255E-02
+            8500        2.528E-02
+            9000        1.871E-02
+            9500        1.377E-02
+           10000        9.986E-03
+           10500        7.496E-03
+           11000        5.524E-03
+           11500        4.081E-03
+           12000        2.976E-03
+           12500        2.016E-03
+           13000        1.547E-03
+           13500        1.014E-03
+           14000        6.587E-04
+           14500        3.482E-04
+           15000        1.771E-04
+           15520        8.665E-05
+           16005        4.262E-05
+           16152        2.145E-05
+           16506        1.116E-05
+           16856        5.580E-06
+           17206        3.153E-06
+           17646        1.762E-06
+           18086        9.336E-07
+           18526        4.990E-07
+           18966        2.686E-07
+           19406        1.335E-07
+           19846        6.546E-08
+           20286        3.143E-08
+           20726        1.359E-08
+           21166        5.511E-09
+           21606        1.896E-09
+           22046        7.279E-10
+           22486        1.990E-10
+           22926        6.256E-11
+           23366        1.693E-11

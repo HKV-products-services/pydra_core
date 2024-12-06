@@ -1,0 +1,17 @@
+*
+* Kansen op de stormduren
+* 
+* De getallen zijn ontleend aan paragraaf 2.6 van:
+* 'Kansberekeningen meetstation OS11'
+* TNO rapport, Delft, 1 augustus 2007.
+* Auteurs: A.C.W.M. Vrouwenvelder en H.M.G.M. Steenbergen
+*
+* Op 23-02-2016 aangepast door R.P. Nicolai o.b.v.
+* berekeningen uitgevoerd i.o.m. C. Geerse.
+* 3 stormduren -> dezelfde verwachtingswaarde 54.02
+* 
+* Duur [uur]      kans [-]
+*
+40                0.475
+60                0.349
+80                0.176

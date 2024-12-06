@@ -1,0 +1,20 @@
+*
+* Topduren van afvoergolven van de Vecht voor trapezium- 
+* vormige afvoergolven bij Dalfsen. 
+*
+* Door: C.P.M. Geerse van HKV lijn in water
+* Datum: 16 december 2015
+* Project: PR3216.10
+*
+* Zie voor beschrijving het rapport:
+* Werkwijze uitintegreren onzekerheden basisstochasten voor Hydra-NL.
+* Afvoeren, meerpeilen, zeewaterstanden en windsnelheden. 
+* Chris Geerse. HKV Lijn in Water, december 2015.
+* 
+* Basisduur B = 30 dagen
+*
+* Piekwaarde afvoergolf  topduur afvoergolf
+*    bij Dalfsen [m3/s]            [uur]
+              0                      720
+            180                       48
+           1000                       48

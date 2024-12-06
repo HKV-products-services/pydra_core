@@ -1,0 +1,14 @@
+# embargo
+*.dll
+
+# python rest
+dist
+.ipynb_checkpoints
+__pycache__
+*.pyc
+# auto generated pixi
+docs/docs
+docs/reference
+# pixi
+.pixi
+*.egg-info

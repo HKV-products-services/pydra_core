@@ -1,0 +1,17 @@
+*
+* Topduren van afvoergolven voor Lobith voor trapeziumvormige afvoergolven. (Hydra-NL)
+*
+* De getallen zijn zo gekozen dat ze de momentane kans volgens Hydra-B HR2006 (= HR2001) 
+* opleveren. Wel dient dit bestand in Hydra-NL dan gebruikt te worden in combinatie 
+* met het bestand "Ovkans_Lobith_piekafvoer_Ref.txt". Basisduur trapezia: B = 30 dagen.
+*
+*
+* 
+* Door: C.P.M. Geerse van HKV lijn in water
+* Datum: 16 april 2009
+*
+* Piekwaarde Lobith            topduur afvoergolf
+*            [m3/s]                  [uur]
+              750                     720
+             6000                      12
+            30000                      12

@@ -1,0 +1,23 @@
+* Correlatiecoëfficiënten sigma voor de Waddenzee oost voor de correlatie tussen 
+* zeewaterstand en windsnelheid per windrichting
+*
+* De correlatiecoëfficiënten worden gegeven voor het correlatiemodel met 
+* variabele spreiding (VS). Per zeewaterstand kan er daardoor sprake 
+* zijn van een andere correlatie. Door de correlatiecoëfficiënten voor
+* alle zeewaterstanden hetzelfde te kiezen, wordt het correlatiemodel met 
+* variabele spreiding (VS) ongevormd tot het correlatiemodel met constante
+* spreiding (CS). 
+*
+* Door: G. Pleijter en C. Geerse van HKV lijn in water
+* Project: PR3280.10
+* Brondata: 1209433-012-HYE-0007-r-Basisstochasten WTI-2017_def.pdf van H. Chbab - Tabel 4.2 in Hoofdstuk 4.5
+* Windstation: Terschelling
+* Waterstand: Lauwersoog
+*
+* De waarde -99.0 betekent: geen correlatie
+*
+* Onderstaand is m de zeewaterstand en r de windrichting
+*
+* m \ r  30      60      90      120     150     180     210     240      270      300      330      360
+0.0      -99.0   -99.0   -99.0   -99.0   -99.0   -99.0   -99.0   1.810    1.469    1.346    1.299    1.613
+6.5      -99.0   -99.0   -99.0   -99.0   -99.0   -99.0   -99.0   1.810    1.469    1.346    1.299    1.613

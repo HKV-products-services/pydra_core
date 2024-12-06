@@ -1,0 +1,12 @@
+*
+* Topduren van meerpeilgolven voor het Markermeer
+* voor trapeziumvormige meerpeilgolven. 
+*
+* Door: C.P.M. Geerse van HKV lijn in water
+* Datum: 9 oktober 2008
+*
+* Piekwaarde Markermeer            topduur meerpeilgolf
+*            [m+NAP]                     [uur]           
+              -0.40                       1440
+              -0.22                         96
+               1.80                         96

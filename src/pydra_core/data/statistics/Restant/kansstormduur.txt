@@ -1,0 +1,8 @@
+*
+* Momentane kansen op de stormduren
+* 
+* Dit bestand is gemaakt door Matthijs Duits van 'HKV lijn in water' op 2 november 2005
+* 
+* Tijd [uur]     kans [-]
+*
+48                 1.0

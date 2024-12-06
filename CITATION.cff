@@ -1,0 +1,25 @@
+# YAML 1.2
+---
+authors:
+  -
+    affiliation: "HKV lijn in water"
+    family-names: van der Vegt
+    given-names: Niels
+    orcid: "https://orcid.org/0009-0004-9542-0979"
+  - 
+    affiliation: "HKV lijn in water"
+    family-names: Kindermann
+    given-names: Paulina
+  -
+    affiliation: "HKV lijn in water"
+    family-names: Caspers
+    given-names: Jochem
+
+
+cff-version: "0.0.1"
+keywords:
+  - Waterveiligheid
+license: "GPL-3.0-or-later"
+message: "If you use this software, please cite it using these metadata."
+# repository-code: ""
+title: Pydra Core

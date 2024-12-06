@@ -1,0 +1,19 @@
+* Correlatiecoëfficiënten sigma voor de Kust Zuid voor de correlatie tussen 
+* zeewaterstand en windsnelheid per windrichting
+*
+* De correlatiecoëfficiënten zijn ontleend aan PC-RING (deelgebied Kust Zuid)
+*
+* De correlatiecoëfficiënten worden gegeven voor het correlatiemodel met 
+* variabele spreiding (VS). Per zeewaterstand kan er daardoor sprake 
+* zijn van een andere correlatie. Door de correlatiecoëfficiënten voor
+* alle zeewaterstanden hetzelfde te kiezen, wordt het correlatiemodel met 
+* variabele spreiding (VS) ongevormd tot het correlatiemodel met constante
+* spreiding (CS). 
+*
+* De waarde -99.0 betekent: geen correlatie
+*
+* Onderstaand is m de zeewaterstand en r de windrichting
+*
+* m \ r  30      60      90      120     150     180     210     240     270     300     330     360
+0.0      1.00    1.20    -99.0   -99.0   -99.0   1.02    1.29    1.04    0.86    0.88    0.90    0.72
+6.5      1.00    1.20    -99.0   -99.0   -99.0   1.02    1.29    1.04    0.86    0.88    0.90    0.72

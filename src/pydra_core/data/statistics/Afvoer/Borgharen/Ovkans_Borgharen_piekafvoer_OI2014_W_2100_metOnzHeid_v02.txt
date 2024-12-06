@@ -1,0 +1,51 @@
+*
+* OI2014-invoerbestand voor Hydra-NL met overschrijdingskansen van de piekwaarde van de Maasafvoer 
+* bij Borgharen met statistische onzekerheid voor het klimaatscenario W+ voor het jaar 2100.
+* De overschrijdingskansen uit dit bestand zijn inclusief overstromingen in Wallonië.
+*
+*
+* De afvoerstatistiek voor 2100 W+ is gemaakt in het GRADE-project met SOBEK3 [Hegnauer, Deltares]. 
+* Aanpassing van de afvoeren met een herhalingstijd groter dan 3000 jaar zodat nieuwe OI2014-
+* waarden lager zijn dan de vorige OI2014-waarden (v4) [Buiteveld en Vos, Rijswaterstaat WVL]
+* De conversie naar het Hydra-format plus een aanpassing bij de laagste afvoeren 
+* voor bruikbaarheid in Hydra-NL is gedaan door Matthijs Duits van HKV.
+*
+*
+* Basisduur trapezia: B = 30 dagen.
+*
+* Piekwaarde Maas    Overschrijdingskans
+*  Afvoer [m³/s]        [-]
+               0        1.000E+00
+              75        9.950E-01
+             200        8.800E-01
+             300        7.600E-01
+             500        5.500E-01
+            1000        2.640E-01
+            1670        8.347E-02
+            1800        6.852E-02
+            2000        5.123E-02
+            2200        3.800E-02
+            2400        2.757E-02
+            2600        1.983E-02
+            2800        1.424E-02
+            3000        1.015E-02
+            3200        7.150E-03
+            3400        4.909E-03
+            3600        3.230E-03
+            3800        2.029E-03
+            4000        1.235E-03
+            4200        7.431E-04
+            4400        4.484E-04
+            4600        2.716E-04
+            4800        1.642E-04
+            5000        9.840E-05
+            5200        5.810E-05
+            5400        3.372E-05
+            5600        1.923E-05
+            5800        1.079E-05
+            6000        5.976E-06
+            6200        3.275E-06
+            6400        1.781E-06
+            6600        9.643E-07
+            6800        5.213E-07
+            7000        2.820E-07

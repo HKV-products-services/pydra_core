@@ -1,0 +1,23 @@
+*
+* Overschrijdingskansen piekwaarde Lobith (Hydra-NL)
+*
+* De getallen zijn zo gekozen dat ze de momentane kans en overschrijdingsfrequentie volgens Hydra-B 
+* HR2006 (= HR2001) opleveren. Wel dient dit bestand in Hydra-NL dan gebruikt te worden in combinatie 
+* met het bestand "Topduur_Lobith_Ref.txt". Basisduur trapezia: B = 30 dagen.
+*
+*
+* 
+* Door: C.P.M. Geerse van HKV lijn in water
+* Datum: 16 april 2009
+*
+* Piekwaarde Lobith           overschrijdingskans
+*          [m3/s]                   [-]
+             750                     1
+            1000                     0.97
+            1500                     0.8
+            3500                     0.3
+            4500                     0.22
+            5893.3                   0.16667
+            7017                     0.083333
+           10850                     0.0066667
+           16000                     0.00013333

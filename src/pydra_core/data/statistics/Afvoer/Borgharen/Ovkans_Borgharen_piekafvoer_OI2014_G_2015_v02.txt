@@ -1,0 +1,42 @@
+*
+* OI2014-invoerbestand voor Hydra-NL met overschrijdingskansen van de piekwaarde van de Maasafvoer 
+* bij Borgharen zonder statistische onzekerheid voor het klimaatscenario G voor het referentiejaar 2015. 
+* De overschrijdingskansen uit dit bestand zijn inclusief overstromingen in Wallonië.
+*
+*
+* De afvoerstatistiek voor het referentiejaar 2015 is gemaakt in het GRADE-project met SOBEK3 [Hegnauer, Deltares]. 
+* De conversie naar het Hydra-format plus een aanpassing bij de laagste afvoeren 
+* voor bruikbaarheid in Hydra-NL is gedaan door Matthijs Duits van HKV.
+*
+*
+* Basisduur trapezia: B = 30 dagen.
+*
+* Piekwaarde Maas    Overschrijdingskans
+*  Afvoer [m³/s]        [-]
+               0        1.000E+00
+              75        9.950E-01
+             200        8.800E-01
+             300        7.600E-01
+             500        5.500E-01
+            1000        2.640E-01
+            1410        8.333E-02
+            1930        3.333E-02
+            2260        1.667E-02
+            2560        8.333E-03
+            2740        5.556E-03
+            2930        3.333E-03
+            3190        1.667E-03
+            3490        6.667E-04
+            3540        5.556E-04
+            3650        3.333E-04
+            3770        1.667E-04
+            3810        1.333E-04
+            3880        8.333E-05
+            3950        5.556E-05
+            4000        4.167E-05
+            4050        3.333E-05
+            4210        1.667E-05
+            4370        8.333E-06
+            4460        5.556E-06
+            4580        3.333E-06
+            4740        1.667E-06

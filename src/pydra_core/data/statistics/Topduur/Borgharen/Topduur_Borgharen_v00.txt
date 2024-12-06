@@ -1,0 +1,14 @@
+*
+* Topduren van afvoergolven voor Borgharen voor trapeziumvormige afvoergolven. (Hydra-NL)
+*
+* De getallen zouden zo gekozen moeten zijn dat ze de momentane kans opleveren. Dit is niet gecontroleerd!
+* Daarom heeft dit bestand ook versienummer v00
+* Dit bestand dient in Hydra-NL gebruikt te worden in combinatie met het bestand 
+* "Ovkans_Borgharen_piekafvoer_Ref.txt". Basisduur trapezia: B = 30 dagen.
+*
+*
+* Piekwaarde Borgharen      topduur afvoergolf
+*          [m3/s]                 [uur]
+              0                    720
+           1315.1                   12
+           6000                     12

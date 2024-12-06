@@ -1,0 +1,11 @@
+*
+* Overschrijdingskansen piekwaarde Markermeer
+*
+* Door: C.P.M. Geerse van HKV lijn in water
+* Datum: 9 oktober 2008
+*
+* Piekwaarde Markermeer       overschrijdingskans
+*          [m+NAP]                    [-]
+           -0.40                    1.0
+           -0.22                    0.3333
+            1.00                    1.014e-006

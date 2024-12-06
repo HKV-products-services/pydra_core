@@ -1,0 +1,16 @@
+*
+* Topduren van afvoergolven van de Vecht voor trapezium- 
+* vormige afvoergolven bij Dalfsen. 
+*
+* De getallen zijn ontleend aan Bijlage H.2.4 van:
+* 'Hydraulische Randvoorwaarden 2006 Vecht- en IJsseldelta' -
+* 'Statistiek IJsselmeerpeil, afvoeren en stormverlopen voor Hydra-VIJ'
+* RIZA-werkdocument 2006.036X, Lelystad, maart 2006. 
+* (Auteur: C.P.M. Geerse)
+*
+* 
+* Piekwaarde afvoergolf  topduur afvoergolf
+*    bij Dalfsen [m3/s]            [uur]
+              0                      720
+            180                       48
+           1000                       48

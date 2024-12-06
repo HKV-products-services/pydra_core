@@ -1,0 +1,14 @@
+*
+* Overschrijdingskansen van piekafvoeren van de Vecht bij Dalfsen
+*
+* De getallen zijn ontleend aan Bijlage H.2.1 van:
+* 'Hydraulische Randvoorwaarden 2006 Vecht- en IJsseldelta' -
+* 'Statistiek IJsselmeerpeil, afvoeren en stormverlopen voor Hydra-VIJ'
+* RIZA-werkdocument 2006.036X, Lelystad, maart 2006. 
+* (Auteur: C.P.M. Geerse)
+* 
+* Piekwaarde Vecht   overschrijdingskans
+*       Afvoer [m³/s]        [-]
+          0                1.0
+        180                0.16666667
+        550                1.3333E-04

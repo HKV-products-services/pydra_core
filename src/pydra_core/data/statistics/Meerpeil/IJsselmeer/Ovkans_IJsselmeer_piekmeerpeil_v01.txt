@@ -1,0 +1,15 @@
+*
+* Overschrijdingskansen piekwaarde IJsselmeer
+*
+* De getallen zijn ontleend aan Bijlage H.2.3 van:
+* 'Hydraulische Randvoorwaarden 2006 Vecht- en IJsseldelta' -
+* 'Statistiek IJsselmeerpeil, afvoeren en stormverlopen voor Hydra-VIJ'
+* RIZA-werkdocument 2006.036X, Lelystad, maart 2006. 
+* (Auteur: C.P.M. Geerse)
+*
+* Piekwaarde IJsselmeerpeil       overschrijdingskans
+*          [m+NAP]                    [-]
+           -0.40                   1.000
+            0.05                   0.166667
+            0.40                   0.016667
+            1.07                   1.667E-05

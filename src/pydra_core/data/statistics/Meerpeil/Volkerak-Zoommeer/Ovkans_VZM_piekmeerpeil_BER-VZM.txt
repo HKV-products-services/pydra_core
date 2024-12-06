@@ -1,0 +1,18 @@
+*
+* Overschrijdingskansen piekwaarde Volkerak-Zoommeer
+*
+* Auteur:  Chris Geerse
+* Project: PR3598.10
+* Datum:   10 augustus 2017
+*
+* Basisduur B = 30 dagen
+* av = 0.1, ah = 0.5
+*
+*
+*        Piekwaarde        overschrijdingskans
+*          [m+NAP]                    [-]
+           0.05                1.000E+00
+           0.12                6.000E-01
+           0.22                1.667e-01           
+           0.94                1.667E-05
+           1.12                1.667E-06

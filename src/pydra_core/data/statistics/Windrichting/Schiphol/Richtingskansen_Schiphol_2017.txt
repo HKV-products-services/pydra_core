@@ -1,0 +1,28 @@
+*
+* Richtingskansen windsnelheid Schiphol.
+*
+* Door:    C.P.M. Geerse van HKV lijn in water
+* Datum:   11 december 2015
+* Project: PR3216.10
+*
+* Zie voor beschrijving het rapport:
+* Werkwijze uitintegreren onzekerheden basisstochasten voor Hydra-NL.
+* Afvoeren, meerpeilen, zeewaterstanden en windsnelheden. 
+* Chris Geerse. HKV Lijn in Water, december 2015.
+* 
+22.5	0.025466057
+45	0.037003166
+67.5	0.060780865
+90	0.05269082
+112.5	0.045304256
+135	0.051705944
+157.5	0.066690116
+180	0.091593387
+202.5	0.123320436
+225	0.112768203
+247.5	0.100105522
+270	0.075202251
+292.5	0.050087935
+315	0.03960605
+337.5	0.036932817
+360	0.030742174

@@ -1,0 +1,20 @@
+*
+* Topduren van meerpeilgolven voor het Markermeer
+* voor trapeziumvormige meerpeilgolven. 
+*
+* Door:    C.P.M. Geerse van HKV lijn in water
+* Datum:   16 december 2015
+* Project: PR3216.10
+*
+* Zie ook het rapport:
+* Werkwijze uitintegreren onzekerheden basisstochasten voor Hydra-NL.
+* Afvoeren, meerpeilen, zeewaterstanden en windsnelheden. 
+* Chris Geerse. HKV Lijn in Water, december 2015.
+* 
+* Basisduur trapezia: B = 60 dagen.
+*
+* Piekwaarde Markermeer            topduur meerpeilgolf
+*            [m+NAP]                     [uur]           
+              -0.40                       1440
+              -0.22                         96
+               1.80                         96

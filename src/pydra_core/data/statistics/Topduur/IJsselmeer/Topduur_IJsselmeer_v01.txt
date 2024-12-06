@@ -1,0 +1,15 @@
+*
+* Topduren van meerpeilgolven van het IJsselmeerpeil
+* voor trapeziumvormige meerpeilgolven. 
+*
+* De getallen zijn ontleend aan Bijlage H.2.6 van:
+* 'Hydraulische Randvoorwaarden 2006 Vecht- en IJsseldelta' -
+* 'Statistiek IJsselmeerpeil, afvoeren en stormverlopen voor Hydra-VIJ'
+* RIZA-werkdocument 2006.036X, Lelystad, maart 2006. 
+* (Auteur: C.P.M. Geerse)
+*
+* Piekwaarde IJsselmeer            topduur meerpeilgolf
+*            [m+NAP]                     [uur]           
+              -0.4                        720
+               0.05                        96
+               1.8                         96

@@ -1,0 +1,49 @@
+*
+* Overschrijdingskansen piekwaarde Maasafvoer Lith zonder statistische onzekerheid.
+* OI2014-invoerbestand voor Hydra-NL voor het klimaatscenario W+ voor het jaar 2050.
+*
+*
+* De afvoerstatistiek is gemaakt voor W+ in het GRADE-project [Hegnauer, Deltares]. 
+* Voor G is de afvoerstatistiek gemaakt door een schaling van W+ [H. Buiteveld, RWS-WVL]. 
+* De conversie naar het Hydra-format plus een aanpassing bij de laagste afvoeren 
+* voor bruikbaarheid in Hydra-NL is gedaan door Matthijs Duits van HKV.
+*
+*
+* Ten aanzien van de naamgeving van het bestand meldt Robert Vos (Rijkswaterstaat WVL):
+*     "We werken maar met 2 scenario's van KNMI'06; te weten G en W+. 
+*     Dus waar G staat wordt ook G bedoeld en waar W staat wordt W+ bedoeld."
+*
+* 
+* Basisduur trapezia: B = 30 dagen.
+*
+* Piekwaarde Maas    Overschrijdingskans
+*  Afvoer [m³/s]        [-]
+               0        1.000E+00
+              75        9.950E-01
+             200        8.800E-01
+             300        7.600E-01
+             500        5.500E-01
+             600        4.021E-01
+             800        2.725E-01
+            1000        1.847E-01
+            1497        8.333E-02
+            1963        3.333E-02
+            2309        1.667E-02
+            2646        8.333E-03
+            2851        5.556E-03
+            3068        3.333E-03
+            3337        1.667E-03
+            3638        6.667E-04
+            3672        5.556E-04
+            3769        3.333E-04
+            3921        1.667E-04
+            3969        1.333E-04
+            4070        8.333E-05
+            4143        5.556E-05
+            4190        4.167E-05
+            4227        3.333E-05
+            4342        1.667E-05
+            4460        8.333E-06
+            4536        5.556E-06
+            4639        3.333E-06
+            4783        1.667E-06

@@ -1,0 +1,28 @@
+*
+* Richtingskansen windsnelheid Deelen.
+*
+* Door:    C.P.M. Geerse van HKV lijn in water
+* Datum:   17 december 2015
+* Project: PR3216.10
+*
+* Zie voor beschrijving het rapport:
+* Werkwijze uitintegreren onzekerheden basisstochasten voor Hydra-NL.
+* Afvoeren, meerpeilen, zeewaterstanden en windsnelheden. 
+* Chris Geerse. HKV Lijn in Water, december 2015.
+* 
+22.5	0.029622854
+45	0.039755137
+67.5	0.058682803
+90	0.061215874
+112.5	0.052842668
+135	0.064945117
+157.5	0.061778778
+180	0.077047565
+202.5	0.123135379
+225	0.136152547
+247.5	0.113073459
+270	0.059667886
+292.5	0.041373487
+315	0.032437377
+337.5	0.026878694
+360	0.021390374

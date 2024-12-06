@@ -1,0 +1,12 @@
+*
+* Topduren van meerpeilgolven voor het Veluwerandmeer
+* voor trapeziumvormige meerpeilgolven. 
+*
+* Door: C.P.M. Geerse van HKV lijn in water
+* Datum: 31 oktober 2007
+*
+* Piekwaarde Veluwerandmeer        topduur meerpeilgolf
+*            [m+NAP]                     [uur]           
+              -0.30                       1440
+              -0.05                         72
+               1.80                         72

@@ -1,0 +1,63 @@
+* Overschrijdingskansen piekwaarde Rijnafvoer Lobith met statistische onzekerheid
+* OI2014-invoerbestand voor Hydra-NL voor het klimaatscenario G voor het jaar 2050
+* Grootte statistische onzekerheid afkomstig uit WBI2017
+* 
+*
+* De afvoerstatistiek is gemaakt voor W+ in het GRADE-project [Hegnauer, Deltares]. 
+* Voor G is de afvoerstatistiek gemaakt door een schaling van W+ [H. Buiteveld, RWS-WVL]. 
+* De conversie naar het Hydra-format is gedaan door Alfons Smale van Deltares [OI-project].
+* Aanpassing bij laagste afvoeren voor bruikbaarheid in Hydra-NL door Matthijs Duits van HKV.
+*
+* Ten aanzien van de naamgeving van het bestand meldt Robert Vos (Rijkswaterstaat WVL):
+*     "We werken maar met 2 scenario's van KNMI'06; te weten G en W+. 
+*     Dus waar G staat wordt ook G bedoeld en waar W staat wordt W+ bedoeld."
+*
+* 
+* Basisduur trapezia: B = 30 dagen.
+*
+* Piekwaarde Rijn    Overschrijdingskans
+*  Afvoer [m³/s]        [-]
+             750        1.000E+00
+            1000        9.700E-01
+            1500        8.000E-01
+            3500        3.000E-01
+            4500        2.200E-01
+            5940        1.011e-01
+            6500        7.686e-02
+            7000        6.346e-02
+            7500        5.227e-02
+            8000        4.194e-02
+            8500        3.395e-02
+            9000        2.615e-02
+            9500        1.994e-02
+           10000        1.489e-02
+           10500        1.142e-02
+           11000        8.569e-03
+           11500        6.441e-03
+           12000        4.772e-03
+           12500        3.286e-03
+           13000        2.542e-03
+           13500        1.682e-03
+           14000        1.102e-03
+           14500        6.076e-04
+           15000        3.317e-04
+           15500        1.747e-04
+           16000        9.091e-05
+           16500        4.734e-05
+           17000        2.526e-05
+           17500        1.289e-05
+           18000        7.435e-06
+           18500        4.232e-06
+           19000        2.293e-06
+           19500        1.249e-06
+           20000        6.889e-07
+           20500        3.526e-07
+           21000        1.790e-07
+           21500        8.935e-08
+           22000        4.099e-08
+           22500        1.794e-08
+           23000        6.724e-09
+           23500        2.802e-09
+           24000        8.794e-10
+           24500        3.190e-10
+           25000        9.695e-11

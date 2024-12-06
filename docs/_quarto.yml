@@ -1,0 +1,74 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Pydra Core"
+  navbar:
+    left:
+      - text: "Examples"
+        file:  Examples.qmd
+      - text: "Python API"
+        file: reference/index.qmd
+      - text: "Changelog"
+        file: CHANGELOG.md
+
+#     right:
+#       - text: "Bijdragen"
+#         file: contributing.qmd
+#       - icon: github
+#         href: https://github.com/continu-inzicht/toolbox
+#         aria-label: GitHub
+
+  sidebar:
+      - title: "Examples"
+        contents: 
+          - examples/01.Overschrijdingsfrequentielijnen.ipynb
+          - examples/02.Profielen.ipynb
+          - examples/03.HBN.ipynb
+#       - title: "Installeren"
+#         contents:
+#           - install.qmd
+
+#       - title: "Voorbeelden"
+#         contents:
+#           - examples/notebooks/proof_of_concept.ipynb
+
+#       - title: "Modules"
+#         contents:
+#           - modules.qmd
+
+#       - title: "Python API"
+#         contents:
+#           - reference/index.qmd
+
+
+
+#       - title: "Bijdragen"
+#         contents:
+#           - contributing.qmd
+
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+
+
+
+
+quartodoc:
+  style: pkgdown
+  dir: reference
+  title: API Reference
+  package: pydra_core
+  parser: numpy
+  dynamic: True
+  rewrite_all_pages: True
+  options:
+    include_inherited: true
+    include_empty: true
+    include_attributes: true
+    include_classes: true
+    include_functions: true

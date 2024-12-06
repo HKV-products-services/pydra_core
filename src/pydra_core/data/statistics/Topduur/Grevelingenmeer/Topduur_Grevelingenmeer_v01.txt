@@ -1,0 +1,14 @@
+*
+* Topduren van meerpeilgolven voor het Grevelingen
+* voor trapeziumvormige meerpeilgolven. 
+*
+* De getallen zijn ontleend aan:
+* 'Statistiek Zeeuwse meren voor Hydra-Zoet'.
+* Rapport van mei 2012, PR1564.14. Auteur: C.P.M. Geerse.
+*
+*        Piekwaarde        topduur meerpeilgolf
+*           [m+NAP]               [uur]
+            -0.23                 240
+            -0.20                 240
+            -0.08                  18
+             1.80                  18

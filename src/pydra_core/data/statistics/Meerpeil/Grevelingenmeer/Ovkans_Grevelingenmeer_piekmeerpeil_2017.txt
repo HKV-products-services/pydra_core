@@ -1,0 +1,13 @@
+*
+* Overschrijdingskansen piekwaarde Grevelingenmeer
+*
+* De getallen zijn ontleend aan:
+* 'Statistiek Zeeuwse meren voor Hydra-Zoet'.
+* Rapport van mei 2012, PR1564.14. Auteur: C.P.M. Geerse.
+*
+*
+*        Piekwaarde           overschrijdingskans
+*          [m+NAP]                    [-]
+           -0.23                 1.0000e+000
+           -0.12                 5.5556e-001
+            0.18                 5.5556e-006

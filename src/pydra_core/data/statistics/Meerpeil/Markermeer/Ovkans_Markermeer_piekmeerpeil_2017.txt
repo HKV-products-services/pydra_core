@@ -1,0 +1,19 @@
+*
+* Overschrijdingskansen piekwaarde Markermeer
+*
+* Door:    C.P.M. Geerse van HKV lijn in water
+* Datum:   17 december 2015
+* Project: PR3216.10
+*
+* Zie ook het rapport:
+* Werkwijze uitintegreren onzekerheden basisstochasten voor Hydra-NL.
+* Afvoeren, meerpeilen, zeewaterstanden en windsnelheden. 
+* Chris Geerse. HKV Lijn in Water, december 2015.
+*
+* Basisduur trapezia: B = 60 dagen.
+*
+* Piekwaarde Markermeer       overschrijdingskans
+*          [m+NAP]                    [-]
+           -0.40                    1.0
+           -0.22                    0.3333
+            1.00                    1.014e-006

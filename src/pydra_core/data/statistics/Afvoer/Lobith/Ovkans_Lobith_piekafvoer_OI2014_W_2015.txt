@@ -1,0 +1,50 @@
+*
+* Overschrijdingskansen piekwaarde Rijnafvoer Lobith zonder statistische onzekerheid.
+* OI2014-invoerbestand voor Hydra-NL voor het klimaatscenario W+ voor het jaar 2015.
+* 
+*
+* De afvoerstatistiek is gemaakt voor W+ in het GRADE-project [Hegnauer, Deltares]. 
+* Voor G is de afvoerstatistiek gemaakt door een schaling van W+ [H. Buiteveld, RWS-WVL]. 
+* De conversie naar het Hydra-format plus een aanpassing bij de laagste afvoeren 
+* voor bruikbaarheid in Hydra-NL is gedaan door Matthijs Duits van HKV.
+*
+*
+* Ten aanzien van de naamgeving van het bestand meldt Robert Vos (Rijkswaterstaat WVL):
+*     "We werken maar met 2 scenario's van KNMI'06; te weten G en W+. 
+*     Dus waar G staat wordt ook G bedoeld en waar W staat wordt W+ bedoeld."
+*
+* 
+* Basisduur trapezia: B = 30 dagen.
+*
+* Piekwaarde Rijn    Overschrijdingskans
+*  Afvoer [m³/s]        [-]
+             750        1.000E+00
+            1000        9.700E-01
+            1500        8.000E-01
+            3500        3.000E-01
+            4500        2.200E-01
+            5941        8.333E-02
+            6900        5.556E-02
+            7970        3.333E-02
+            9130        1.667E-02
+           10250        8.333E-03
+           10905        5.556E-03
+           11706        3.333E-03
+           12773        1.667E-03
+           13595        8.333E-04
+           14003        5.556E-04
+           14400        3.333E-04
+           14835        1.667E-04
+           14974        1.333E-04
+           15268        8.333E-05
+           15520        5.556E-05
+           15700        4.167E-05
+           15839        3.333E-05
+           16271        1.667E-05
+           16704        8.333E-06
+           16956        5.556E-06
+           17275        3.333E-06
+           17707        1.667E-06
+           18139        8.333E-07
+           18392        5.556E-07
+           18572        4.167E-07

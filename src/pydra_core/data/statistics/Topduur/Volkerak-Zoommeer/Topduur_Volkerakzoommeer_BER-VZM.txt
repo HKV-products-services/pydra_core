@@ -1,0 +1,18 @@
+*
+* Topduren van meerpeilgolven voor het Volkerak-Zoommeer
+* voor trapeziumvormige geknikte meerpeilgolven. 
+*
+* Auteur:  Chris Geerse
+* Project: PR3598.10
+* Datum:   10 augustus 2017
+*
+* Basisduur B = 30 dagen
+* av = 0.1, ah = 0.5
+*
+*
+*        Piekwaarde        topduur meerpeilgolf
+*           [m+NAP]               [uur]
+            0.05                  720
+            0.12                  100
+            0.22                   36
+            1.80                   36

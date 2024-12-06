@@ -1,0 +1,34 @@
+*
+* Statistische gegevens wind-waterstand Hoek van Holland
+*
+* A, B en rho volgens Geerse, C.P.M., M.T. Duits, H.J. Kalk en I.B.M. Lammers.
+* Wind-waterstandstatistiek; Hoek van Holland. HKV lijn in water. Lelystad, juli 2002.
+*
+* De parameters a, b en c betreffen de parameters van een tweede graadspolynoomfit 
+* aan de transformatiefunctie van de windsnelheid K_r(u):
+*    K_r(u) = a * u^2 * b * u + c
+*
+* In dit bestand betreft het de parameters volgens de WBI2017 voor de situatie MET Volkerfactor
+*
+* M volgens W.F. Volker, Statistiek van wind en waterstanden in Hoek van Holland; 
+* tweede concept. 20 mei 1987.
+*
+* R     A       B       a          b        c           rho     M
+*[deg]  [m]     [m]     [s^2/m^2]  [s/m]    [-]         [-]     [-]
+*
+22.5	0.000	1.000	 0.001396  0.5542   -2.8221	0.000	1.00
+45.0	0.000	1.000	 0.003102  0.5839   -3.3161	0.000	1.00
+67.5	0.000	1.000	 0.002716  0.6180   -3.6472	0.000	1.00
+90.0	0.000	1.000	 0.003821  0.6536   -3.4686	0.000	1.00
+112.5	0.000	1.000	-0.001867  0.8251   -3.6599	0.000	1.00
+135.0	0.000	1.000	 0.001806  0.7665   -3.7487	0.000	1.00
+157.5	0.000	1.000	 0.000358  0.6988   -3.8532	0.000	1.00
+180.0	0.000	1.000	 0.001973  0.5865   -3.4827	0.000	1.00
+202.5	0.000	1.000	 0.001117  0.4576   -3.0232	0.000	1.00
+225.0	1.227	0.122	-0.000959  0.3701   -1.5357	0.506	1.00
+247.5	1.230	0.169	-0.000696  0.3769   -1.6238	0.605	1.00
+270.0	1.224	0.228	-0.000759  0.2859   -1.2586	0.477	0.67
+292.5	1.195	0.262	 0.000520  0.2828   -0.8312	0.613	0.67
+315.0	0.887	0.326	 0.001755  0.3019   -0.4869	0.768	0.67
+337.5	0.904	0.292	 0.000549  0.3362   -0.7533	0.677	0.67
+360.0	0.873	0.236	-0.001314  0.2903   -0.7554	0.356	0.67

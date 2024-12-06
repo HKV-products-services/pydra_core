@@ -1,0 +1,31 @@
+*
+* Kansen op de windrichtingen voor de Oosterschelde
+* 
+* 
+* Door:         Chris Geerse
+* Project:      PR3556.10
+* Datum:        augustus 2017
+*
+* Kansen 30-graden sectoren overgenomen van Hoek van Holland, conform rapport:
+* Basisstochasten WTI-2017. Statistiek en statistische onzekerheid. 
+* Houcine Cbab. Kenmerk 1209433-012-HYE-0007, 2 december 2015.
+*
+* Daarna omgerekend naar 22.5-sectoren volgens rapportage PR3556.10
+*
+*
+22.5          3.1544E-02
+45.0          4.0064E-02
+67.5          5.1174E-02
+90.0          6.4961E-02
+112.5         4.9185E-02
+135.0         4.6984E-02
+157.5         5.4612E-02
+180.0         8.7976E-02
+202.5         1.1595E-01
+225.0         1.1473E-01
+247.5         1.0226E-01
+270.0         7.3977E-02
+292.5         5.6167E-02
+315.0         4.4412E-02
+337.5         3.5300E-02
+360.0         3.0704E-02

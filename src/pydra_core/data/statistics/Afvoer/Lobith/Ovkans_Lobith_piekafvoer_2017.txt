@@ -1,0 +1,33 @@
+*
+* Overschrijdingskansen piekwaarde Lobith (Hydra-NL). Zonder onzekerheden.
+*
+* Door: C.P.M. Geerse van HKV lijn in water
+* Datum: 16 december 2015
+* Project: PR3216.10
+*
+* Zie voor beschrijving het rapport:
+* Werkwijze uitintegreren onzekerheden basisstochasten voor Hydra-NL.
+* Afvoeren, meerpeilen, zeewaterstanden en windsnelheden. 
+* Chris Geerse. HKV Lijn in Water, december 2015.
+* 
+* Basisduur trapezia: B = 30 dagen.
+* 
+* Piekwaarde  Overschrijdingskans
+*    [m3/s]          [-]
+          750       1.00
+         1000       0.97
+         1500       0.8
+         3500       0.3
+         4500       0.22
+         5940       8.333E-02
+         7970       3.333E-02
+         9130       1.667E-02
+         10910      5.556E-03
+         12770      1.667E-03
+         14000      5.556E-04
+         14840      1.667E-04
+         14970      1.333E-04
+         15520      5.556E-05
+         16270      1.667E-05
+         16960      5.556E-06
+         17710      1.667E-06

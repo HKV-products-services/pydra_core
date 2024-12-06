@@ -1,0 +1,16 @@
+*
+* Topduren van afvoergolven van de IJssel voor trapezium- 
+* vormige afvoergolven bij Olst. 
+*
+* De getallen zijn ontleend aan Bijlage H.2.5 van:
+* 'Hydraulische Randvoorwaarden 2006 Vecht- en IJsseldelta' -
+* 'Statistiek IJsselmeerpeil, afvoeren en stormverlopen voor Hydra-VIJ'
+* RIZA-werkdocument 2006.036X, Lelystad, maart 2006. 
+* (Auteur: C.P.M. Geerse)
+*
+* 
+* Piekwaarde afvoergolf  topduur afvoergolf
+*    bij Olst [m3/s]            [uur]
+             200                 720
+             800                  24
+            4000                  24

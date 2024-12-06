@@ -1,0 +1,20 @@
+*
+* Richtingskansen windsnelheid Schiphol voor 12 sectoren van 30 graden.
+* De inhoud van dit bestand wordt gebruikt in het Markermeer
+*
+* Door:    M.T. Duits van HKV lijn in water
+* Datum:   4 augustus 2016
+* Project: PR3391.10
+*
+30       0.040
+60       0.077
+90       0.078
+120      0.059
+150      0.087
+180      0.123
+210      0.159
+240      0.125
+270      0.098
+300      0.060
+330      0.052
+360      0.042

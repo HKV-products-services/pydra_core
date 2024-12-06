@@ -1,0 +1,19 @@
+*
+* Topduren van afvoergolven voor Lobith voor trapeziumvormige afvoergolven. (Hydra-NL)
+*
+* Door: C.P.M. Geerse van HKV lijn in water
+* Datum: 16 december 2015
+* Project: PR3216.10
+*
+* Zie voor beschrijving het rapport:
+* Werkwijze uitintegreren onzekerheden basisstochasten voor Hydra-NL.
+* Afvoeren, meerpeilen, zeewaterstanden en windsnelheden. 
+* Chris Geerse. HKV Lijn in Water, december 2015.
+*
+* Basisduur B = 30 dagen
+*
+* Piekwaarde Lobith            topduur afvoergolf
+*            [m3/s]                  [uur]
+              750                     720
+             6000                      12
+            30000                      12        

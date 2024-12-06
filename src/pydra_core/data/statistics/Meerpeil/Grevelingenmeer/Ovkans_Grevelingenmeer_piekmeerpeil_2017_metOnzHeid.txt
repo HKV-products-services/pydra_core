@@ -1,0 +1,25 @@
+*
+* Overschrijdingskansen piekwaarde Grevelingenmeer inclusief statistische onzekerheid
+*
+*
+* Door:    C.P.M. Geerse van HKV lijn in water
+* Datum:   8 september 2016
+* Project: PR3280.20
+* Zie rapport: Statistiek kleinere meren inclusief onzekerheid - 
+*              Veluwerandmeren, Volkerak-Zoommeer en de Grevelingen. C.P.M. Geerse.
+*
+*
+*       Piekwaarde           overschrijdingskans
+*         [m+NAP]                    [-]
+          -0.23                   1.000E+00
+          -0.12                   5.556E-01
+          -0.11                   3.785E-01
+          -0.10                   2.579E-01
+           0.00                   1.626E-02
+           0.10                   1.209E-03
+           0.20                   1.117E-04
+           0.30                   1.282E-05
+           0.40                   1.901E-06
+           0.50                   3.655E-07
+           0.60                   8.792E-08
+           0.70                   2.522E-08
