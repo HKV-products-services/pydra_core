@@ -23,11 +23,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-          path: continu_inzicht
+          path: pydra_core
 
       - uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          manifest-path: continu_inzicht/pixi.toml
+          manifest-path: pydra_core/pixi.toml
           pixi-version: "latest"
 
       - name: Ruff Lint
