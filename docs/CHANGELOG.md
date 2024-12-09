@@ -26,3 +26,7 @@
 1. ruff errors (zie eerste paar commits)
     1. src\pydra_core\location\model\statistics\stochastics\model_uncertainty.py:351:16: E713 [*] Test for membership should be `not in`
     1. `== None` -> `is None`
+1. Locatie paden werken niet in linux door `\\` & documentatie is nu in linux:
+    `FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pydra_core/pydra_core/pydra_core/src/pydra_core/data/statistics/Zeewaterstand\\Vlissingen\\CondPovVlissingen_12u_zichtjaar2017_metOnzHeid.txt'`
+    
+

@@ -23,7 +23,7 @@ class FileHydraNL:
             Path to the statistics file
         """
         # Open file
-        if "//" in path:
+        if "\\" in path:
             path = path.replace("\\", "/")
         with open(
             os.path.join(FileHydraNL.PACKAGE_PATH, path), "r", encoding="cp1252"
@@ -49,7 +49,7 @@ class FileHydraNL:
             Path to the statistics file
         """
         # Open file
-        if "//" in path:
+        if "\\" in path:
             path = path.replace("\\", "/")
         with open(
             os.path.join(FileHydraNL.PACKAGE_PATH, path), "r", encoding="cp1252"
@@ -75,7 +75,7 @@ class FileHydraNL:
             Path to the statistics file
         """
         # Open file
-        if "//" in path:
+        if "\\" in path:
             path = path.replace("\\", "/")
         with open(
             os.path.join(FileHydraNL.PACKAGE_PATH, path), "r", encoding="cp1252"
