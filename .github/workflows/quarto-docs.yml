@@ -30,24 +30,11 @@ jobs:
           manifest-path: pydra_core/pixi.toml
           pixi-version: "latest"
 
-      - name: Copy github secrets to environment variables files
-        working-directory: pydra_core
-        run: |
-            touch .env
-            echo host=${{ secrets.HOST }} >> .env
-            echo database=${{ secrets.DATABASE }} >> .env
-            echo port=${{ secrets.PORT }} >> .env
-            echo password=${{ secrets.PASSWORD }} >> .env
-            echo user=${{ secrets.USER }} >> .env
-            echo schema=${{ secrets.SCHEMA }} >> .env
-            cat .env
-
       - name: Check Quarto installation and all engines
         working-directory: pydra_core
         run: pixi run quarto-check
 
       - name: Render Quarto Project
-        working-directory: pydra_core
         run: pixi run quarto-render
 
       # - name: Publish Quarto Project
