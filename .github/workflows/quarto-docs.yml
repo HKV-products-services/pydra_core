@@ -35,6 +35,7 @@ jobs:
         run: pixi run quarto-check
 
       - name: Render Quarto Project
+        working-directory: pydra_core
         run: pixi run quarto-render
 
       # - name: Publish Quarto Project
