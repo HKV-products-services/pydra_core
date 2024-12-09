@@ -8,6 +8,7 @@ from .stochastics.lake_level import LakeLevel
 from .stochastics.model_uncertainty import ModelUncertainty
 from .stochastics.sea_level.sea_level import SeaLevel
 from .stochastics.sigma_function import SigmaFunction
+
 # from .stochastics.wave_shape import WaveShape
 from .stochastics.wind_speed import WindSpeed
 from ...settings.settings import Settings

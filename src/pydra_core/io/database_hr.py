@@ -259,7 +259,7 @@ class DatabaseHR:
             # Vertaal tabel naar HRDResultColumnId2
             # Zo niet, negeer en ga verder, neem aan dat de HRDResultColumnId2 heeft dezelfde Ids als HRDResultColumnId
             try:
-                sql =  """
+                sql = """
                         SELECT HRDResultColumnId2, ResultVariableId
                         FROM HRDResultVariables2 hrv2
                         INNER JOIN HRDResultVariables hrv ON hrv.HRDResultColumnId = hrv2.HRDResultColumnId
@@ -272,8 +272,8 @@ class DatabaseHR:
                 pass
 
         # Geen correlaties aanwezig, return leeg dataframe
-        except  Exception as e:
-            print(f'ERROR: {e}, continuing without correlation')
+        except Exception as e:
+            print(f"ERROR: {e}, continuing without correlation")
             data = pd.DataFrame(
                 columns=[
                     "HRDLocationId",
@@ -426,7 +426,7 @@ class DatabaseHR:
 
         # Otherwise use the default functions
         except Exception as e:
-            print(f'{e}: Using default functions')
+            print(f"{e}: Using default functions")
             PATH = os.path.join(
                 os.path.split(os.path.dirname(__file__))[0],
                 "data",

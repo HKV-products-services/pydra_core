@@ -3,8 +3,10 @@ import numpy as np
 # from scipy.stats import norm
 
 from .barrier import Barrier
+
 # from ..discharge import Discharge
 from ..discrete_probability import DiscreteProbability
+
 # from ..sea_level.sea_level import SeaLevel
 # from ..wind_speed import WindSpeed
 # from ....loading.loading_model.loading_model import LoadingModel
@@ -34,4 +36,6 @@ class BarrierRamspol(Barrier):
         elif closing_situation == 2:
             return 1 - self.failure_probability_ramspol
         else:
-            raise KeyError(f"[ERROR] Unknown closing situation: {closing_situation}, expecting 1 or 2.")
+            raise KeyError(
+                f"[ERROR] Unknown closing situation: {closing_situation}, expecting 1 or 2."
+            )

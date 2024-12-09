@@ -387,7 +387,7 @@ class WaveShape:
 
                 # Als ingesnoerd wordt totaan het tijdstip waarop de golfvorm de maximale waarde heeft
                 elif self.ifb == 0.0:
-                    n = 6
+                    # n = 6
 
                     # Vul de vector met tijdstippen
                     ttabel = np.array(

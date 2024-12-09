@@ -94,7 +94,7 @@ class Profile:
 
         Parameters
         ----------
-        crest_level : float
+        dike_crest_level : float
             The crest level of the dike
         """
         self.dike_crest_level = dike_crest_level
