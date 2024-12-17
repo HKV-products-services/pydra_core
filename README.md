@@ -7,7 +7,7 @@ Certain submodules have their own licensing.
 
 ## Getting started
 
-###  Using install (in future)
+### Using install (in future)
 
 run `pip install pydra_core`
 
@@ -50,7 +50,5 @@ Currently (alpha), four dll's are excluded:
 - `feedbackDLL.dll`
 
 install these `$python_dir$\pydra_core\location\profile\lib`, where `python_dir` can be something like `C:\Users\<username>\miniforge3\envs\<env_name>\Lib\site-packages`.
-
-
 
 For questions about how to use this package contact `n.vandervegt@hkv.nl`.

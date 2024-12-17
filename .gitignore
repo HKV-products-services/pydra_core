@@ -5,6 +5,7 @@
 dist
 .ipynb_checkpoints
 __pycache__
+__hidden__*
 *.pyc
 # auto generated pixi
 docs/docs

@@ -26,15 +26,15 @@ class Profile:
     breakwater_level = 0.0
 
     # Foreland
-    foreland_x_coordinates = None
-    foreland_y_coordinates = None
+    foreland_x_coordinates: None | list = None 
+    foreland_y_coordinates: None | list = None 
 
     # Dike schematisation
-    dike_orientation = None
-    dike_crest_level = None
-    dike_x_coordinates = None
-    dike_y_coordinates = None
-    dike_roughness = None
+    dike_orientation: None | float = None 
+    dike_crest_level: None | float = None 
+    dike_x_coordinates: None | list  = None
+    dike_y_coordinates: None | list  = None
+    dike_roughness: None | list  = None
 
     def __init__(self, profile_name: str = "Profile"):
         """

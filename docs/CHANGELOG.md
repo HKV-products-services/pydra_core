@@ -32,4 +32,6 @@
     FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/pydra_core/pydra_core/pydra_core/src/pydra_core/data/statistics/Zeewaterstand\\Vlissingen\\CondPovVlissingen_12u_zichtjaar2017_metOnzHeid.txt'
     ```
 
-    Hier kunnen we nog in de data be standen wat aanpassen, voor nu vervangen door check op `\\`.
+    Hier kunnen we nog in de data be standen wat aanpassen, voor nu vervangen door check op `\\`
+1. In `pydra_condig\io\database_hr.py`:
+    'continuing without correlation'-> nu een warning, even kijken hoe we dat ook beter afvangen.
