@@ -36,6 +36,11 @@ scipy ="*"
 fiona ="*"
 quarto = ">=1.5.57,<2"
 quartodoc = ">=0.9.1,<0.10"
+matplotlib = ">=3.9.3,<4"
+ipykernel = ">=6.29.5,<7"
+nbformat = ">=5.10.4,<6"
+nbclient = ">=0.10.1,<0.11"
+ruff = ">=0.8.1,<0.9"
 
 [feature.common.pypi-dependencies]
 pydra_core = { path = "src", editable = true }
@@ -43,10 +48,4 @@ pydra_core = { path = "src", editable = true }
 [environments]
 default = { features = ["common"] }
 
-[dependencies]
-matplotlib = ">=3.9.3,<4"
-ipykernel = ">=6.29.5,<7"
-nbformat = ">=5.10.4,<6"
-nbclient = ">=0.10.1,<0.11"
-ruff = ">=0.8.1,<0.9"
 

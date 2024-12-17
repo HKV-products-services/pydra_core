@@ -40,15 +40,12 @@ The `pixi.lock` file loads the correct packages and downloads to the `.pixi` fil
 
 Run `pixi run quarto-render` to create documentation locally, this will be in the `docs\docs` file.
 
-## excluded dlls
+## Certain submodules have their own licensing
 
-Currently (alpha), four dll's are excluded:
+The files `CombOverloopOverslag64.dll` and `DynamicLib-DaF.dll` are obtained from [Hydra-NL v2.8.2](https://iplo.nl/thema/water/applicaties-modellen/waterveiligheidsmodellen/hydra-nl/) which is freely available through the dutch government website.
 
-- `CombOverloopOverslag64.dll`
-- `dllDikesOvertopping.dll`
-- `DynamicLib-DaF.dll`
-- `feedbackDLL.dll`
-
-install these `$python_dir$\pydra_core\location\profile\lib`, where `python_dir` can be something like `C:\Users\<username>\miniforge3\envs\<env_name>\Lib\site-packages`.
+The `dllDikesOvertopping.dll` and `feedbackDLL.dll` are part of [DiKErnel](https://github.com/Deltares/DiKErnel) which is made by [Deltares](https://www.deltares.nl/en) and published under the
+ [GNU AFFERO GPL v3](https://github.com/Deltares/DiKErnel/blob/master/Licenses/Deltares/DikesOvertopping.LICENSE) license.
+These dll files are only included to make use of this package easier.
 
 For questions about how to use this package contact `n.vandervegt@hkv.nl`.

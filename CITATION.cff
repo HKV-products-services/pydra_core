@@ -14,7 +14,31 @@ authors:
     affiliation: "HKV lijn in water"
     family-names: Caspers
     given-names: Jochem
-
+  - 
+    affiliation: "HKV lijn in water"
+    family-names: Haasnoot
+    given-names: David
+  -
+    affiliation: "HKV lijn in water"
+    family-names: Dupuits
+    given-names: Guy
+  -
+    affiliation: "HKV lijn in water"
+    family-names:  Aerts
+    given-names: Jerom
+  -
+    affiliation: "HKV lijn in water"
+    family-names: Waterman
+    given-names: Rolf
+  -
+    affiliation: "HKV lijn in water"
+    family-names: Thonus
+    given-names: Bart
+  -
+    affiliation: "HKV lijn in water"
+    family-names: Zethof
+    given-names: Marit
+  -
 
 cff-version: "0.0.1"
 keywords:
