@@ -7,9 +7,21 @@ Certain submodules have their own licensing.
 
 ## Getting started
 
-### Using install (in future)
+### Using pip to install the package separately
 
-run `pip install pydra_core`
+run `pip install pydra-core`
+
+```py
+import pydra_core
+
+profile = pydra_core.Profile("Borselle")
+profile.set_dike_crest_level(10.75)
+profile.set_dike_orientation(225)
+profile.set_dike_geometry([-30, 30], [-10, 10])
+profile.draw_profile()
+```
+
+Refer to the documentation for more examples.
 
 ### developing with pixi
 
@@ -40,7 +52,7 @@ The `pixi.lock` file loads the correct packages and downloads to the `.pixi` fil
 
 Run `pixi run quarto-render` to create documentation locally, this will be in the `docs\docs` file.
 
-## Certain submodules have their own licensing
+## Certain submodules depend on external libraries
 
 The files `CombOverloopOverslag64.dll` and `DynamicLib-DaF.dll` are obtained from [Hydra-NL v2.8.2](https://iplo.nl/thema/water/applicaties-modellen/waterveiligheidsmodellen/hydra-nl/) which is freely available through the dutch government.
 

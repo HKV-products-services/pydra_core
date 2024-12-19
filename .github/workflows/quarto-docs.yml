@@ -1,50 +1,50 @@
-# name: Render and Publish Docs
+name: Render and Publish Docs
 
-# on:
-#   push:
-#     branches: [main]
-#   pull_request:
-#   merge_group:
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
 
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.ref }}
-#   cancel-in-progress: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
-# # You need these permissions to publish to GitHub pages
-# permissions:
-#     contents: write
-#     pages: write
+# You need these permissions to publish to GitHub pages
+permissions:
+    contents: write
+    pages: write
 
-# jobs:
-#   build-deploy:
-#     runs-on: ubuntu-latest
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: Check out repository
-#         uses: actions/checkout@v4
-#         with:
-#           path: pydra_core
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          path: pydra_core
 
-#       - uses: prefix-dev/setup-pixi@v0.8.1
-#         with:
-#           manifest-path: pydra_core/pixi.toml
-#           pixi-version: "latest"
+      - uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          manifest-path: pydra_core/pixi.toml
+          pixi-version: "latest"
 
-#       - name: Check Quarto installation and all engines
-#         working-directory: pydra_core
-#         run: pixi run quarto-check
+      - name: Check Quarto installation and all engines
+        working-directory: pydra_core
+        run: pixi run quarto-check
 
-#       ### Temporarily removed: examples require dll to run
-#       # - name: Render Quarto Project
-#       #   working-directory: pydra_core
-#       #   run: pixi run quarto-render
+      ### Temporarily removed: examples require dll to run
+      # - name: Render Quarto Project
+      #   working-directory: pydra_core
+      #   run: pixi run quarto-render
 
-#       ### Temporarily removed: no pulishing yet
-#       # - name: Publish Quarto Project
-#       #   if: github.ref == 'refs/heads/main'
-#       #   uses: peaceiris/actions-gh-pages@v4
-#       #   with:
-#       #     github_token: ${{ secrets.GITHUB_TOKEN }}
-#       #     publish_dir: pydra_core/docs/docs
-#       #   env:
-#       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ### Temporarily removed: no pulishing yet
+      # - name: Publish Quarto Project
+      #   if: github.ref == 'refs/heads/main'
+      #   uses: peaceiris/actions-gh-pages@v4
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: pydra_core/docs/docs
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
