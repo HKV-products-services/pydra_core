@@ -11334,7 +11334,7 @@ packages:
   name: pydra-core
   version: 0.0.2
   path: src
-  sha256: 0b11ab170ebf6521b7b122545f7a663dad89671fc06a244c217589105c330c77
+  sha256: 5f1b09e2e6054b8f6a6c3cd825b241d4592f11e35e3fcbe042ca2c903e42f768
   editable: true
 - kind: conda
   name: pygments
