@@ -16,14 +16,7 @@ readme = "README.md"
 license = "GPL-3.0"
 authors = [
   { name = "Niels van der Vegt", email = "n.vandervegt@hkv.nl" },
-  { name = "Paulina Kindermann", email = ""},
-  { name = "Jochem Caspers", email = ""},
-  { name = "David Haasnoot", email = ""},
-  { name = "Guy Dupuits", email = ""},
-  { name = "Jerom Aerts", email = ""},
-  { name = "Rolf Waterman", email = ""},
-  { name = "Bart Thonus", email = ""},
-  { name = "Marit Zethof, email = """}
+  { name = "David Haasnoot", email = "d.haasnoot@hkv.nl"},
   
 ]
 
