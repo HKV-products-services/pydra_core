@@ -18,14 +18,17 @@ authors:
     affiliation: "HKV lijn in water"
     family-names: Haasnoot
     given-names: David
+    orcid: "https://orcid.org/0009-0002-4838-8350"
   -
     affiliation: "HKV lijn in water"
     family-names: Dupuits
     given-names: Guy
+    orcid: "https://orcid.org/0000-0002-2472-7699"
   -
     affiliation: "HKV lijn in water"
     family-names:  Aerts
-    given-names: Jerom
+    given-names: Jerom`
+    orcid: "https://orcid.org/0000-0003-0157-4818"
   -
     affiliation: "HKV lijn in water"
     family-names: Waterman
@@ -45,5 +48,5 @@ keywords:
   - Waterveiligheid
 license: "GPL-3.0-or-later"
 message: "If you use this software, please cite it using these metadata."
-# repository-code: ""
+repository-code: "https://github.com/HKV-products-services/pydra_core"
 title: Pydra Core

@@ -11332,9 +11332,9 @@ packages:
   timestamp: 1732254789060
 - kind: pypi
   name: pydra-core
-  version: 0.0.1
+  version: 0.0.2
   path: src
-  sha256: 675a9b5c4a1f7dd8c1e49c92f9762f704a23d0a1db3736d4d426c56913671dcc
+  sha256: 0b0445287821a8e1c43af609b26f7078d72c3c7fbeff59d3cbfb6a6b6441c7f8
   editable: true
 - kind: conda
   name: pygments
