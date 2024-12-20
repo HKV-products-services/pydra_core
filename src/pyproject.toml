@@ -20,6 +20,14 @@ authors = [
   
 ]
 
+dependencies = [
+  "pandas",
+  "numpy",
+  "scipy",
+  "fiona",
+  "matplotlib>=3.9.3"
+]
+
 [project.urls]
 Documentation = "https://hkv-products-services.github.io/pydra_core/"
 Source = "https://github.com/HKV-products-services/pydra_core"
