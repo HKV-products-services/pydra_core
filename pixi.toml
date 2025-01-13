@@ -26,6 +26,7 @@ quarto-check = { cmd = "quarto check all", depends_on = ["quartodoc-build"] }
 quarto-render = { cmd = "export QUARTO_PYTHON=python && quarto render docs --to html --execute", depends_on = [
     "quartodoc-build",
 ] }
+docs = { depends_on = ["quarto-preview"] }
 
 [feature.common.dependencies]
 pandas ="*"
