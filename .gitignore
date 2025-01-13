@@ -1,6 +1,3 @@
-# embargo
-*.dll
-
 # python rest
 dist
 .ipynb_checkpoints
