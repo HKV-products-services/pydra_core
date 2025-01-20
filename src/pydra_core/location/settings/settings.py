@@ -305,9 +305,9 @@ class Settings:
             # Set sea level points
             subsystem = np.array(
                 [
-                    "Zeewaterstand\Vlissingen\CondPovVlissingen_12u_zichtjaar2017_metOnzHeid.txt",
-                    "Zeewaterstand\Hansweert\CondPovHansweert_12u_zichtjaar2017_metOnzHeid.txt",
-                    "Zeewaterstand\Vlissingen virtueel\CondPovVlissingen-Additional_12u_zichtjaar2017_metOnzHeid.txt",
+                    "Zeewaterstand/Vlissingen/CondPovVlissingen_12u_zichtjaar2017_metOnzHeid.txt",
+                    "Zeewaterstand/Hansweert/CondPovHansweert_12u_zichtjaar2017_metOnzHeid.txt",
+                    "Zeewaterstand/Vlissingen virtueel/CondPovVlissingen-Additional_12u_zichtjaar2017_metOnzHeid.txt",
                 ]
             )
 
