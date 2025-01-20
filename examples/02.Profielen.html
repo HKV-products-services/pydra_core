@@ -256,6 +256,13 @@ Dijkgeometrie
 <p>Met de <i>draw_profile()</i> functie kan een plot van de doorsnede worden weergegeven.</p>
 <div id="35e903a7" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>profiel.draw_profile()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02.Profielen_files/figure-html/cell-6-output-1.png" width="662" height="450" class="figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 <p><b>Voorland</b><br> Een voorland kan worden toegevoegd met <i>set_foreland_geometry(x, y)</i> en heeft twee argumenten, de x-coordinaten en de y-coordinaten. Een profiel wordt altijd zo geschematiseerd dat de dijkteen op x = 0 ligt. Het voorland ligt altijd in het negatieve x-domein en de dijkgeometrie in het positieve x-domein.</p>
 <div id="a45dc1c9" class="cell" data-execution_count="6">
@@ -265,6 +272,13 @@ Dijkgeometrie
 <p>Merk op dat ondanks dat we hierboven het voorland hebben gedefinieerd lopend van -100 tot -70, pydra automatisch zorgt dat het voorland aansluit op de teen van de dijk (x = 0). Het voorland wordt dus gecorrigeerd zodat deze loopt van -30 naar 0. Zie de figuur hieronder.</p>
 <div id="a6768ddf" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>profiel.draw_profile()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02.Profielen_files/figure-html/cell-8-output-1.png" width="662" height="450" class="figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 <p><b>Voorliggende kering</b><br> Een voorliggende kering, zoals een golfbreker kan worden toegevoegd met de functie <i>set_breakwater(breakwater, hoogte)</i>. De functie heeft twee argumenten, het type Breakwater (gedefinieerd via Enum) en de hoogte van de Breakwater.</p>
 <div id="547a41f5" class="cell" data-execution_count="8">
@@ -285,6 +299,13 @@ Dijkgeometrie
 <p>Dit geeft de volgende doorsnede.</p>
 <div id="16d55f50" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>profiel.draw_profile()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02.Profielen_files/figure-html/cell-10-output-1.png" width="668" height="450" class="figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 <p><b>Verwijderen van een voorliggende kering/voorland</b><br> Je kan een voorliggende kering/voorland verwijderen met de functies <i>remove_breakwater()</i> en <i>remove_foreland()</i>.</p>
 <div id="5957f33b" class="cell" data-execution_count="10">
@@ -297,6 +318,13 @@ Dijkgeometrie
 <p>Nu zonder voorland</p>
 <div id="2d0d2d0c" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>profiel.draw_profile()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02.Profielen_files/figure-html/cell-12-output-1.png" width="662" height="450" class="figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 <h3 class="anchored">
 Importeer een .prfl
@@ -312,6 +340,13 @@ Importeer een .prfl
 <p>Dat geeft de volgende doorsnede:</p>
 <div id="016bde6d" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>profiel_prfl.draw_profile()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02.Profielen_files/figure-html/cell-14-output-1.png" width="651" height="450" class="figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 <h3 class="anchored">
 Import een schematisatie vanuit de GEBU-GEKB tool
@@ -327,6 +362,13 @@ Import een schematisatie vanuit de GEBU-GEKB tool
 <p>Dat geeft de volgende doorsnede:</p>
 <div id="4b43429a" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>profiel_sql.draw_profile()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02.Profielen_files/figure-html/cell-16-output-1.png" width="662" height="450" class="figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 <h3 class="anchored">
 Exporteer het Profile object naar een .prfl
@@ -351,6 +393,13 @@ Golftransitie over voorland
 <p>Het is mogelijk om met het Profile object de golftransitie over het voorland te bepalen. In deze demonstratie bepalen we het effect van het voorland voor het volgende profiel:</p>
 <div id="0b5f08cb" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>profiel_prfl.draw_profile()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02.Profielen_files/figure-html/cell-18-output-1.png" width="651" height="450" class="figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 <p>De functie <i>transform_wave_conditions(h, hs, tspec, wdir)</i> kan gebruikt worden om de getransformeerde golfcondities te bepalen. Met het optionele argument <i>tp_tspec</i> wordt de spectrale golfperiode omgerekend naar de piekperiode (welke wordt gebruikt in de DaF module) en vervolgens weer teruggerekend naar de spectrale golfperiode. Standaard is <i>tp_tspec</i> gelijk aan 1.1.</p>
 <div id="01641162" class="cell" data-execution_count="18">
@@ -367,152 +416,197 @@ Golftransitie over voorland
 <span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"hs"</span>, hs, <span class="st">"-&gt;"</span>, _hs)</span>
 <span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"tspec"</span>, tspec, <span class="st">"-&gt;"</span>, _tspec)</span>
 <span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"wdir"</span>, wdir, <span class="st">"-&gt;"</span>, _wdir)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>h 6.0 -&gt; 6.0
+hs 2.0 -&gt; 1.2000734264388144
+tspec 5.0 -&gt; 5.0
+wdir 84 -&gt; 81.43355290660857</code></pre>
+</div>
 </div>
 <p>Je kan ook arrays gebruiken. Merk op dat we hieronder alleen de waterstand <i>h</i> en significante golfhoogte <i>Hs</i> als arrays hebben gedefinieerd. Wanneer je een deel van de input parameters (h, hs, tspec, wdir) als array definieerd en een deel niet, vult pydra deze automatisch aan. In het onderstaande geval worden alle combinaties met een tspec van 5.0 gerekend en een wdir van 84.</p>
 <div id="30076276" class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># HR</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> [<span class="fl">3.0</span>, <span class="fl">4.0</span>, <span class="fl">5.0</span>, <span class="fl">6.0</span>]</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> [<span class="fl">2.0</span>, <span class="fl">2.2</span>, <span class="fl">2.4</span>, <span class="fl">2.6</span>]</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>tspec <span class="op">=</span> <span class="fl">5.0</span></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>wdir <span class="op">=</span> <span class="dv">84</span></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co"># De invoer kunnen floats of ints zijn</span></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>_h, _hs, _tspec, _wdir <span class="op">=</span> profiel_prfl.transform_wave_conditions(h, hs, tspec, wdir)</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"h"</span>, h, <span class="st">"-&gt;"</span>, _h)</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"hs"</span>, hs, <span class="st">"-&gt;"</span>, _hs)</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"tspec"</span>, tspec, <span class="st">"-&gt;"</span>, _tspec)</span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"wdir"</span>, wdir, <span class="st">"-&gt;"</span>, _wdir)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># HR</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> [<span class="fl">3.0</span>, <span class="fl">4.0</span>, <span class="fl">5.0</span>, <span class="fl">6.0</span>]</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> [<span class="fl">2.0</span>, <span class="fl">2.2</span>, <span class="fl">2.4</span>, <span class="fl">2.6</span>]</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>tspec <span class="op">=</span> <span class="fl">5.0</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>wdir <span class="op">=</span> <span class="dv">84</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># De invoer kunnen floats of ints zijn</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>_h, _hs, _tspec, _wdir <span class="op">=</span> profiel_prfl.transform_wave_conditions(h, hs, tspec, wdir)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"h"</span>, h, <span class="st">"-&gt;"</span>, _h)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"hs"</span>, hs, <span class="st">"-&gt;"</span>, _hs)</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"tspec"</span>, tspec, <span class="st">"-&gt;"</span>, _tspec)</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"wdir"</span>, wdir, <span class="st">"-&gt;"</span>, _wdir)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>h [3.0, 4.0, 5.0, 6.0] -&gt; [3. 4. 5. 6.]
+hs [2.0, 2.2, 2.4, 2.6] -&gt; [0.80432189 1.08827125 1.32752829 1.52129885]
+tspec 5.0 -&gt; [5. 5. 5. 5.]
+wdir 84 -&gt; [78.72302003 79.97242374 80.81683168 81.43355291]</code></pre>
+</div>
 </div>
 <h3 class="anchored">
 Golfoverslag en overloop
 </h3>
 <p>Met een <i>Profile</i> object kan golfoverslag en overloop bepalen met de functie <i>calculate_overtopping(h, hs, tspec, wdir)</i>. Net zoals bij de golftransformatie over het voorland kan de invoer bestaan uit floats, ints, arrays of een combinatie. Hieronder wordt deze functie gedemonstreerd voor dezelfde doorsnede waarbij de golftransformatie over het voorland is gedemonstreerd (zie doorsnede hierboven).</p>
 <div id="8c007dd8" class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># HR</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="fl">4.0</span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> <span class="fl">2.0</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>tspec <span class="op">=</span> <span class="fl">5.0</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>wdir <span class="op">=</span> <span class="dv">84</span></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Overslag</span></span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>qov <span class="op">=</span> profiel_prfl.calculate_overtopping(h, hs, tspec, wdir)</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"qov ="</span>, qov, <span class="st">"m3/m/s"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Door bijvoorbeeld de waterstand als array te definieren kan heel eenvoudig het overslagdebiet geplot worden tegen de waterstand.</p>
-<div id="57d42811" class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bepaal een range aan waterstanden</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> np.arange(<span class="fl">0.0</span>, <span class="fl">6.0</span>, <span class="fl">0.1</span>)</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> <span class="fl">1.0</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>tspec <span class="op">=</span> <span class="fl">4.0</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>wdir <span class="op">=</span> <span class="dv">84</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Overslag</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>qov <span class="op">=</span> profiel_prfl.calculate_overtopping(h, hs, tspec, wdir)</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>plt.figure()</span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>plt.plot(h, qov, label<span class="op">=</span><span class="st">"Overslag"</span>)</span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>plt.axvline(<span class="fl">5.0</span>, ls<span class="op">=</span><span class="st">":"</span>, label<span class="op">=</span><span class="st">"Kruinhoogte"</span>)</span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Overslagdebiet voor verschillende waterstanden"</span>)</span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Waterstand [NAP+m]"</span>)</span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">0</span>, <span class="va">None</span>)</span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Overslagdebiet [m3/m/s]"</span>)</span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">0</span>, <span class="va">None</span>)</span>
-<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"best"</span>)</span>
-<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<h3 class="anchored">
-Oploophoogte
-</h3>
-<p>Hetzelfde is ook mogelijk voor de 2% oploophoogte. Hiervoor kan de functie <i>calculate_runup(h, hs, tspec, wdir)</i> worden gebruikt.</p>
-<div id="709edbc9" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># HR</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="fl">4.0</span></span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> <span class="fl">2.0</span></span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>tspec <span class="op">=</span> <span class="fl">5.0</span></span>
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>wdir <span class="op">=</span> <span class="dv">84</span></span>
 <span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Oploop</span></span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>z2p <span class="op">=</span> profiel_prfl.calculate_runup(h, hs, tspec, wdir)</span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"z2% ="</span>, z2p, <span class="st">"NAP+m"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Overslag</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>qov <span class="op">=</span> profiel_prfl.calculate_overtopping(h, hs, tspec, wdir)</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"qov ="</span>, qov, <span class="st">"m3/m/s"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>qov = 0.01671347888602151 m3/m/s</code></pre>
+</div>
+</div>
+<p>Door bijvoorbeeld de waterstand als array te definieren kan heel eenvoudig het overslagdebiet geplot worden tegen de waterstand.</p>
+<div id="57d42811" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bepaal een range aan waterstanden</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> np.arange(<span class="fl">0.0</span>, <span class="fl">6.0</span>, <span class="fl">0.1</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>tspec <span class="op">=</span> <span class="fl">4.0</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>wdir <span class="op">=</span> <span class="dv">84</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Overslag</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>qov <span class="op">=</span> profiel_prfl.calculate_overtopping(h, hs, tspec, wdir)</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>plt.figure()</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>plt.plot(h, qov, label<span class="op">=</span><span class="st">"Overslag"</span>)</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>plt.axvline(<span class="fl">5.0</span>, ls<span class="op">=</span><span class="st">":"</span>, label<span class="op">=</span><span class="st">"Kruinhoogte"</span>)</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Overslagdebiet voor verschillende waterstanden"</span>)</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Waterstand [NAP+m]"</span>)</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">0</span>, <span class="va">None</span>)</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Overslagdebiet [m3/m/s]"</span>)</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">0</span>, <span class="va">None</span>)</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"best"</span>)</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02.Profielen_files/figure-html/cell-22-output-1.png" width="597" height="449" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<h3 class="anchored">
+Oploophoogte
+</h3>
+<p>Hetzelfde is ook mogelijk voor de 2% oploophoogte. Hiervoor kan de functie <i>calculate_runup(h, hs, tspec, wdir)</i> worden gebruikt.</p>
+<div id="709edbc9" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># HR</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="fl">4.0</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>tspec <span class="op">=</span> <span class="fl">5.0</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>wdir <span class="op">=</span> <span class="dv">84</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Oploop</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>z2p <span class="op">=</span> profiel_prfl.calculate_runup(h, hs, tspec, wdir)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"z2% ="</span>, z2p, <span class="st">"NAP+m"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>z2% = 6.380539983822968 NAP+m</code></pre>
+</div>
 </div>
 <p>Voorbeeld voor meerdere golfhoogtes bij eenzelfde waterstand, spectrale golfperiode en hoek van golfinval.</p>
 <div id="b44dfd82" class="cell" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bepaal een range aan golfhoogtes</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="fl">4.0</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> np.arange(<span class="fl">0.0</span>, <span class="fl">3.0</span>, <span class="fl">0.1</span>)</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>tspec <span class="op">=</span> <span class="fl">5.0</span></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>wdir <span class="op">=</span> <span class="dv">84</span></span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Oploop</span></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>z2p <span class="op">=</span> profiel_prfl.calculate_runup(h, hs, tspec, wdir)</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>plt.figure()</span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>plt.plot(hs, z2p, label<span class="op">=</span><span class="st">"Oploophoogte"</span>)</span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Oploophoogte voor verschillende golfhoogtes"</span>)</span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Significante golfhoogte [m]"</span>)</span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">0</span>, <span class="va">None</span>)</span>
-<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Oploophoogte [NAP+m]"</span>)</span>
-<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">4</span>, <span class="va">None</span>)</span>
-<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"best"</span>)</span>
-<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bepaal een range aan golfhoogtes</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="fl">4.0</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> np.arange(<span class="fl">0.0</span>, <span class="fl">3.0</span>, <span class="fl">0.1</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>tspec <span class="op">=</span> <span class="fl">5.0</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>wdir <span class="op">=</span> <span class="dv">84</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Oploop</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>z2p <span class="op">=</span> profiel_prfl.calculate_runup(h, hs, tspec, wdir)</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>plt.figure()</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>plt.plot(hs, z2p, label<span class="op">=</span><span class="st">"Oploophoogte"</span>)</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Oploophoogte voor verschillende golfhoogtes"</span>)</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Significante golfhoogte [m]"</span>)</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">0</span>, <span class="va">None</span>)</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Oploophoogte [NAP+m]"</span>)</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">4</span>, <span class="va">None</span>)</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"best"</span>)</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02.Profielen_files/figure-html/cell-24-output-1.png" width="592" height="449" class="figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 <h3 class="anchored">
 Kruinhoogte bepalen
 </h3>
 <p>Als laatste is het mogelijk om de kruinhoogte te bepalen gegeven een overslagdebiet. Dit kan met de functie <i>calculate_crest_level(q_critical, h, hs, tspec, wdir)</i>.</p>
 <div id="6430e6a0" class="cell" data-execution_count="24">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># HR</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> <span class="fl">0.01</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="fl">4.0</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> <span class="fl">2.0</span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>tspec <span class="op">=</span> <span class="fl">5.0</span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>wdir <span class="op">=</span> <span class="dv">84</span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Kruinhoogte voor 10 l/m/s</span></span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>hbn <span class="op">=</span> profiel_prfl.calculate_crest_level(q, h, hs, tspec, wdir)</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Benodigde kruinhoogte ="</span>, hbn, <span class="st">"NAP+m"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># HR</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> <span class="fl">0.01</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="fl">4.0</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>tspec <span class="op">=</span> <span class="fl">5.0</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>wdir <span class="op">=</span> <span class="dv">84</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Kruinhoogte voor 10 l/m/s</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>hbn <span class="op">=</span> profiel_prfl.calculate_crest_level(q, h, hs, tspec, wdir)</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Benodigde kruinhoogte ="</span>, hbn, <span class="st">"NAP+m"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Benodigde kruinhoogte = 5.14724745829701 NAP+m</code></pre>
+</div>
 </div>
 <p>Met de overslag functie kunnen we makkelijk controleren of deze kruinhoogte klopt</p>
 <div id="6c7f96ea" class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># HR</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> <span class="fl">0.01</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="fl">4.0</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> <span class="fl">2.0</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>tspec <span class="op">=</span> <span class="fl">5.0</span></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>wdir <span class="op">=</span> <span class="dv">84</span></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Check</span></span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>test_prfl <span class="op">=</span> deepcopy(profiel_prfl)</span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>test_prfl.set_dike_crest_level(hbn)</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>qov <span class="op">=</span> test_prfl.calculate_overtopping(h, hs, tspec, wdir)</span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Check met aangepaste kruinhoogte:"</span>, <span class="bu">round</span>(qov, <span class="dv">6</span>), <span class="st">"m3/m/s"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># HR</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> <span class="fl">0.01</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="fl">4.0</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>tspec <span class="op">=</span> <span class="fl">5.0</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>wdir <span class="op">=</span> <span class="dv">84</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Check</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>test_prfl <span class="op">=</span> deepcopy(profiel_prfl)</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>test_prfl.set_dike_crest_level(hbn)</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>qov <span class="op">=</span> test_prfl.calculate_overtopping(h, hs, tspec, wdir)</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Check met aangepaste kruinhoogte:"</span>, <span class="bu">round</span>(qov, <span class="dv">6</span>), <span class="st">"m3/m/s"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Check met aangepaste kruinhoogte: 0.01 m3/m/s</code></pre>
+</div>
 </div>
 <p>Als we dan toch bezig zijn, kunnen we een mooi grafiekje voor de kruinhoogte bepaling niet achterwege laten…</p>
 <div id="efddda1d" class="cell" data-execution_count="26">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bepaal een range aan overslagdebieten</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> np.arange(<span class="fl">0.001</span>, <span class="fl">0.1</span>, <span class="fl">0.001</span>)</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="fl">4.0</span></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> <span class="fl">2.0</span></span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>tspec <span class="op">=</span> <span class="fl">5.0</span></span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>wdir <span class="op">=</span> <span class="dv">84</span></span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Oploop</span></span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>hbn <span class="op">=</span> profiel_prfl.calculate_crest_level(q, h, hs, tspec, wdir)</span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>plt.figure()</span>
-<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>plt.plot(q, hbn, label<span class="op">=</span><span class="st">"Kruinhoogte"</span>)</span>
-<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Kruinhoogte voor verschillende overslagdebieten"</span>)</span>
-<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Overslagdebiet [m3/m/s]"</span>)</span>
-<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">0</span>, <span class="va">None</span>)</span>
-<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Kruinhoogte [NAP+m]"</span>)</span>
-<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">0</span>, <span class="va">None</span>)</span>
-<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"best"</span>)</span>
-<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bepaal een range aan overslagdebieten</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> np.arange(<span class="fl">0.001</span>, <span class="fl">0.1</span>, <span class="fl">0.001</span>)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="fl">4.0</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>hs <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>tspec <span class="op">=</span> <span class="fl">5.0</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>wdir <span class="op">=</span> <span class="dv">84</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Oploop</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>hbn <span class="op">=</span> profiel_prfl.calculate_crest_level(q, h, hs, tspec, wdir)</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>plt.figure()</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>plt.plot(q, hbn, label<span class="op">=</span><span class="st">"Kruinhoogte"</span>)</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Kruinhoogte voor verschillende overslagdebieten"</span>)</span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Overslagdebiet [m3/m/s]"</span>)</span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">0</span>, <span class="va">None</span>)</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Kruinhoogte [NAP+m]"</span>)</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">0</span>, <span class="va">None</span>)</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"best"</span>)</span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02.Profielen_files/figure-html/cell-27-output-1.png" width="576" height="449" class="figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 
 
