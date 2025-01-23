@@ -10,7 +10,7 @@ packages = ["pydra_core"]
 
 [project]
 name = "pydra_core"
-version = "0.0.5"
+version = "0.0.6"
 description = "Python package for calculating hydraulic loads"
 readme = "README.md"
 license = {text = "GNU-GPL V3"}
@@ -25,6 +25,7 @@ dependencies = [
   "numpy",
   "scipy",
   "fiona",
+  "shapely",
   "matplotlib>=3.9.3"
 ]
 

@@ -8305,13 +8305,14 @@ packages:
   timestamp: 1732254789060
 - pypi: src
   name: pydra-core
-  version: 0.0.5
-  sha256: b0c40d7785ca1978785e81a7ef270e472bde6c8a3be785368946eade71a405af
+  version: 0.0.6
+  sha256: ed90d7433858465eaf9fa3ef9f3cba09d67b140321f4c0555c558d261e3339a6
   requires_dist:
   - pandas
   - numpy
   - scipy
   - fiona
+  - shapely
   - matplotlib>=3.9.3
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/noarch/pygments-2.18.0-pyhd8ed1ab_1.conda
