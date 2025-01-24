@@ -10,14 +10,13 @@ packages = ["pydra_core"]
 
 [project]
 name = "pydra_core"
-version = "0.0.6"
+version = "0.0.7"
 description = "Python package for calculating hydraulic loads"
 readme = "README.md"
 license = {text = "GNU-GPL V3"}
 authors = [
   { name = "Niels van der Vegt", email = "n.vandervegt@hkv.nl" },
   { name = "David Haasnoot", email = "d.haasnoot@hkv.nl"},
-  
 ]
 
 dependencies = [

@@ -37,11 +37,11 @@ profile.draw_profile()
 
 Refer to the documentation for more examples.
 
-### developing with pixi
+### Developing with pixi
 
 To manage the environment we use Pixi.
 
-#### windows
+#### Windows
 
 ```powershell
 iwr -useb https://pixi.sh/install.ps1 | iex
@@ -53,7 +53,7 @@ iwr -useb https://pixi.sh/install.ps1 | iex
 curl -fsSL https://pixi.sh/install.sh | bash
 ```
 
-#### installing
+#### Installing
 
 With the `Pixi` command in powershell install the python environment:
 
