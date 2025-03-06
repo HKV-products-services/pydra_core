@@ -1,10 +1,12 @@
 import numpy as np
 import os
+import platform
 
 from ctypes import (
     ARRAY,
     CDLL,
     POINTER,
+    RTLD_GLOBAL,
     Structure,
     c_bool,
     c_char,
@@ -57,13 +59,27 @@ class ProfileLoading:
                 )
 
         # Path to the library
-        lib_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "lib"))
+        sys_platform = platform.system()
+        if  sys_platform == "Windows":
+            lib_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "lib", "win64"))
 
-        # Load RTO-libary (VTV v17.1.1.0) (used for runup / overtopping when the water level is below crest level)
-        self.rto_library = CDLL(os.path.join(lib_path, "dllDikesOvertopping.dll"))
+            # Load RTO-libary (VTV v17.1.1.0) (used for runup / overtopping when the water level is below crest level)
+            self.rto_library = CDLL(os.path.join(lib_path, "dllDikesOvertopping.dll"))
 
-        # Load COO-library (used for overflow) (Note: DiKErnel does not include this .dll)
-        self.coo_library = CDLL(os.path.join(lib_path, "CombOverloopOverslag64.dll"))
+            # Load COO-library (used for overflow) (Note: DiKErnel does not include this .dll)
+            self.coo_library = CDLL(os.path.join(lib_path, "CombOverloopOverslag64.dll"))
+        elif sys_platform == "Linux":
+            lib_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "lib", "linux64"))
+
+            # Load RTO-libary (VTV v17.1.1.0) (used for runup / overtopping when the water level is below crest level)
+            CDLL(os.path.join(lib_path, "libFeedbackDll.so"), mode=RTLD_GLOBAL)
+            self.rto_library = CDLL(os.path.join(lib_path, "libDikesOvertopping.so"))
+
+            # Load COO-library (used for overflow) (Note: DiKErnel does not include this .dll)
+            # @TODO: compile COO library for linux
+            self.coo_library = None
+        else:
+            raise OSError(f"Operating system {sys_platform} not supported. Please use Windows or Linux.")
 
         # Modelfactors
         factors = np.array(list(self.MODEL_FACTORS.items()))[:, 1].astype(float)
@@ -422,40 +438,41 @@ class ProfileLoading:
         ]
 
         # Overflow
-        self.coo_library.CalculateDischarge.argtypes = [
-            argtypes[name]
-            for name in [
-                "dike_orientation",
-                "npoints",
-                "xp",
-                "yp",
-                "rp",
-                "load_coo",
-                "modelfactors_coo",
-                "crest_level",
-                "debiet",
-                "succes",
-                "errormessage",
+        if self.coo_library is not None: # @TODO remove this if statement
+            self.coo_library.CalculateDischarge.argtypes = [
+                argtypes[name]
+                for name in [
+                    "dike_orientation",
+                    "npoints",
+                    "xp",
+                    "yp",
+                    "rp",
+                    "load_coo",
+                    "modelfactors_coo",
+                    "crest_level",
+                    "debiet",
+                    "succes",
+                    "errormessage",
+                ]
             ]
-        ]
 
-        # HBN overflow
-        self.coo_library.CalculateHeight.argtypes = [
-            argtypes[name]
-            for name in [
-                "dike_orientation",
-                "npoints",
-                "xp",
-                "yp",
-                "rp",
-                "load_coo",
-                "modelfactors_coo",
-                "debiet",
-                "crest_level",
-                "succes",
-                "errormessage",
+            # HBN overflow
+            self.coo_library.CalculateHeight.argtypes = [
+                argtypes[name]
+                for name in [
+                    "dike_orientation",
+                    "npoints",
+                    "xp",
+                    "yp",
+                    "rp",
+                    "load_coo",
+                    "modelfactors_coo",
+                    "debiet",
+                    "crest_level",
+                    "succes",
+                    "errormessage",
+                ]
             ]
-        ]
 
 
 class OvertoppingLoad(Structure):
