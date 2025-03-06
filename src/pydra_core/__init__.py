@@ -1,8 +1,4 @@
-__version__ = "0.0.4"
-#############################################################
-# Pydra (v2)
-# Contact: n.vandervegt@hkv.nl
-#############################################################
+__version__ = "0.0.8"
 
 # Core
 from .core.exceedance_frequency_line import ExceedanceFrequencyLine
