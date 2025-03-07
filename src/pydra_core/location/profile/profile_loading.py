@@ -76,8 +76,7 @@ class ProfileLoading:
             self.rto_library = CDLL(os.path.join(lib_path, "libDikesOvertopping.so"))
 
             # Load COO-library (used for overflow) (Note: DiKErnel does not include this .dll)
-            # @TODO: compile COO library for linux
-            self.coo_library = None
+            self.coo_library = CDLL(os.path.join(lib_path, "libCombOverloopOverslag.so"))
         else:
             raise OSError(f"Operating system {sys_platform} not supported. Please use Windows or Linux.")
 
@@ -438,41 +437,40 @@ class ProfileLoading:
         ]
 
         # Overflow
-        if self.coo_library is not None: # @TODO remove this if statement
-            self.coo_library.CalculateDischarge.argtypes = [
-                argtypes[name]
-                for name in [
-                    "dike_orientation",
-                    "npoints",
-                    "xp",
-                    "yp",
-                    "rp",
-                    "load_coo",
-                    "modelfactors_coo",
-                    "crest_level",
-                    "debiet",
-                    "succes",
-                    "errormessage",
-                ]
+        self.coo_library.CalculateDischarge.argtypes = [
+            argtypes[name]
+            for name in [
+                "dike_orientation",
+                "npoints",
+                "xp",
+                "yp",
+                "rp",
+                "load_coo",
+                "modelfactors_coo",
+                "crest_level",
+                "debiet",
+                "succes",
+                "errormessage",
             ]
+        ]
 
-            # HBN overflow
-            self.coo_library.CalculateHeight.argtypes = [
-                argtypes[name]
-                for name in [
-                    "dike_orientation",
-                    "npoints",
-                    "xp",
-                    "yp",
-                    "rp",
-                    "load_coo",
-                    "modelfactors_coo",
-                    "debiet",
-                    "crest_level",
-                    "succes",
-                    "errormessage",
-                ]
+        # HBN overflow
+        self.coo_library.CalculateHeight.argtypes = [
+            argtypes[name]
+            for name in [
+                "dike_orientation",
+                "npoints",
+                "xp",
+                "yp",
+                "rp",
+                "load_coo",
+                "modelfactors_coo",
+                "debiet",
+                "crest_level",
+                "succes",
+                "errormessage",
             ]
+        ]
 
 
 class OvertoppingLoad(Structure):
