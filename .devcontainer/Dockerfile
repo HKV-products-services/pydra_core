@@ -1,4 +1,4 @@
-FROM python:3.12-slim AS build
+FROM debian:bookworm-slim
 
 # Stel de werkdirectory in
 WORKDIR /code
@@ -16,10 +16,8 @@ COPY LICENSE /code/LICENSE
 COPY pixi.lock /code/pixi.lock
 COPY pixi.toml /code/pixi.toml
 COPY README.md /code/README.md
-COPY test.py /code/test.py
 
 # RUN pip install -r /code/requirements.txt
 RUN apt-get -y update
 RUN apt-get -y install git curl
 RUN curl -fsSL https://pixi.sh/install.sh | bash
-# RUN pixi install
