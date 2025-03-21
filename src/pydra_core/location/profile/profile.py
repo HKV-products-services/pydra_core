@@ -499,19 +499,23 @@ class Profile:
 
         # Return array or floats?
         if len(water_level.ravel()) == 1 and not force_array:
-            return np.array([
-                water_level.ravel()[0],
-                significant_wave_height.ravel()[0],
-                spectral_wave_period.ravel()[0],
-                wave_direction.ravel()[0],
-            ])
+            return np.array(
+                [
+                    water_level.ravel()[0],
+                    significant_wave_height.ravel()[0],
+                    spectral_wave_period.ravel()[0],
+                    wave_direction.ravel()[0],
+                ]
+            )
         else:
-            return np.array([
-                water_level,
-                significant_wave_height,
-                spectral_wave_period,
-                wave_direction,
-            ])
+            return np.array(
+                [
+                    water_level,
+                    significant_wave_height,
+                    spectral_wave_period,
+                    wave_direction,
+                ]
+            )
 
     def to_prfl(
         self, export_path: str, id: str = "Onbekend000", memo: str = ""
