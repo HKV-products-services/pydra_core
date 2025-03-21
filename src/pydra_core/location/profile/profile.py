@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-from typing import Tuple, Union
+from typing import Union
 
 from .foreland import Foreland
 from .profile_loading import ProfileLoading
@@ -221,7 +221,7 @@ class Profile:
         wave_direction: Union[float, list],
         tp_tspec: float = 1.1,
         dll_settings: dict = None,
-    ) -> Union[float, list]:
+    ) -> Union[float, np.ndarray]:
         """
         Calculate the overtopping discharge
 
@@ -240,7 +240,7 @@ class Profile:
 
         Returns
         -------
-        Union[float, list]
+        Union[float, np.ndarray]
             List or float with the overtopping discharge
         """
         # Transform wave conditions
@@ -266,7 +266,7 @@ class Profile:
             qov.append(profile_loading.calculate_discharge(_h, _hs, _tspec, _dir))
 
         # Return
-        return qov[0] if len(qov) == 1 else qov
+        return qov[0] if len(qov) == 1 else np.array(qov)
 
     def calculate_runup(
         self,
@@ -276,7 +276,7 @@ class Profile:
         wave_direction: Union[float, list],
         tp_tspec: float = 1.1,
         dll_settings: dict = None,
-    ) -> Union[float, list]:
+    ) -> Union[float, np.ndarray]:
         """
         Calculate the runup height
 
@@ -321,7 +321,7 @@ class Profile:
             ru2p.append(profile_loading.calculate_runup(_h, _hs, _tspec, _dir))
 
         # Return
-        return ru2p[0] if len(ru2p) == 1 else ru2p
+        return ru2p[0] if len(ru2p) == 1 else np.array(ru2p)
 
     def calculate_crest_level(
         self,
@@ -332,7 +332,7 @@ class Profile:
         wave_direction: Union[float, list],
         tp_tspec: float = 1.1,
         dll_settings: dict = None,
-    ) -> Union[float, list]:
+    ) -> Union[float, np.ndarray]:
         """
         Calculate the crest level for a given overtopping discharge
 
@@ -408,7 +408,7 @@ class Profile:
             hbn.append(profile_loading.calculate_crest_level(_q, _h, _hs, _tspec, _dir))
 
         # Return
-        return hbn[0] if len(hbn) == 1 else hbn
+        return hbn[0] if len(hbn) == 1 else np.array(hbn)
 
     def transform_wave_conditions(
         self,
@@ -418,7 +418,7 @@ class Profile:
         wave_direction: Union[float, list],
         tp_tspec: float = 1.1,
         force_array: bool = False,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> np.ndarray:
         """
         Transform the wave conditions for the schematized foreland
 
@@ -439,7 +439,7 @@ class Profile:
 
         Returns
         -------
-        Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+        np.ndarray
             Water level and transformed wave conditions (h, hs, tp, dir)
         """
         # Length of the lists
@@ -499,18 +499,22 @@ class Profile:
 
         # Return array or floats?
         if len(water_level.ravel()) == 1 and not force_array:
-            return (
-                water_level.ravel()[0],
-                significant_wave_height.ravel()[0],
-                spectral_wave_period.ravel()[0],
-                wave_direction.ravel()[0],
+            return np.array(
+                [
+                    water_level.ravel()[0],
+                    significant_wave_height.ravel()[0],
+                    spectral_wave_period.ravel()[0],
+                    wave_direction.ravel()[0],
+                ]
             )
         else:
-            return (
-                water_level,
-                significant_wave_height,
-                spectral_wave_period,
-                wave_direction,
+            return np.array(
+                [
+                    water_level,
+                    significant_wave_height,
+                    spectral_wave_period,
+                    wave_direction,
+                ]
             )
 
     def to_prfl(

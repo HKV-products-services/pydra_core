@@ -1,5 +1,4 @@
 import numpy as np
-import os
 
 from ctypes import (
     ARRAY,
@@ -13,6 +12,7 @@ from ctypes import (
     byref,
     create_string_buffer,
 )
+from pathlib import Path
 
 
 class ProfileLoading:
@@ -57,13 +57,13 @@ class ProfileLoading:
                 )
 
         # Path to the library
-        lib_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "lib"))
+        lib_path = Path(__file__).resolve().parent / "lib"
 
         # Load RTO-libary (VTV v17.1.1.0) (used for runup / overtopping when the water level is below crest level)
-        self.rto_library = CDLL(os.path.join(lib_path, "dllDikesOvertopping.dll"))
+        self.rto_library = CDLL(str(lib_path / "dllDikesOvertopping.dll"))
 
         # Load COO-library (used for overflow) (Note: DiKErnel does not include this .dll)
-        self.coo_library = CDLL(os.path.join(lib_path, "CombOverloopOverslag64.dll"))
+        self.coo_library = CDLL(str(lib_path / "CombOverloopOverslag64.dll"))
 
         # Modelfactors
         factors = np.array(list(self.MODEL_FACTORS.items()))[:, 1].astype(float)
