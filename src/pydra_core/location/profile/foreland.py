@@ -1,8 +1,8 @@
 import numpy as np
-import os
 
 from ctypes import CDLL, POINTER, c_char_p, c_double, c_int, c_long, byref
 from numpy.ctypeslib import ndpointer
+from pathlib import Path
 from typing import Tuple
 
 
@@ -15,10 +15,10 @@ class Foreland:
 
     def __init__(self, profile, log: bool = False):
         # Path to the library
-        lib_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "lib"))
+        lib_path = Path(__file__).resolve().parent / "lib"
 
         # Load the DaF library v20.1.1.692 (differ from Hydra-NL, there are some slight changes)
-        self.daf_library = CDLL(os.path.join(lib_path, "DynamicLib-DaF.dll"))
+        self.daf_library = CDLL(str(lib_path / "DynamicLib-DaF.dll"))
 
         # Default settings
         self.alpha_c = c_double(1.0)
