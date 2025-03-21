@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-from typing import Tuple, Union
+from typing import Union
 
 from .foreland import Foreland
 from .profile_loading import ProfileLoading
