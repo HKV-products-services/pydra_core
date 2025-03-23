@@ -6,7 +6,7 @@ from pydra_core import HRDatabase, ExceedanceFrequencyLine
 
 def test_exc_freq_line_h():
     # Load the HRD
-    hrd_path = Path(__file__).parent / "data" / "WBI2017_IJsselmeer_7-2_v02.sqlite"
+    hrd_path = Path(__file__).parent / "data" / "07_IJSSEL_LAKE" / "WBI2017_IJsselmeer_7-2_v02.sqlite"
     hrd_db = HRDatabase(hrd_path)
 
     # Select location 'YM_2_7-2_dk_00669'
