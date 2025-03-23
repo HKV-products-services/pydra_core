@@ -6,9 +6,6 @@ __version__ = "0.0.9"
 
 # Core
 from .core.exceedance_frequency_line import ExceedanceFrequencyLine
-from .core.exceedance_frequency_line_experimental import (
-    ExceedanceFrequencyLineExperimental,
-)
 from .core.hbn import HBN
 
 # Enums
@@ -22,7 +19,6 @@ from .location.profile.profile import Profile
 
 __all__ = [
     "ExceedanceFrequencyLine",
-    "ExceedanceFrequencyLineExperimental",
     "HBN",
     "Breakwater",
     "WaterSystem",

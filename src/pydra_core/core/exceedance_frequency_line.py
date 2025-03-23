@@ -94,6 +94,7 @@ class ExceedanceFrequencyLine(Calculation):
         # Discretise
         exp = 0
         for _ip, _p in enumerate(p):
+
             # Deepcopy
             _model = deepcopy(model)
             _loading = _model.get_loading()
@@ -139,18 +140,11 @@ class ExceedanceFrequencyLine(Calculation):
                     ep_h_slow * location.settings.periods_block_duration
                 )
 
-            # TODO: Check if this is correct?
             # Save
             if _ip:
                 exp = exp + exceedance_probability * _p
             else:
                 exp = exceedance_probability * _p
-
-            # exp = (
-            #     exp + exceedance_probability * _p
-            #     if _ip
-            #     else exceedance_probability * _p
-            # )
 
         # Return the frequency line
         return FrequencyLine(levels, exp)
