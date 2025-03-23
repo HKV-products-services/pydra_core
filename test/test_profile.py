@@ -1,9 +1,15 @@
 import numpy as np
+import platform
 
 from pydra_core import Profile, Breakwater
 
 
 def test_profile():
+    # Only for Windows for now
+    sys_platform = platform.system()
+    if  sys_platform != "Windows":
+        return
+
     # Create new profile
     prof = Profile()
     prof.set_breakwater(Breakwater.CAISSON, 1.0)

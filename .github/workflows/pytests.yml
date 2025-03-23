@@ -12,7 +12,11 @@ concurrency:
 
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]  # Run tests on both Ubuntu and Windows
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Check out repository
