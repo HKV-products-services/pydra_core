@@ -22,7 +22,7 @@ class FileHydraNL:
             Path to the statistics file
         """
         # Open file
-        with open(FileHydraNL.PACKAGE_PATH / Path(path).as_posix(), "r", encoding="cp1252") as f:
+        with open(FileHydraNL.PACKAGE_PATH / Path(path), "r", encoding="cp1252") as f:
             lines = f.readlines()
 
         # Read non commented values from file, and split per line
@@ -44,7 +44,7 @@ class FileHydraNL:
             Path to the statistics file
         """
         # Open file
-        with open(FileHydraNL.PACKAGE_PATH / Path(path).as_posix(), "r", encoding="cp1252") as f:
+        with open(FileHydraNL.PACKAGE_PATH / Path(path), "r", encoding="cp1252") as f:
             lines = f.readlines()
 
         # Read non commented values from file, and split per line
@@ -66,7 +66,7 @@ class FileHydraNL:
             Path to the statistics file
         """
         # Open file
-        with open(FileHydraNL.PACKAGE_PATH / Path(path).as_posix(), "r", encoding="cp1252") as f:
+        with open(FileHydraNL.PACKAGE_PATH / Path(path), "r", encoding="cp1252") as f:
             lines = f.readlines()
 
         # Process data
