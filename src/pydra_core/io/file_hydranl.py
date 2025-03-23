@@ -1,5 +1,6 @@
 import numpy as np
-import os
+
+from pathlib import Path
 
 
 class FileHydraNL:
@@ -8,9 +9,7 @@ class FileHydraNL:
     """
 
     # Path to the package
-    PACKAGE_PATH = os.path.join(
-        os.path.split(os.path.dirname(__file__))[0], "data", "statistics"
-    )
+    PACKAGE_PATH = Path(__file__).resolve().parent.parent / "data" / "statistics"
 
     @staticmethod
     def read_file_2columns(path):
@@ -23,11 +22,7 @@ class FileHydraNL:
             Path to the statistics file
         """
         # Open file
-        if "\\" in path:
-            path = path.replace("\\", "/")
-        with open(
-            os.path.join(FileHydraNL.PACKAGE_PATH, path), "r", encoding="cp1252"
-        ) as f:
+        with open(FileHydraNL.PACKAGE_PATH / path, "r", encoding="cp1252") as f:
             lines = f.readlines()
 
         # Read non commented values from file, and split per line
@@ -49,11 +44,7 @@ class FileHydraNL:
             Path to the statistics file
         """
         # Open file
-        if "\\" in path:
-            path = path.replace("\\", "/")
-        with open(
-            os.path.join(FileHydraNL.PACKAGE_PATH, path), "r", encoding="cp1252"
-        ) as f:
+        with open(FileHydraNL.PACKAGE_PATH / path, "r", encoding="cp1252") as f:
             lines = f.readlines()
 
         # Read non commented values from file, and split per line
@@ -75,11 +66,7 @@ class FileHydraNL:
             Path to the statistics file
         """
         # Open file
-        if "\\" in path:
-            path = path.replace("\\", "/")
-        with open(
-            os.path.join(FileHydraNL.PACKAGE_PATH, path), "r", encoding="cp1252"
-        ) as f:
+        with open(FileHydraNL.PACKAGE_PATH / path, "r", encoding="cp1252") as f:
             lines = f.readlines()
 
         # Process data

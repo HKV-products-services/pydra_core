@@ -1,8 +1,8 @@
 import ast
 import matplotlib.pyplot as plt
 import numpy as np
-import os
 
+from pathlib import Path
 from typing import Union
 
 from .foreland import Foreland
@@ -723,7 +723,7 @@ class Profile:
             )
 
         # Check if the provided path exists
-        if not os.path.exists(prfl_path):
+        if not Path(prfl_path).exists():
             raise FileNotFoundError(f"[ERROR] Input file: {prfl_path} not found.")
 
         # Read the file
@@ -854,7 +854,7 @@ class Profile:
             )
 
         # Check if the provided path exists
-        if not os.path.exists(sql_path):
+        if not Path(sql_path).exists():
             raise FileNotFoundError(f"[ERROR] Input file: {sql_path} not found.")
 
         # Check if the berm slope is not too steep or shallow

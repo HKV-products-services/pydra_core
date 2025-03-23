@@ -1,9 +1,8 @@
-import os
 import pandas as pd
 import sqlite3
 
-from typing import List
-from typing import Union
+from pathlib import Path
+from typing import List, Union
 
 from .database_settings import DatabaseSettings
 from ..common.enum import WaterSystem
@@ -17,7 +16,7 @@ class DatabaseHR:
 
     def __init__(self, path_to_database: str) -> None:
         # Check if the path is valid
-        if not os.path.exists(path_to_database):
+        if not Path(path_to_database).exists():
             raise OSError(path_to_database)
 
         # Save the path
@@ -427,29 +426,16 @@ class DatabaseHR:
         # Otherwise use the default functions
         except Exception as e:
             print(f"{e}: Using default functions")
-            PATH = os.path.join(
-                os.path.split(os.path.dirname(__file__))[0],
-                "data",
-                "statistics",
-                "Sluitpeilen",
-            )
+            PATH = Path(__file__).resolve().parent.parent / "data" / "statistics" / "Sluitpeilen"
             if self.get_water_system() in [
                 WaterSystem.RHINE_TIDAL,
                 WaterSystem.EUROPOORT,
             ]:
-                table = pd.read_csv(
-                    os.path.join(PATH, "Sluitfunctie Europoortkering Rijn 2017.csv"),
-                    delimiter=";",
-                )
+                table = pd.read_csv(PATH / "Sluitfunctie Europoortkering Rijn 2017.csv", delimiter=";")
             elif self.get_water_system() == WaterSystem.MEUSE_TIDAL:
-                table = pd.read_csv(
-                    os.path.join(PATH, "Sluitfunctie Europoortkering Maas 2017.csv"),
-                    delimiter=";",
-                )
+                table = pd.read_csv(PATH / "Sluitfunctie Europoortkering Maas 2017.csv", delimiter=";")
             else:
-                raise (
-                    f"[ERROR] No closing levels for water system '{self.get_water_system().name}'."
-                )
+                raise (f"[ERROR] No closing levels for water system '{self.get_water_system().name}'.")
 
         # All columns to lower
         table.columns = table.columns.str.lower()

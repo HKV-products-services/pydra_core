@@ -1,6 +1,7 @@
-import os
 import pandas as pd
 import sqlite3
+
+from pathlib import Path
 
 from ..common.enum import WaterSystem
 
@@ -15,14 +16,7 @@ class DatabaseSettings:
 
     def __enter__(self) -> "DatabaseSettings":
         # Init the connection
-        self.con = sqlite3.connect(
-            os.path.join(
-                os.path.split(os.path.dirname(__file__))[0],
-                "data",
-                "settings",
-                "calculation_settings.sqlite",
-            )
-        )
+        self.con = sqlite3.connect(Path(__file__).resolve().parent.parent / "data" / "settings" / "calculation_settings.sqlite")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
