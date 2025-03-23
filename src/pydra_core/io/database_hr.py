@@ -290,7 +290,9 @@ class DatabaseHR:
         )
 
         # Check of alle ResultVariableId(2) rvids zijn
-        if not set(data["rvid"]).issubset(set(rvids)) or not set(data["rvid2"]).issubset(set(rvids)):
+        if not set(data["rvid"]).issubset(set(rvids)) or not set(
+            data["rvid2"]
+        ).issubset(set(rvids)):
             raise ValueError("ERROR")
 
         # Change ResultVariableId(2) to rvids
@@ -419,16 +421,27 @@ class DatabaseHR:
         # Otherwise use the default functions
         except Exception as e:
             print(f"{e}: Using default functions")
-            PATH = Path(__file__).resolve().parent.parent / "data" / "statistics" / "Sluitpeilen"
+            PATH = (
+                Path(__file__).resolve().parent.parent
+                / "data"
+                / "statistics"
+                / "Sluitpeilen"
+            )
             if self.get_water_system() in [
                 WaterSystem.RHINE_TIDAL,
                 WaterSystem.EUROPOORT,
             ]:
-                table = pd.read_csv(PATH / "Sluitfunctie Europoortkering Rijn 2017.csv", delimiter=";")
+                table = pd.read_csv(
+                    PATH / "Sluitfunctie Europoortkering Rijn 2017.csv", delimiter=";"
+                )
             elif self.get_water_system() == WaterSystem.MEUSE_TIDAL:
-                table = pd.read_csv(PATH / "Sluitfunctie Europoortkering Maas 2017.csv", delimiter=";")
+                table = pd.read_csv(
+                    PATH / "Sluitfunctie Europoortkering Maas 2017.csv", delimiter=";"
+                )
             else:
-                raise (f"[ERROR] No closing levels for water system '{self.get_water_system().name}'.")
+                raise (
+                    f"[ERROR] No closing levels for water system '{self.get_water_system().name}'."
+                )
 
         # All columns to lower
         table.columns = table.columns.str.lower()

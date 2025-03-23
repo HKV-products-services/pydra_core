@@ -16,7 +16,12 @@ class DatabaseSettings:
 
     def __enter__(self) -> "DatabaseSettings":
         # Init the connection
-        self.con = sqlite3.connect(Path(__file__).resolve().parent.parent / "data" / "settings" / "calculation_settings.sqlite")
+        self.con = sqlite3.connect(
+            Path(__file__).resolve().parent.parent
+            / "data"
+            / "settings"
+            / "calculation_settings.sqlite"
+        )
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:

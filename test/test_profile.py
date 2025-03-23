@@ -2,6 +2,7 @@ import numpy as np
 
 from pydra_core import Profile, Breakwater
 
+
 def test_profile():
     # Create new profile
     prof = Profile()

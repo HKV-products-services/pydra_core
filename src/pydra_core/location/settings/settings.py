@@ -332,7 +332,13 @@ class Settings:
         Selecting the right settings for the lower rivers
         """
         # Read from shape (MSTAP, MU, SIGMA, ALFA, QSTAP_Maas, QSTAP_rijn)
-        PATH = (Path(__file__).resolve().parent.parent / ".." / "data" / "settings" / "lower_river_settings.shp").resolve()
+        PATH = (
+            Path(__file__).resolve().parent.parent
+            / ".."
+            / "data"
+            / "settings"
+            / "lower_river_settings.shp"
+        ).resolve()
 
         with fn.open(PATH, "r") as shp:
             # Define the point using Shapely's Point

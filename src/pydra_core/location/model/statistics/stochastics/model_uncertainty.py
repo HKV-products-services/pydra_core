@@ -51,7 +51,9 @@ class ModelUncertainty:
         # Iterate over the correlation between model uncertainties and add them to the class
         if cu is not None:
             for comb, correlation in cu.groupby(["k", "rvid", "rvid2"]):
-                self.correlations[comb] = CorrelationUncertainty(correlation.to_numpy()[0])
+                self.correlations[comb] = CorrelationUncertainty(
+                    correlation.to_numpy()[0]
+                )
 
     def iterate_model_uncertainty_wave_conditions(
         self, closing_situation: int = 1, wave_period: str = "tspec"
