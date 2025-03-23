@@ -236,6 +236,15 @@ class DatabaseHR:
         hrdlocation : Union[int, str, Settings]
             HRDLocation in form of HRDLocationId, HRDLocationName or Settings object
         """
+        # Check if correlations are present
+        table_check_query = """
+            SELECT name FROM sqlite_master 
+            WHERE type='table' AND name='UncertaintyCorrelationFactor';
+        """
+        table_exists = pd.read_sql(table_check_query, self.con)
+        if table_exists.empty:
+            return None
+
         # Obtain the hrdlocationid
         if isinstance(hrdlocation, (str, Settings)):
             hrdlocation = self.get_hrdlocation_id(hrdlocation)
@@ -245,43 +254,29 @@ class DatabaseHR:
             rvids = database.get_result_variable_ids()
 
         # Data uit correlatie tabel
+        sql = f"""
+                SELECT ucf.HRDLocationId, ucf.ClosingSituationId, hrv.ResultVariableId, ucf.HRDResultColumnId2, ucf.Correlation
+                FROM UncertaintyCorrelationFactor ucf
+                INNER JOIN HRDResultVariables hrv
+                ON ucf.HRDResultColumnId = hrv.HRDResultColumnId
+                WHERE ucf.HRDLocationId = {hrdlocation}
+                """
+        data = pd.read_sql(sql, self.con, index_col="HRDLocationId")
+
+        # Vertaal tabel naar HRDResultColumnId2
+        # Zo niet, negeer en ga verder, neem aan dat de HRDResultColumnId2 heeft dezelfde Ids als HRDResultColumnId
         try:
-            sql = f"""
-                    SELECT ucf.HRDLocationId, ucf.ClosingSituationId, hrv.ResultVariableId, ucf.HRDResultColumnId2, ucf.Correlation
-                    FROM UncertaintyCorrelationFactor ucf
-                    INNER JOIN HRDResultVariables hrv
-                    ON ucf.HRDResultColumnId = hrv.HRDResultColumnId
-                    WHERE ucf.HRDLocationId = {hrdlocation}
+            sql = """
+                    SELECT HRDResultColumnId2, ResultVariableId
+                    FROM HRDResultVariables2 hrv2
+                    INNER JOIN HRDResultVariables hrv ON hrv.HRDResultColumnId = hrv2.HRDResultColumnId
                     """
-            data = pd.read_sql(sql, self.con, index_col="HRDLocationId")
-
-            # Vertaal tabel naar HRDResultColumnId2
-            # Zo niet, negeer en ga verder, neem aan dat de HRDResultColumnId2 heeft dezelfde Ids als HRDResultColumnId
-            try:
-                sql = """
-                        SELECT HRDResultColumnId2, ResultVariableId
-                        FROM HRDResultVariables2 hrv2
-                        INNER JOIN HRDResultVariables hrv ON hrv.HRDResultColumnId = hrv2.HRDResultColumnId
-                        """
-                data_hrdid2 = self.con.execute(sql).fetchall()
-                hrdid2_to_rvid = {_hrdid: _hrdid2 for _hrdid, _hrdid2 in data_hrdid2}
-                data = data.replace({"HRDResultColumnId2": hrdid2_to_rvid})
-            except Exception as e:
-                print(f"ERROR: {e}, continuing without")
-                pass
-
-        # Geen correlaties aanwezig, return leeg dataframe
+            data_hrdid2 = self.con.execute(sql).fetchall()
+            hrdid2_to_rvid = {_hrdid: _hrdid2 for _hrdid, _hrdid2 in data_hrdid2}
+            data = data.replace({"HRDResultColumnId2": hrdid2_to_rvid})
         except Exception as e:
-            print(f"ERROR: {e}, continuing without correlation")
-            data = pd.DataFrame(
-                columns=[
-                    "HRDLocationId",
-                    "ClosingSituationId",
-                    "ResultVariableId",
-                    "HRDResultColumnId2",
-                    "Correlation",
-                ]
-            )
+            print(f"ERROR: {e}, continuing without")
+            pass
 
         # Replace column names
         data.rename(
@@ -295,9 +290,7 @@ class DatabaseHR:
         )
 
         # Check of alle ResultVariableId(2) rvids zijn
-        if not set(data["rvid"]).issubset(set(rvids)) or not set(
-            data["rvid2"]
-        ).issubset(set(rvids)):
+        if not set(data["rvid"]).issubset(set(rvids)) or not set(data["rvid2"]).issubset(set(rvids)):
             raise ValueError("ERROR")
 
         # Change ResultVariableId(2) to rvids
