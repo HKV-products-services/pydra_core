@@ -1,9 +1,8 @@
-import os
 import pandas as pd
 import sqlite3
 
-from typing import List
-from typing import Union
+from pathlib import Path
+from typing import List, Union
 
 from .database_settings import DatabaseSettings
 from ..common.enum import WaterSystem
@@ -17,7 +16,7 @@ class DatabaseHR:
 
     def __init__(self, path_to_database: str) -> None:
         # Check if the path is valid
-        if not os.path.exists(path_to_database):
+        if not Path(path_to_database).exists():
             raise OSError(path_to_database)
 
         # Save the path
@@ -237,6 +236,15 @@ class DatabaseHR:
         hrdlocation : Union[int, str, Settings]
             HRDLocation in form of HRDLocationId, HRDLocationName or Settings object
         """
+        # Check if correlations are present
+        table_check_query = """
+            SELECT name FROM sqlite_master 
+            WHERE type='table' AND name='UncertaintyCorrelationFactor';
+        """
+        table_exists = pd.read_sql(table_check_query, self.con)
+        if table_exists.empty:
+            return None
+
         # Obtain the hrdlocationid
         if isinstance(hrdlocation, (str, Settings)):
             hrdlocation = self.get_hrdlocation_id(hrdlocation)
@@ -246,43 +254,29 @@ class DatabaseHR:
             rvids = database.get_result_variable_ids()
 
         # Data uit correlatie tabel
+        sql = f"""
+                SELECT ucf.HRDLocationId, ucf.ClosingSituationId, hrv.ResultVariableId, ucf.HRDResultColumnId2, ucf.Correlation
+                FROM UncertaintyCorrelationFactor ucf
+                INNER JOIN HRDResultVariables hrv
+                ON ucf.HRDResultColumnId = hrv.HRDResultColumnId
+                WHERE ucf.HRDLocationId = {hrdlocation}
+                """
+        data = pd.read_sql(sql, self.con, index_col="HRDLocationId")
+
+        # Vertaal tabel naar HRDResultColumnId2
+        # Zo niet, negeer en ga verder, neem aan dat de HRDResultColumnId2 heeft dezelfde Ids als HRDResultColumnId
         try:
-            sql = f"""
-                    SELECT ucf.HRDLocationId, ucf.ClosingSituationId, hrv.ResultVariableId, ucf.HRDResultColumnId2, ucf.Correlation
-                    FROM UncertaintyCorrelationFactor ucf
-                    INNER JOIN HRDResultVariables hrv
-                    ON ucf.HRDResultColumnId = hrv.HRDResultColumnId
-                    WHERE ucf.HRDLocationId = {hrdlocation}
+            sql = """
+                    SELECT HRDResultColumnId2, ResultVariableId
+                    FROM HRDResultVariables2 hrv2
+                    INNER JOIN HRDResultVariables hrv ON hrv.HRDResultColumnId = hrv2.HRDResultColumnId
                     """
-            data = pd.read_sql(sql, self.con, index_col="HRDLocationId")
-
-            # Vertaal tabel naar HRDResultColumnId2
-            # Zo niet, negeer en ga verder, neem aan dat de HRDResultColumnId2 heeft dezelfde Ids als HRDResultColumnId
-            try:
-                sql = """
-                        SELECT HRDResultColumnId2, ResultVariableId
-                        FROM HRDResultVariables2 hrv2
-                        INNER JOIN HRDResultVariables hrv ON hrv.HRDResultColumnId = hrv2.HRDResultColumnId
-                        """
-                data_hrdid2 = self.con.execute(sql).fetchall()
-                hrdid2_to_rvid = {_hrdid: _hrdid2 for _hrdid, _hrdid2 in data_hrdid2}
-                data = data.replace({"HRDResultColumnId2": hrdid2_to_rvid})
-            except Exception as e:
-                print(f"ERROR: {e}, continuing without")
-                pass
-
-        # Geen correlaties aanwezig, return leeg dataframe
+            data_hrdid2 = self.con.execute(sql).fetchall()
+            hrdid2_to_rvid = {_hrdid: _hrdid2 for _hrdid, _hrdid2 in data_hrdid2}
+            data = data.replace({"HRDResultColumnId2": hrdid2_to_rvid})
         except Exception as e:
-            print(f"ERROR: {e}, continuing without correlation")
-            data = pd.DataFrame(
-                columns=[
-                    "HRDLocationId",
-                    "ClosingSituationId",
-                    "ResultVariableId",
-                    "HRDResultColumnId2",
-                    "Correlation",
-                ]
-            )
+            print(f"ERROR: {e}, continuing without")
+            pass
 
         # Replace column names
         data.rename(
@@ -427,24 +421,22 @@ class DatabaseHR:
         # Otherwise use the default functions
         except Exception as e:
             print(f"{e}: Using default functions")
-            PATH = os.path.join(
-                os.path.split(os.path.dirname(__file__))[0],
-                "data",
-                "statistics",
-                "Sluitpeilen",
+            PATH = (
+                Path(__file__).resolve().parent.parent
+                / "data"
+                / "statistics"
+                / "Sluitpeilen"
             )
             if self.get_water_system() in [
                 WaterSystem.RHINE_TIDAL,
                 WaterSystem.EUROPOORT,
             ]:
                 table = pd.read_csv(
-                    os.path.join(PATH, "Sluitfunctie Europoortkering Rijn 2017.csv"),
-                    delimiter=";",
+                    PATH / "Sluitfunctie Europoortkering Rijn 2017.csv", delimiter=";"
                 )
             elif self.get_water_system() == WaterSystem.MEUSE_TIDAL:
                 table = pd.read_csv(
-                    os.path.join(PATH, "Sluitfunctie Europoortkering Maas 2017.csv"),
-                    delimiter=";",
+                    PATH / "Sluitfunctie Europoortkering Maas 2017.csv", delimiter=";"
                 )
             else:
                 raise (

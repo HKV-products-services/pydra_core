@@ -1,8 +1,8 @@
 import fiona as fn
 import numpy as np
-import os
 import sqlite3
 
+from pathlib import Path
 from shapely.geometry import Point, shape
 
 from ...common.common import CommonFunctions
@@ -332,13 +332,14 @@ class Settings:
         Selecting the right settings for the lower rivers
         """
         # Read from shape (MSTAP, MU, SIGMA, ALFA, QSTAP_Maas, QSTAP_rijn)
-        PATH = os.path.join(
-            os.path.split(os.path.dirname(__file__))[0],
-            "..",
-            "data",
-            "settings",
-            "lower_river_settings.shp",
-        )
+        PATH = (
+            Path(__file__).resolve().parent.parent
+            / ".."
+            / "data"
+            / "settings"
+            / "lower_river_settings.shp"
+        ).resolve()
+
         with fn.open(PATH, "r") as shp:
             # Define the point using Shapely's Point
             point = Point(self.x_coordinate, self.y_coordinate)

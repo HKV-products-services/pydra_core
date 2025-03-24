@@ -1,6 +1,6 @@
 [project]
 name = "pydra_core"
-version = "0.0.8"
+version = "0.0.9"
 description = "Python package for calculating hydraulic loads"
 channels = ["conda-forge"]
 platforms = ["win-64", "linux-64", "osx-64"]
@@ -28,6 +28,9 @@ quarto-render = { cmd = "export QUARTO_PYTHON=python && quarto render docs --to 
 ] }
 docs = { depends-on = ["quarto-preview"] }
 
+# Test
+pytest-cov = "pytest --cov --cov-report html:test/test_cov"
+
 [feature.common.dependencies]
 pandas ="*"
 numpy ="*"
@@ -35,6 +38,8 @@ scipy ="*"
 fiona ="*"
 shapely = "*"
 pathlib = "*"
+pytest = "*"
+pytest-cov = "*"
 quarto = ">=1.5.57,<2"
 quartodoc = ">=0.9.1,<0.10"
 matplotlib = ">=3.9.3,<4"
