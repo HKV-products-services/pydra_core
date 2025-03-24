@@ -259,12 +259,12 @@ sea_level_probability_point1   = Zeewaterstand/Vlissingen/CondPovVlissingen_12u_
 sea_level_probability_point2   = Zeewaterstand/Hansweert/CondPovHansweert_12u_zichtjaar2017_metOnzHeid.txt
 sea_level_probability_point3   = Zeewaterstand/Vlissingen virtueel/CondPovVlissingen-Additional_12u_zichtjaar2017_metOnzHeid.txt
 sea_level_rise                 = 0.0
-sigma_function                 = Sigmafunctie\Westerschelde\VS_sigmafunctie_WS_2017.txt
+sigma_function                 = Sigmafunctie/Westerschelde/VS_sigmafunctie_WS_2017.txt
 u_max                          = 55.0
 u_repair                       = True
 u_step                         = 1.0
-wind_direction_probability     = Windrichting\Westerschelde\KansenWindrichting_WS_2017.txt
-wind_speed_probability         = Windsnelheid\Vlissingen\Ovkanswind_Vlissingen_2017_metOnzHeid.txt
+wind_direction_probability     = Windrichting/Westerschelde/KansenWindrichting_WS_2017.txt
+wind_speed_probability         = Windsnelheid/Vlissingen/Ovkanswind_Vlissingen_2017_metOnzHeid.txt
 x_coordinate                   = 38672
 y_coordinate                   = 383394</code></pre>
 </div>
@@ -289,15 +289,6 @@ Location
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">"ignore"</span>)  <span class="co"># future warnings are annoying</span></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>location <span class="op">=</span> hrdatabase.create_location(settings)</span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: deze error beter afvangen:</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>ERROR: Execution failed on sql '
-                    SELECT ucf.HRDLocationId, ucf.ClosingSituationId, hrv.ResultVariableId, ucf.HRDResultColumnId2, ucf.Correlation
-                    FROM UncertaintyCorrelationFactor ucf
-                    INNER JOIN HRDResultVariables hrv
-                    ON ucf.HRDResultColumnId = hrv.HRDResultColumnId
-                    WHERE ucf.HRDLocationId = 146
-                    ': no such table: UncertaintyCorrelationFactor, continuing without correlation</code></pre>
-</div>
 </div>
 <p>Nu het <i>Location</i> object is aangemaakt voor het HR uitvoerpunt ‘WS_1_30-4_dk_00002’, kan deze gebruikt worden in berekeningen.</p>
 <h3 class="anchored">
@@ -305,15 +296,15 @@ Overschrijdingsfrequentielijn voor één uitvoerpunt
 </h3>
 <p>Pydra heeft verschillende rekenmodules (objecten). Hieronder gebruiken we de <i>ExceedanceFrequencyLine</i> module om de overschrijdingsfrequentielijn te berekenen. Voordat we dat kunnen doen moet eerst een rekenobject worden aangemaakt, hieronder <i>fl</i>. Het rekenobject omvat de instellingen voor de berekening, bijvoorbeeld voor welke variabel een frequentielijn moet worden berekend (hieronder waterstand (h)). Daarnaast zijn er nog een aantal optionele opties, zoals of er met modelonzekerheden moet worden gerekend (standaard : True), de stapgrootte van de frequentielijn (standaard : 0.05) en een aangepast bereik van waterstanden voor de frequentielijn (standaard tussen de 1ste en 99de percentiel vanuit de HR database).</p>
 <div id="76105037" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fl <span class="op">=</span> pydra.ExceedanceFrequencyLine(<span class="st">"h"</span>, model_uncertainty<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fl <span class="op">=</span> pydra.ExceedanceFrequencyLine(<span class="st">"h"</span>, model_uncertainty<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Vervolgens kunnen we met het rekenobject <i>fl</i> een overschrijdingsfrequentielijn bepalen voor HR uitvoerpunt ‘WS_1_30-4_dk_00002’ door de <i>calculate()</i> functie aan te roepen van het rekenobject en het <i>location</i> object als argument mee te geven.</p>
 <div id="27fb8421" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>frequency_line <span class="op">=</span> fl.calculate(location)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>frequency_line <span class="op">=</span> fl.calculate(location)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Dit geeft een overschrijdingsfrequentielijn <i>frequency_line</i>. Het is een object waarin de berekende gegevens (waterstanden en overschrijdingsfrequenties) worden opgeslagen. Als je het object print, zie je wat er allemaal in zit.</p>
 <div id="88d8962e" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(frequency_line)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(frequency_line)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>FrequencyLine(level=array([ 4. ,  4.1,  4.2,  4.3,  4.4,  4.5,  4.6,  4.7,  4.8,  4.9,  5. ,
         5.1,  5.2,  5.3,  5.4,  5.5,  5.6,  5.7,  5.8,  5.9,  6. ,  6.1,
@@ -340,20 +331,20 @@ Overschrijdingsfrequentielijn voor één uitvoerpunt
 </div>
 <p>Hieronder is een plot van de berekende overschrijdingsfrequentielijn gegeven.</p>
 <div id="f7aa3e71" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>tt <span class="op">=</span> np.array([<span class="dv">10</span>, <span class="dv">30</span>, <span class="dv">100</span>, <span class="dv">300</span>, <span class="dv">1_000</span>, <span class="dv">3_000</span>, <span class="dv">10_000</span>, <span class="dv">30_000</span>, <span class="dv">100_000</span>])</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>[<span class="dv">8</span>, <span class="dv">5</span>])</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>plt.plot(tt, frequency_line.interpolate_exceedance_probability(<span class="dv">1</span> <span class="op">/</span> tt), label<span class="op">=</span><span class="st">"Pydra"</span>)</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Overschrijdingsfrequentielijn waterstand (WS_1_30-4_dk_00002)"</span>)</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>plt.xscale(<span class="st">"log"</span>)</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>plt.xticks([<span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1_000</span>, <span class="dv">10_000</span>, <span class="dv">100_000</span>])</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Terugkeertijd [jaar]"</span>)</span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">10</span>, <span class="dv">100_000</span>)</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Waterstand [NAP+m]"</span>)</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="fl">3.5</span>, <span class="fl">7.0</span>)</span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>tt <span class="op">=</span> np.array([<span class="dv">10</span>, <span class="dv">30</span>, <span class="dv">100</span>, <span class="dv">300</span>, <span class="dv">1_000</span>, <span class="dv">3_000</span>, <span class="dv">10_000</span>, <span class="dv">30_000</span>, <span class="dv">100_000</span>])</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>[<span class="dv">8</span>, <span class="dv">5</span>])</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>plt.plot(tt, frequency_line.interpolate_exceedance_probability(<span class="dv">1</span> <span class="op">/</span> tt), label<span class="op">=</span><span class="st">"Pydra"</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Overschrijdingsfrequentielijn waterstand (WS_1_30-4_dk_00002)"</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>plt.xscale(<span class="st">"log"</span>)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>plt.xticks([<span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1_000</span>, <span class="dv">10_000</span>, <span class="dv">100_000</span>])</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Terugkeertijd [jaar]"</span>)</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">10</span>, <span class="dv">100_000</span>)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Waterstand [NAP+m]"</span>)</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="fl">3.5</span>, <span class="fl">7.0</span>)</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -364,21 +355,21 @@ Overschrijdingsfrequentielijn voor één uitvoerpunt
 </div>
 <p>We hebben dezelfde berekening gemaakt met Hydra-NL, wat de onderstaande vergelijking geeft.</p>
 <div id="7abe1bb0" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>hydranl_h <span class="op">=</span> [<span class="fl">3.998</span>, <span class="fl">4.28</span>, <span class="fl">4.592</span>, <span class="fl">4.879</span>, <span class="fl">5.198</span>, <span class="fl">5.494</span>, <span class="fl">5.828</span>, <span class="fl">6.141</span>, <span class="fl">6.497</span>]</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>[<span class="dv">8</span>, <span class="dv">5</span>])</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>plt.plot(tt, frequency_line.interpolate_exceedance_probability(<span class="dv">1</span> <span class="op">/</span> tt), label<span class="op">=</span><span class="st">"Pydra"</span>)</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>plt.plot(tt, hydranl_h, <span class="st">":"</span>, label<span class="op">=</span><span class="st">"Hydra-NL"</span>)</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Overschrijdingsfrequentielijn waterstand (WS_1_30-4_dk_00002)"</span>)</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>plt.xscale(<span class="st">"log"</span>)</span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>plt.xticks([<span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1_000</span>, <span class="dv">10_000</span>, <span class="dv">100_000</span>, <span class="dv">1_000_000</span>])</span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Terugkeertijd [jaar]"</span>)</span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">10</span>, <span class="dv">100_000</span>)</span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Waterstand [NAP+m]"</span>)</span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="fl">3.5</span>, <span class="fl">7.0</span>)</span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>hydranl_h <span class="op">=</span> [<span class="fl">3.998</span>, <span class="fl">4.28</span>, <span class="fl">4.592</span>, <span class="fl">4.879</span>, <span class="fl">5.198</span>, <span class="fl">5.494</span>, <span class="fl">5.828</span>, <span class="fl">6.141</span>, <span class="fl">6.497</span>]</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>[<span class="dv">8</span>, <span class="dv">5</span>])</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>plt.plot(tt, frequency_line.interpolate_exceedance_probability(<span class="dv">1</span> <span class="op">/</span> tt), label<span class="op">=</span><span class="st">"Pydra"</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>plt.plot(tt, hydranl_h, <span class="st">":"</span>, label<span class="op">=</span><span class="st">"Hydra-NL"</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Overschrijdingsfrequentielijn waterstand (WS_1_30-4_dk_00002)"</span>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>plt.xscale(<span class="st">"log"</span>)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>plt.xticks([<span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1_000</span>, <span class="dv">10_000</span>, <span class="dv">100_000</span>, <span class="dv">1_000_000</span>])</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Terugkeertijd [jaar]"</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">10</span>, <span class="dv">100_000</span>)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Waterstand [NAP+m]"</span>)</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="fl">3.5</span>, <span class="fl">7.0</span>)</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -392,54 +383,17 @@ Overschrijdingsfrequentielijn voor een heel traject
 </h3>
 <p>Het is ook mogelijk om overschrijdingsfrequentielijnen voor een heel traject te genereren. Laten we weer een rekenobject <i>fl</i> aanmaken. Merk op dat we ten opzichte van hierboven dit maal <i>model_uncertainty = False</i> hebben toegevoegd. Dit betekent dat we nu <u>zonder</u> modelonzekerheden rekenen.</p>
 <div id="74345dbc" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>fl <span class="op">=</span> pydra.ExceedanceFrequencyLine(<span class="st">"hs"</span>, model_uncertainty<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>fl <span class="op">=</span> pydra.ExceedanceFrequencyLine(<span class="st">"hs"</span>, model_uncertainty<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Door het <i>HRDatabase</i> object ‘<i>hrdatabase</i>’ mee te geven als argument in de <i>calculate()</i> functie, bepaald Pydra de overschrijdingsfrequentielijn voor <u>alle</u> uitvoerpunten in de HR database. Voor locaties die al zijn gedefinieerd, zoals ‘WS_1_30-4_dk_00002’, wordt het eerder gedefinieerde <i>Location</i> object gebruikt. Voor uitvoerpunten die nog niet zijn gedefinieerd creëert Pydra automatisch een <i>Location</i> object met de standaardwaarden voor het water systeem (net zoals Hydra-NL een ‘invoer.hyd’ aanmaakt in de beoordelingsmodus).</p>
 <p>Merk op dat dus in dit geval voor uitvoerpunt ‘WS_1_30-4_dk_00002’ met een <i>mmax</i> van NAP+10,0m wordt gerekend omdat we die eerder hebben aangepast. Voor de overige locaties wordt met de standaard NAP+9,0m gerekend.</p>
 <div id="bc5a0a29" class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>freq_lines <span class="op">=</span> fl.calculate(hrdatabase)</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: deze errors beter afvangen:</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>ERROR: Execution failed on sql '
-                    SELECT ucf.HRDLocationId, ucf.ClosingSituationId, hrv.ResultVariableId, ucf.HRDResultColumnId2, ucf.Correlation
-                    FROM UncertaintyCorrelationFactor ucf
-                    INNER JOIN HRDResultVariables hrv
-                    ON ucf.HRDResultColumnId = hrv.HRDResultColumnId
-                    WHERE ucf.HRDLocationId = 142
-                    ': no such table: UncertaintyCorrelationFactor, continuing without correlation
-ERROR: Execution failed on sql '
-                    SELECT ucf.HRDLocationId, ucf.ClosingSituationId, hrv.ResultVariableId, ucf.HRDResultColumnId2, ucf.Correlation
-                    FROM UncertaintyCorrelationFactor ucf
-                    INNER JOIN HRDResultVariables hrv
-                    ON ucf.HRDResultColumnId = hrv.HRDResultColumnId
-                    WHERE ucf.HRDLocationId = 143
-                    ': no such table: UncertaintyCorrelationFactor, continuing without correlation
-ERROR: Execution failed on sql '
-                    SELECT ucf.HRDLocationId, ucf.ClosingSituationId, hrv.ResultVariableId, ucf.HRDResultColumnId2, ucf.Correlation
-                    FROM UncertaintyCorrelationFactor ucf
-                    INNER JOIN HRDResultVariables hrv
-                    ON ucf.HRDResultColumnId = hrv.HRDResultColumnId
-                    WHERE ucf.HRDLocationId = 144
-                    ': no such table: UncertaintyCorrelationFactor, continuing without correlation
-ERROR: Execution failed on sql '
-                    SELECT ucf.HRDLocationId, ucf.ClosingSituationId, hrv.ResultVariableId, ucf.HRDResultColumnId2, ucf.Correlation
-                    FROM UncertaintyCorrelationFactor ucf
-                    INNER JOIN HRDResultVariables hrv
-                    ON ucf.HRDResultColumnId = hrv.HRDResultColumnId
-                    WHERE ucf.HRDLocationId = 145
-                    ': no such table: UncertaintyCorrelationFactor, continuing without correlation
-ERROR: Execution failed on sql '
-                    SELECT ucf.HRDLocationId, ucf.ClosingSituationId, hrv.ResultVariableId, ucf.HRDResultColumnId2, ucf.Correlation
-                    FROM UncertaintyCorrelationFactor ucf
-                    INNER JOIN HRDResultVariables hrv
-                    ON ucf.HRDResultColumnId = hrv.HRDResultColumnId
-                    WHERE ucf.HRDLocationId = 147
-                    ': no such table: UncertaintyCorrelationFactor, continuing without correlation</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>freq_lines <span class="op">=</span> fl.calculate(hrdatabase)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: deze errors beter afvangen:</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Omdat we nu een heel traject doorrekenen, zal <i>calculate()</i> niet één frequentielijn returnen. In plaats daarvan wordt een dictionary gereturnd met als key de naam van het uitvoerpunt en als value het <i>FrequencyLine</i> resultaat object.</p>
 <div id="4e1b4b04" class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(freq_lines[<span class="st">"WS_1_30-4_dk_00006"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(freq_lines[<span class="st">"WS_1_30-4_dk_00006"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>FrequencyLine(level=array([0. , 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1. , 1.1, 1.2,
        1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2. , 2.1, 2.2, 2.3, 2.4, 2.5,
@@ -457,25 +411,25 @@ ERROR: Execution failed on sql '
 </div>
 <p>Een overzicht van alle resultaten:</p>
 <div id="8e68bf73" class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>[<span class="dv">8</span>, <span class="dv">5</span>])</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _loc <span class="kw">in</span> freq_lines:</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    plt.plot(</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>        <span class="dv">1</span> <span class="op">/</span> freq_lines[_loc].exceedance_frequency, freq_lines[_loc].level, label<span class="op">=</span>_loc</span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>plt.title(</span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Overschrijdingsfrequentielijn significante golfhoogte zonder modelonzekerheid"</span></span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>plt.xscale(<span class="st">"log"</span>)</span>
-<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>plt.xticks([<span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1_000</span>, <span class="dv">10_000</span>, <span class="dv">100_000</span>])</span>
-<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Terugkeertijd [jaar]"</span>)</span>
-<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">1</span>, <span class="dv">100_000</span>)</span>
-<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Significante golfhoogte [m]"</span>)</span>
-<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">0</span>, <span class="va">None</span>)</span>
-<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>[<span class="dv">8</span>, <span class="dv">5</span>])</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _loc <span class="kw">in</span> freq_lines:</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    plt.plot(</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>        <span class="dv">1</span> <span class="op">/</span> freq_lines[_loc].exceedance_frequency, freq_lines[_loc].level, label<span class="op">=</span>_loc</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>plt.title(</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Overschrijdingsfrequentielijn significante golfhoogte zonder modelonzekerheid"</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>plt.xscale(<span class="st">"log"</span>)</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>plt.xticks([<span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1_000</span>, <span class="dv">10_000</span>, <span class="dv">100_000</span>])</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Terugkeertijd [jaar]"</span>)</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">1</span>, <span class="dv">100_000</span>)</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Significante golfhoogte [m]"</span>)</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">0</span>, <span class="va">None</span>)</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
