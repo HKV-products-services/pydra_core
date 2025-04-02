@@ -11,4 +11,3 @@ docs/reference
 .pixi
 *.egg-info
 .quarto/*
-data/WBI2017_Westerschelde_30-4_v03.sqlite
