@@ -1,5 +1,5 @@
 import numpy as np
-
+import platform
 from ctypes import CDLL, POINTER, c_char_p, c_double, c_int, c_long, byref
 from numpy.ctypeslib import ndpointer
 from pathlib import Path
@@ -18,7 +18,12 @@ class Foreland:
         lib_path = Path(__file__).resolve().parent / "lib"
 
         # Load the DaF library v20.1.1.692 (differ from Hydra-NL, there are some slight changes)
-        self.daf_library = CDLL(str(lib_path / "DynamicLib-DaF.dll"))
+        lib_path = Path(__file__).resolve().parent / "lib"
+        if platform.system() == "Windows":
+            self.daf_library = CDLL(str(lib_path / "win64" / "DynamicLib-DaF.dll"))
+        else:
+            raise NotImplementedError(f"'{platform.system()}' is not supported for the DaF library.")
+        
 
         # Default settings
         self.alpha_c = c_double(1.0)
