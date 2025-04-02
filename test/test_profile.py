@@ -28,6 +28,7 @@ def test_profile():
     ru2p = prof.calculate_runup(h, hs, tspec, wdir)
     assert np.isclose(ru2p, 7.32, atol=0.01)
 
+
 def test_profile_bw_foreland():
     # Create new profile
     prof = Profile()
