@@ -1,6 +1,8 @@
 import numpy as np
 
 from pydra_core import Profile, Breakwater
+import pytest
+import platform
 
 
 def test_profile():
@@ -29,6 +31,7 @@ def test_profile():
     assert np.isclose(ru2p, 7.32, atol=0.01)
 
 
+@pytest.mark.skipif(platform.system() != "Windows", reason="DaF only on windows")
 def test_profile_bw_foreland():
     # Create new profile
     prof = Profile()
