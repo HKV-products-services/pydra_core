@@ -220,7 +220,7 @@ class DatabaseHR:
             },
             inplace=True,
         )
-        data["rvid"].replace(rvids, inplace=True)
+        data["rvid"] = data["rvid"].replace(rvids)
 
         # Return the model uncertainties
         return data
@@ -296,8 +296,8 @@ class DatabaseHR:
             raise ValueError("ERROR")
 
         # Change ResultVariableId(2) to rvids
-        data["rvid"].replace(rvids, inplace=True)
-        data["rvid2"].replace(rvids, inplace=True)
+        data["rvid"] = data["rvid"].replace(rvids)
+        data["rvid2"] = data["rvid2"].replace(rvids)
 
         # Return the model uncertainties
         return data

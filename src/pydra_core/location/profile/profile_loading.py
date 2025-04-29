@@ -1,5 +1,5 @@
 import numpy as np
-
+import platform
 from ctypes import (
     ARRAY,
     CDLL,
@@ -56,14 +56,20 @@ class ProfileLoading:
                     "[ERROR] Settings dictionary contains unknown keys (check uppercase?)."
                 )
 
-        # Path to the library
-        lib_path = Path(__file__).resolve().parent / "lib"
-
         # Load RTO-libary (VTV v17.1.1.0) (used for runup / overtopping when the water level is below crest level)
-        self.rto_library = CDLL(str(lib_path / "dllDikesOvertopping.dll"))
-
         # Load COO-library (used for overflow) (Note: DiKErnel does not include this .dll)
-        self.coo_library = CDLL(str(lib_path / "CombOverloopOverslag64.dll"))
+        sys_pltfrm = platform.system()
+        if sys_pltfrm == "Windows":
+            lib_path = Path(__file__).resolve().parent / "lib" / "win64"
+            self.rto_library = CDLL(str(lib_path / "dllDikesOvertopping.dll"))
+            self.coo_library = CDLL(str(lib_path / "CombOverloopOverslag.dll"))
+        elif sys_pltfrm == "Linux":
+            lib_path = Path(__file__).resolve().parent / "lib" / "linux64"
+            CDLL(str(lib_path / "libFeedbackDll.so"))
+            self.rto_library = CDLL(str(lib_path / "libDikesOvertopping.so"))
+            self.coo_library = CDLL(str(lib_path / "libCombOverloopOverslag.so"))
+        else:
+            raise NotImplementedError(f"'{sys_pltfrm}' is not supported for RTO/COO.")
 
         # Modelfactors
         factors = np.array(list(self.MODEL_FACTORS.items()))[:, 1].astype(float)
