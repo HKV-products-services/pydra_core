@@ -32,7 +32,7 @@ class Calculation(ABC):
 
         elif isinstance(input, HRDatabase):
             return {
-                loc: self.calculate_location(input.get_location(loc)) for loc in input
+                loc: self.calculate_location(input.create_location(loc)) for loc in input
             }
 
         else:
