@@ -10,7 +10,7 @@ packages = ["pydra_core"]
 
 [project]
 name = "pydra_core"
-version = "0.0.9"
+version = "0.0.10"
 description = "Python package for calculating hydraulic loads"
 readme = "README.md"
 license = {text = "GNU-GPL V3"}
@@ -31,3 +31,6 @@ dependencies = [
 [project.urls]
 Documentation = "https://hkv-products-services.github.io/pydra_core/"
 Source = "https://github.com/HKV-products-services/pydra_core"
+
+[tool.ruff]
+line-length = 999

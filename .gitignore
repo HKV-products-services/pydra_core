@@ -11,3 +11,4 @@ docs/reference
 .pixi
 *.egg-info
 .quarto/*
+benchmark/
