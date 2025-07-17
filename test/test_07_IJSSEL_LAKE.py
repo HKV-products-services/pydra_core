@@ -15,7 +15,7 @@ def test_exc_freq_line_h():
     hrd_db = HRDatabase(hrd_path)
 
     # Select location 'YM_2_7-2_dk_00669'
-    location = hrd_db.get_location("YM_2_7-2_dk_00669")
+    location = hrd_db.create_location("YM_2_7-2_dk_00669")
 
     # Create an exc freq line for water level
     _levels = np.arange(0.6, 3.0, 0.1)
