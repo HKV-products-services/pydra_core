@@ -60,7 +60,7 @@ class LoadingEasternScheldt(Loading):
                     waterlevels["r"].eq(richting) & waterlevels["u"].eq(0)
                 ].copy()
                 _format.loc[:, "u"] = snelheid
-                _format.loc[:, "h"] = np.NaN
+                _format.loc[:, "h"] = np.nan
                 waterlevels = pd.concat([waterlevels, _format], ignore_index=True)
 
         # Repareer Hs
@@ -75,10 +75,10 @@ class LoadingEasternScheldt(Loading):
                     waveconditions["r"].eq(richting) & waveconditions["u"].eq(0)
                 ].copy()
                 _format.loc[:, "u"] = snelheid
-                _format.loc[:, "hs"] = np.NaN
-                _format.loc[:, "tp"] = np.NaN
-                _format.loc[:, "tspec"] = np.NaN
-                _format.loc[:, "dir"] = np.NaN
+                _format.loc[:, "hs"] = np.nan
+                _format.loc[:, "tp"] = np.nan
+                _format.loc[:, "tspec"] = np.nan
+                _format.loc[:, "dir"] = np.nan
                 waveconditions = pd.concat([waveconditions, _format], ignore_index=True)
 
         # Sorteer
