@@ -1,3 +1,5 @@
+import os
+
 from typing import List
 
 from ..common.enum import WaterSystem
@@ -21,6 +23,10 @@ class HRDatabase:
     def __init__(self, database_path: str) -> None:
         # Connect to the database
         self.database_path = database_path
+
+        # Check if path exists
+        if not os.path.exists(self.database_path):
+            raise FileNotFoundError()
 
         # Obtain water system and locations
         with DatabaseHR(database_path) as database:

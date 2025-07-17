@@ -12,3 +12,5 @@ docs/reference
 *.egg-info
 .quarto/*
 benchmark/
+test/test_exceedance_frequency_line.py
+test/data/results.xlsx

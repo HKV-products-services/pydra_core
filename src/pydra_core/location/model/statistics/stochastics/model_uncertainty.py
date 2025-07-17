@@ -54,10 +54,35 @@ class ModelUncertainty:
                 self.correlations[comb] = CorrelationUncertainty(
                     correlation.to_numpy()[0]
                 )
+    
+    def iterate_model_uncertainty(self, closing_situation = 1, wave_period: str = "tspec"):
+        """
+        Iterate over all model uncertainty combinations for the water leve, significant wave height and wave period
 
-    def iterate_model_uncertainty_wave_conditions(
-        self, closing_situation: int = 1, wave_period: str = "tspec"
-    ):
+        Parameters
+        ----------
+        closing_situation : int, optional
+            The closing situation id (default : 1)
+        wave_period : str, optional
+            Whether to iterate over peak period (tp) or spectral wave period (tspec) (default : 'tspec')
+
+        Returns
+        -------
+        iterator
+            (dh, fhs, ftspec, probability of (dh, fhs, ftspec))
+        """
+        mu_h = self.get_model_uncertainty("h", closing_situation)
+        h, hedges = mu_h.discretise(self.step_size["h"])
+        tmp = norm.cdf(hedges)
+        p_h = tmp[1:] - tmp[:-1]
+        
+        assert abs(p_h.sum() - 1) < 1e-6
+
+        for i, _h in enumerate(h):
+            for (fhs, ftspec, p_munc) in self.iterate_model_uncertainty_wave_conditions(closing_situation, wave_period):
+                yield _h, fhs, ftspec, p_munc * p_h[i]
+
+    def iterate_model_uncertainty_wave_conditions(self, closing_situation: int = 1, wave_period: str = "tspec"):
         """
         Iterate over all model uncertainty combinations for the significant wave height and wave period
 
@@ -71,7 +96,7 @@ class ModelUncertainty:
         Returns
         -------
         iterator
-            (hs, t, probability of (hs, t))
+            (fhs, ftspec, probability of (fhs, ftspec))
         """
         # Check if tp or tspec
         wave_period = wave_period.lower()
