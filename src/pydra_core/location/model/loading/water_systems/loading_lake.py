@@ -40,6 +40,11 @@ class LoadingLake(Loading):
         if self.settings.watersystem is WaterSystem.GREVELINGEN:
             table = table.rename(columns={"d": "a"})
             ivids = ["u", "a"]
+        
+        # Replace p with a (lake level) for Veluwe Lakes
+        if self.settings.watersystem is WaterSystem.VELUWE_LAKES:
+            table = table.rename(columns={"p": "a"})
+            ivids = ["u", "a"]
 
         # Check if there are wave conditions present or whether they should be derived with Bretschneider
         if "hs" not in table.columns:

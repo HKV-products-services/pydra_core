@@ -42,7 +42,7 @@ class LoadingFactory:
         WaterSystem.IJSSEL_LAKE: LoadingLake,
         WaterSystem.MARKER_LAKE: LoadingLake,
         WaterSystem.GREVELINGEN: LoadingLake,
-        # TODO: WaterSystem.VELUWE_LAKES
+        WaterSystem.VELUWE_LAKES: LoadingLake,
         # IJssel-Vecht Delta
         WaterSystem.VECHT_DELTA: LoadingIJsselVechtdelta,
         WaterSystem.IJSSEL_DELTA: LoadingIJsselVechtdelta,
