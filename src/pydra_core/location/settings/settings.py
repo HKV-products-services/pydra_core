@@ -356,7 +356,7 @@ class Settings:
                 value = getattr(self, item)
                 if value is None:
                     continue
-                if isinstance(value, (str, float, int, bool)):
+                if isinstance(value, (str, float, int, bool, WaterSystem)):
                     lst.append(f"{item:30s} = {value}")
 
         return "\n".join(lst)

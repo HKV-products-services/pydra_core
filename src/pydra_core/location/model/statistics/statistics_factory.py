@@ -41,8 +41,8 @@ class StatisticsFactory:
         # Lakes
         WaterSystem.IJSSEL_LAKE: StatisticsLake,
         WaterSystem.MARKER_LAKE: StatisticsLake,
+        WaterSystem.GREVELINGEN: StatisticsLake,
         # TODO: WaterSystem.VELUWE_LAKES
-        # TODO: WaterSystem.GREVELINGEN
         # IJssel-Vecht Delta
         WaterSystem.VECHT_DELTA: StatisticsIJsselVechtdelta,
         WaterSystem.IJSSEL_DELTA: StatisticsIJsselVechtdelta,
