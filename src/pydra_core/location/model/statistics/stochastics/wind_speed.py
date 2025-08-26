@@ -64,9 +64,7 @@ class WindSpeed:
             nuhoger = int(round(max(1.0, settings.u_max - max(lu))))
 
             # Add the wind speeds with a step of 1
-            u = np.concatenate(
-                [lu, np.linspace(max(lu), settings.u_max, nuhoger + 1)[1:]]
-            )
+            u = np.concatenate([lu, np.linspace(max(lu), settings.u_max, nuhoger + 1)[1:]])
             self.epu = np.zeros((len(u), eplu.shape[1]))
 
             # Add exceedance probabilities (extrapolate)
@@ -77,9 +75,7 @@ class WindSpeed:
 
                 # Otherwise, extrapolate logarithmically
                 else:
-                    self.epu[:, i] = np.exp(
-                        Interpolate.inextrp1d(x=u, xp=lu, fp=np.log(col))
-                    )
+                    self.epu[:, i] = np.exp(Interpolate.inextrp1d(x=u, xp=lu, fp=np.log(col)))
 
         # Otherwise, do nothing
         else:
@@ -89,9 +85,7 @@ class WindSpeed:
         # If a stepsize for the windspeed is defined
         if settings.u_step is not None:
             # Create a new grid
-            ugrid = np.concatenate(
-                [np.arange(0, settings.u_max, settings.u_step), [settings.u_max]]
-            )
+            ugrid = np.concatenate([np.arange(0, settings.u_max, settings.u_step), [settings.u_max]])
 
             # Interpolate the exceedance probabilities for this grid
             epu = []
@@ -108,9 +102,7 @@ class WindSpeed:
         self.u = u
         self.nu = len(u)
 
-    def correct_with_sigma_function(
-        self, sigma_function: SigmaFunction, wind_direction: DiscreteProbability
-    ) -> None:
+    def correct_with_sigma_function(self, sigma_function: SigmaFunction, wind_direction: DiscreteProbability) -> None:
         """
         Correct with statistics with sigma function.
 
@@ -143,9 +135,7 @@ class WindSpeed:
                     f_y_sigma[-1] = 1.0
 
                 ondkansu = 1.0 - self.epu[:, ir]
-                self.k_u[:, ir] = Interpolate.inextrp1d(
-                    x=ondkansu, xp=f_y_sigma, fp=f_y_m
-                )
+                self.k_u[:, ir] = Interpolate.inextrp1d(x=ondkansu, xp=f_y_sigma, fp=f_y_m)
 
     def __wind_transformation(self, y, mu, transzee, sigmafunctie):
         """
@@ -165,9 +155,7 @@ class WindSpeed:
 
         dx = np.diff(np.r_[x[0], (x[1:] + x[:-1]) / 2.0, x[-1]])
 
-        f_y_sigma = (
-            np.exp(-x[:, None]) * norm.cdf(x=yn, loc=0.0, scale=1.0) * dx[:, None]
-        ).sum(0)
+        f_y_sigma = (np.exp(-x[:, None]) * norm.cdf(x=yn, loc=0.0, scale=1.0) * dx[:, None]).sum(0)
 
         return f_y_sigma
 

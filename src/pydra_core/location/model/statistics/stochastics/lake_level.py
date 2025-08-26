@@ -31,17 +31,13 @@ class LakeLevel:
         a_min_piek = max(apeak[0] - settings.lake_level_rise, settings.a_min)
 
         # Creeer rooster met meerpeilen voor de trapezia
-        self.apeak = np.r_[
-            np.arange(a_min_piek, settings.a_max, settings.a_step), settings.a_max
-        ]
+        self.apeak = np.r_[np.arange(a_min_piek, settings.a_max, settings.a_step), settings.a_max]
         self.napeak = len(self.apeak)
 
         # Als de meerpeilen bekend zijn kunnen de trapezia worden geïnitialiseerd
         # (Vul de vector met meerpeilen)
         self.wave_shape = WaveShape(settings, type=WaveShapeType.LAKE_LEVEL)
-        self.wave_shape.initialise_wave_shapes(
-            self.apeak, climate_change=settings.lake_level_rise
-        )
+        self.wave_shape.initialise_wave_shapes(self.apeak, climate_change=settings.lake_level_rise)
 
         # Creeer rooster met meerpeilen voor het opdelen van de golfvormen in blokken
         # TODO self.invoergeg.m_min #= MLAAGST? Moet dit dan kol1.min() zijn?
@@ -51,9 +47,7 @@ class LakeLevel:
 
         # Blaas de tabel met overschrijdingskansen voor het meerpeil op
         # De interpolatie wordt logaritmische uitgevoerd.
-        self.epapeak = np.exp(
-            Interpolate.inextrp1d(x=self.apeak, xp=apeak, fp=np.log(epapeak))
-        )
+        self.epapeak = np.exp(Interpolate.inextrp1d(x=self.apeak, xp=apeak, fp=np.log(epapeak)))
         self.epapeak[self.epapeak > 1] = 1.0
 
         # IJssel-Vechtdelta and VZM related
@@ -95,19 +89,13 @@ class LakeLevel:
             if D > 0:
                 D -= 1
 
-            self.k_apeak = Interpolate.inextrp1d(
-                x=1 - self.epapeak, xp=f_y_sigma[D:], fp=f_y_k[D:]
-            )
+            self.k_apeak = Interpolate.inextrp1d(x=1 - self.epapeak, xp=f_y_sigma[D:], fp=f_y_k[D:])
 
         #  Bereken de momentane overschrijdingskansen van het meerpeil
-        self.mom_ovkans_a = self.wave_shape.instantaneous_exceedance_probability(
-            self.epapeak, self.ablok
-        )
+        self.mom_ovkans_a = self.wave_shape.instantaneous_exceedance_probability(self.epapeak, self.ablok)
 
         # Transition
-        if (settings.transition_lake_wave_shape is not None) and (
-            settings.transition_lake_wave_shape != 0.0
-        ):
+        if (settings.transition_lake_wave_shape is not None) and (settings.transition_lake_wave_shape != 0.0):
             self.wave_shape.transition_wave(settings.transition_lake_wave_shape)
 
         # Filter overschrijdingskansen die kleiner dan 0 of grote dan 1 zijn. Dit kan voorkomen door floating point precision

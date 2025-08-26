@@ -63,9 +63,7 @@ class StatisticsLowerRiver(Statistics):
         }
         self.stochastics_slow = {"q": self.discharge.get_discretisation()}
 
-    def calculate_probability(
-        self, wind_direction: float, closing_situation: int = 1, given: list = []
-    ):
+    def calculate_probability(self, wind_direction: float, closing_situation: int = 1, given: list = []):
         """
         Calculate the probability of occurence for the discretisation given the wind direction.
 
@@ -79,9 +77,7 @@ class StatisticsLowerRiver(Statistics):
             Given stochasts
         """
         # Sector West: Discharge, sea level and Europoort barrier
-        if ((wind_direction >= 0.0) and (wind_direction <= 11.25)) or (
-            (wind_direction > 212.75) and (wind_direction <= 360.0)
-        ):
+        if ((wind_direction >= 0.0) and (wind_direction <= 11.25)) or ((wind_direction > 212.75) and (wind_direction <= 360.0)):
             if "q" in given:
                 kansafvoer = np.ones_like(self.discharge.get_discretisation())
             else:
@@ -96,22 +92,13 @@ class StatisticsLowerRiver(Statistics):
             kanswr = 1.0 if "r" in given else self.wind_direction.get_probability()[ir]
 
             # Bepaal sluitkansen voor de windrichting
-            sluitkans = self.barrier.calculate_closing_probability(
-                wind_direction, closing_situation
-            )
+            sluitkans = self.barrier.calculate_closing_probability(wind_direction, closing_situation)
             if "k" in given:
                 sluitkans[:] = 1.0
 
             # Overschrijdingskans windsnelheid
             ovkansu_m = self.ovkansu_m(wind_direction)
-            kanswind = np.array(
-                [
-                    ProbabilityFunctions.probability_density(
-                        self.wind_speed.get_discretisation(), ovkansu_m[:, im]
-                    ).probability
-                    for im in range(len(self.sea_level))
-                ]
-            ).T[:, :, None]
+            kanswind = np.array([ProbabilityFunctions.probability_density(self.wind_speed.get_discretisation(), ovkansu_m[:, im]).probability for im in range(len(self.sea_level))]).T[:, :, None]
             if "u" in given:
                 kanswind[:] = 1.0
 
@@ -178,9 +165,7 @@ class StatisticsLowerRiver(Statistics):
             raise ValueError(self.settings.transitional_wind)
 
         #  Bereken de windsnelheidkansen per richting en zeewaterstand voor de windsnelheid in de statistiek
-        return 1.0 - self.ondkanswindsnelheid(
-            wind_direction, kru, self.sea_level.get_discretisation()
-        )
+        return 1.0 - self.ondkanswindsnelheid(wind_direction, kru, self.sea_level.get_discretisation())
 
     def ondkanswindsnelheid(self, wind_direction, kru, m):
         """
@@ -204,11 +189,7 @@ class StatisticsLowerRiver(Statistics):
 
         # Bepaal de onderschrijdingskans van de windsnelheid uit de
         # Gumbelverdeelde getransformeerde waarde van de windsnelheid
-        alpha = (
-            windparams[5]
-            * (m + self.sea_level.translation_m - windparams[0])
-            / windparams[1]
-        )
+        alpha = windparams[5] * (m + self.sea_level.translation_m - windparams[0]) / windparams[1]
         ondkans = np.exp(-np.exp((-kru[:, None] + alpha[None, :]) / windparams[6]))
 
         # Afknotten van de Gumbelverdeling
@@ -266,9 +247,7 @@ class StatisticsLowerRiver(Statistics):
         kanszws = ProbabilityFunctions.probability_density(m, ovkanszws).probability
 
         # Bereken de integraal over de zeewaterstanden
-        ondkans_y_r = (
-            self.ondkanswindsnelheid(wind_direction, kru, m) * kanszws[None, :]
-        ).sum(1)
+        ondkans_y_r = (self.ondkanswindsnelheid(wind_direction, kru, m) * kanszws[None, :]).sum(1)
 
         # Verwijder de K_r(u)'s met onderschijdingskansen, die bij lagere waardes ook al voorkomen
         ondkans_uniek, idx = np.unique(ondkans_y_r, return_index=True)
@@ -283,9 +262,7 @@ class StatisticsLowerRiver(Statistics):
         kru = np.zeros_like(ovkans_u)
 
         # Interpoleer dit gebied
-        kru[idx] = Interpolate.inextrp1d(
-            x=1.0 - ovkans_u[idx], xp=ondkans_uniek, fp=kru_uniek
-        )
+        kru[idx] = Interpolate.inextrp1d(x=1.0 - ovkans_u[idx], xp=ondkans_uniek, fp=kru_uniek)
 
         # Extrapoleer de andere waarden hier omheen
         kru[~idx] = Interpolate.inextrp1d(
@@ -312,10 +289,6 @@ class StatisticsLowerRiver(Statistics):
         windparams = self.sea_level.pwinds[:, ir]
 
         #  Bepaal transformatiewaarden van de windsnelheden
-        kru = (
-            windparams[2] * self.wind_speed.get_discretisation() ** 2
-            + windparams[3] * self.wind_speed.get_discretisation()
-            + windparams[4]
-        )
+        kru = windparams[2] * self.wind_speed.get_discretisation() ** 2 + windparams[3] * self.wind_speed.get_discretisation() + windparams[4]
 
         return kru

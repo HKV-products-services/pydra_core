@@ -143,19 +143,9 @@ class Settings:
 
         # Obtain the x, y coordinates and the water system
         con = sqlite3.connect(database_path)
-        self.x_coordinate = int(
-            con.execute(
-                f"SELECT XCoordinate FROM HRDLocations WHERE Name = '{hrdlocation}'"
-            ).fetchone()[0]
-        )
-        self.y_coordinate = int(
-            con.execute(
-                f"SELECT YCoordinate FROM HRDLocations WHERE Name = '{hrdlocation}'"
-            ).fetchone()[0]
-        )
-        self.watersystem = WaterSystem(
-            con.execute("SELECT GeneralId FROM General").fetchone()[0]
-        )
+        self.x_coordinate = int(con.execute(f"SELECT XCoordinate FROM HRDLocations WHERE Name = '{hrdlocation}'").fetchone()[0])
+        self.y_coordinate = int(con.execute(f"SELECT YCoordinate FROM HRDLocations WHERE Name = '{hrdlocation}'").fetchone()[0])
+        self.watersystem = WaterSystem(con.execute("SELECT GeneralId FROM General").fetchone()[0])
         con.close()
 
         # Watersystem specific settings
@@ -185,11 +175,7 @@ class Settings:
 
         # Collect all settings with statistical uncertainty (with '_metOnzHeid')
         self.__vars_with_statistical_uncertainty = {}
-        for variable in [
-            var
-            for var in dir(self)
-            if not callable(getattr(self, var)) and not var.startswith("__")
-        ]:
+        for variable in [var for var in dir(self) if not callable(getattr(self, var)) and not var.startswith("__")]:
             value = getattr(self, variable)
             if "_metOnzHeid" in str(value):
                 self.__vars_with_statistical_uncertainty[variable] = value
@@ -207,9 +193,7 @@ class Settings:
         # Loop through all variables with statistical uncertainty
         for setting in self.__vars_with_statistical_uncertainty.keys():
             value = self.__vars_with_statistical_uncertainty[setting]
-            setattr(
-                self, setting, value if include else value.replace("_metOnzHeid", "")
-            )
+            setattr(self, setting, value if include else value.replace("_metOnzHeid", ""))
 
     def __determine_sea_level_statistics_points(self):
         """
@@ -313,9 +297,7 @@ class Settings:
 
         # Not implemented
         else:
-            raise NotImplementedError(
-                f"[ERROR] Vertices for sea level statistics not implemented for {self.watersystem}."
-            )
+            raise NotImplementedError(f"[ERROR] Vertices for sea level statistics not implemented for {self.watersystem}.")
 
         # If the subsystems contains three times the same file, specify the parameter related to a point
         if len(list(set(subsystem))) == 1:
@@ -332,13 +314,7 @@ class Settings:
         Selecting the right settings for the lower rivers
         """
         # Read from shape (MSTAP, MU, SIGMA, ALFA, QSTAP_Maas, QSTAP_rijn)
-        PATH = (
-            Path(__file__).resolve().parent.parent
-            / ".."
-            / "data"
-            / "settings"
-            / "lower_river_settings.shp"
-        ).resolve()
+        PATH = (Path(__file__).resolve().parent.parent / ".." / "data" / "settings" / "lower_river_settings.shp").resolve()
 
         with fn.open(PATH, "r") as shp:
             # Define the point using Shapely's Point
@@ -364,9 +340,7 @@ class Settings:
                     elif self.watersystem == WaterSystem.MEUSE_TIDAL:
                         self.q_step = feature["properties"]["qs_meuse"]
                     else:
-                        raise ValueError(
-                            f"[ERROR] No lower river settings for {self.watersystem}."
-                        )
+                        raise ValueError(f"[ERROR] No lower river settings for {self.watersystem}.")
 
                     # Stop the loop
                     break

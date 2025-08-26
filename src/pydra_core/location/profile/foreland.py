@@ -88,21 +88,9 @@ class Foreland:
         refractedwaveangledike = np.zeros(N, order="F")
         message = "".ljust(1000).encode("utf-8")
         messagelength = c_int(1000)
-        n_vl = (
-            len(self.profile.foreland_x_coordinates)
-            if self.profile.foreland_x_coordinates is not None
-            else 1
-        )
-        x_vl = (
-            np.array(self.profile.foreland_x_coordinates).astype(np.float64)
-            if self.profile.foreland_x_coordinates is not None
-            else np.array([0]).astype(np.float64)
-        )
-        y_vl = (
-            np.array(self.profile.foreland_y_coordinates).astype(np.float64)
-            if self.profile.foreland_x_coordinates is not None
-            else np.array([-999]).astype(np.float64)
-        )
+        n_vl = len(self.profile.foreland_x_coordinates) if self.profile.foreland_x_coordinates is not None else 1
+        x_vl = np.array(self.profile.foreland_x_coordinates).astype(np.float64) if self.profile.foreland_x_coordinates is not None else np.array([0]).astype(np.float64)
+        y_vl = np.array(self.profile.foreland_y_coordinates).astype(np.float64) if self.profile.foreland_x_coordinates is not None else np.array([-999]).astype(np.float64)
 
         res = self.daf_library.C_FORTRANENTRY_RollerModel5(
             byref(c_int(self.profile.breakwater_type.value)),

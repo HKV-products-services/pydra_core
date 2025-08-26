@@ -38,9 +38,7 @@ class LoadingEasternScheldt(Loading):
         """
         # Read table
         with DatabaseHR(self.settings.database_path) as database:
-            waterlevels, waveconditions = database.get_result_table_eastern_scheldt(
-                self.settings
-            )
+            waterlevels, waveconditions = database.get_result_table_eastern_scheldt(self.settings)
             ivids = database.get_input_variables()
             rvids = database.get_result_variables()
 
@@ -49,31 +47,19 @@ class LoadingEasternScheldt(Loading):
 
         # The water level and wave conditions are based on different grids
         # Repair water level
-        for richting, snelheid in product(
-            np.unique(waveconditions["r"]), np.unique(waveconditions["u"])
-        ):
+        for richting, snelheid in product(np.unique(waveconditions["r"]), np.unique(waveconditions["u"])):
             # Kijk of deze combi bestaat
-            if (
-                waterlevels["r"].eq(richting) & waterlevels["u"].eq(snelheid)
-            ).sum() == 0:
-                _format = waterlevels[
-                    waterlevels["r"].eq(richting) & waterlevels["u"].eq(0)
-                ].copy()
+            if (waterlevels["r"].eq(richting) & waterlevels["u"].eq(snelheid)).sum() == 0:
+                _format = waterlevels[waterlevels["r"].eq(richting) & waterlevels["u"].eq(0)].copy()
                 _format.loc[:, "u"] = snelheid
                 _format.loc[:, "h"] = np.nan
                 waterlevels = pd.concat([waterlevels, _format], ignore_index=True)
 
         # Repareer Hs
-        for richting, snelheid in product(
-            np.unique(waterlevels["r"]), np.unique(waterlevels["u"])
-        ):
+        for richting, snelheid in product(np.unique(waterlevels["r"]), np.unique(waterlevels["u"])):
             # Kijk of deze combi bestaat
-            if (
-                waveconditions["r"].eq(richting) & waveconditions["u"].eq(snelheid)
-            ).sum() == 0:
-                _format = waveconditions[
-                    waveconditions["r"].eq(richting) & waveconditions["u"].eq(0)
-                ].copy()
+            if (waveconditions["r"].eq(richting) & waveconditions["u"].eq(snelheid)).sum() == 0:
+                _format = waveconditions[waveconditions["r"].eq(richting) & waveconditions["u"].eq(0)].copy()
                 _format.loc[:, "u"] = snelheid
                 _format.loc[:, "hs"] = np.nan
                 _format.loc[:, "tp"] = np.nan
@@ -90,21 +76,7 @@ class LoadingEasternScheldt(Loading):
         # Fix water levels
         missing_h_index = waterlevels[waterlevels["h"].isna()].index
         waterlevels.loc[missing_h_index, "h"] = np.around(
-            waterlevels.loc[missing_h_index - 1, "h"].to_numpy()
-            + (
-                waterlevels.loc[missing_h_index, "u"].to_numpy()
-                - waterlevels.loc[missing_h_index - 1, "u"].to_numpy()
-            )
-            * (
-                (
-                    waterlevels.loc[missing_h_index + 1, "h"].to_numpy()
-                    - waterlevels.loc[missing_h_index - 1, "h"].to_numpy()
-                )
-                / (
-                    waterlevels.loc[missing_h_index + 1, "u"].to_numpy()
-                    - waterlevels.loc[missing_h_index - 1, "u"].to_numpy()
-                )
-            ),
+            waterlevels.loc[missing_h_index - 1, "h"].to_numpy() + (waterlevels.loc[missing_h_index, "u"].to_numpy() - waterlevels.loc[missing_h_index - 1, "u"].to_numpy()) * ((waterlevels.loc[missing_h_index + 1, "h"].to_numpy() - waterlevels.loc[missing_h_index - 1, "h"].to_numpy()) / (waterlevels.loc[missing_h_index + 1, "u"].to_numpy() - waterlevels.loc[missing_h_index - 1, "u"].to_numpy())),
             4,
         )
 
@@ -113,15 +85,9 @@ class LoadingEasternScheldt(Loading):
             wd = row["r"]
             wl = row["h"]
             ws = row["u"]
-            grid = waveconditions[
-                waveconditions["r"].eq(wd) & waveconditions["h"].eq(wl)
-            ].dropna()
-            waveconditions.loc[n, "hs"] = round(
-                float(interp1d(grid["u"], grid["hs"], fill_value="extrapolate")(ws)), 4
-            )
-            waveconditions.loc[n, "tp"] = round(
-                float(interp1d(grid["u"], grid["tp"], fill_value="extrapolate")(ws)), 4
-            )
+            grid = waveconditions[waveconditions["r"].eq(wd) & waveconditions["h"].eq(wl)].dropna()
+            waveconditions.loc[n, "hs"] = round(float(interp1d(grid["u"], grid["hs"], fill_value="extrapolate")(ws)), 4)
+            waveconditions.loc[n, "tp"] = round(float(interp1d(grid["u"], grid["tp"], fill_value="extrapolate")(ws)), 4)
             waveconditions.loc[n, "tspec"] = round(
                 float(interp1d(grid["u"], grid["tspec"], fill_value="extrapolate")(ws)),
                 4,
@@ -129,9 +95,7 @@ class LoadingEasternScheldt(Loading):
 
             # Niet de wave direction extrapoleren
             if np.min(grid["u"]) <= ws and ws <= np.max(grid["u"]):
-                waveconditions.loc[n, "dir"] = round(
-                    float(interp1d(grid["u"], grid["dir"])(ws)), 4
-                )
+                waveconditions.loc[n, "dir"] = round(float(interp1d(grid["u"], grid["dir"])(ws)), 4)
             elif ws > np.max(grid["u"]):
                 waveconditions.loc[n, "dir"] = grid["dir"].to_numpy()[-1]
             elif ws < np.min(grid["u"]):
@@ -143,15 +107,11 @@ class LoadingEasternScheldt(Loading):
             idx = waterlevels["r"].eq(richting) & waterlevels["u"].eq(snelheid)
 
             # Maak een interpolatiestructuur voor de windrichting en windsnelheid
-            intstr = InterpStruct(
-                x=waterlevels.loc[idx, "h"].to_numpy(), xp=wavecond_ur["h"].to_numpy()
-            )
+            intstr = InterpStruct(x=waterlevels.loc[idx, "h"].to_numpy(), xp=wavecond_ur["h"].to_numpy())
 
             # Interpoleer voor elk van de golfparameters
             for param in ["hs", "tp", "tspec", "dir"]:
-                waterlevels.loc[idx, param] = intstr.interp(
-                    fp=wavecond_ur[param].to_numpy()
-                )
+                waterlevels.loc[idx, param] = intstr.interp(fp=wavecond_ur[param].to_numpy())
 
         # Init LoadingModels for each combination of wind direction (r) and closing situation (k)
         for comb, deeltabel in waterlevels.groupby(["r", "k"]):

@@ -76,14 +76,10 @@ class StatisticsFactory:
             If statistics for the specified water system are not implemented.
         """
         # Obtain the right Statistics class
-        statistics_class = StatisticsFactory.WATER_SYSTEM_STATISTICS_MAP.get(
-            settings.watersystem
-        )
+        statistics_class = StatisticsFactory.WATER_SYSTEM_STATISTICS_MAP.get(settings.watersystem)
 
         # Return if the class is found, otherwise raise an error
         if statistics_class:
             return statistics_class(settings)
         else:
-            raise NotImplementedError(
-                f"[ERROR] Statistics for '{settings.watersystem.name}' not implemented (ID: {settings.watersystem.value})"
-            )
+            raise NotImplementedError(f"[ERROR] Statistics for '{settings.watersystem.name}' not implemented (ID: {settings.watersystem.value})")

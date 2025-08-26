@@ -9,9 +9,7 @@ from ..location import Location
 
 
 class WaveOvertopping(BaseModel):
-    def __init__(
-        self, location: Location, water_levels: np.ndarray, probability: np.ndarray
-    ):
+    def __init__(self, location: Location, water_levels: np.ndarray, probability: np.ndarray):
         """
         Wave Overtopping model
         """

@@ -16,12 +16,7 @@ class DatabaseSettings:
 
     def __enter__(self) -> "DatabaseSettings":
         # Init the connection
-        self.con = sqlite3.connect(
-            Path(__file__).resolve().parent.parent
-            / "data"
-            / "settings"
-            / "calculation_settings.sqlite"
-        )
+        self.con = sqlite3.connect(Path(__file__).resolve().parent.parent / "data" / "settings" / "calculation_settings.sqlite")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
@@ -77,14 +72,10 @@ class DatabaseSettings:
         elif watersystem in [WaterSystem.WADDEN_SEA_WEST, WaterSystem.WADDEN_SEA_EAST]:
             tablename = "WaddenSeaReferencePoints"
         else:
-            raise NotImplementedError(
-                f"[ERROR] No sea level reference points implemented for {watersystem}."
-            )
+            raise NotImplementedError(f"[ERROR] No sea level reference points implemented for {watersystem}.")
 
         # SQL
-        data = pd.read_sql(
-            f"SELECT Name, X, Y FROM {tablename}", self.con, index_col="Name"
-        )
+        data = pd.read_sql(f"SELECT Name, X, Y FROM {tablename}", self.con, index_col="Name")
 
         # Return data
         return data
@@ -113,9 +104,7 @@ class DatabaseSettings:
         elif watersystem in [WaterSystem.WADDEN_SEA_WEST, WaterSystem.WADDEN_SEA_EAST]:
             tablename = "WaddenSeaSubSystems"
         else:
-            raise NotImplementedError(
-                f"[ERROR] No sea level reference points implemented for {watersystem}."
-            )
+            raise NotImplementedError(f"[ERROR] No sea level reference points implemented for {watersystem}.")
 
         # SQL
         data = pd.read_sql(

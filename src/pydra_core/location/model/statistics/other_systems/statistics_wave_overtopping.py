@@ -5,9 +5,7 @@ from ....location import Location
 
 
 class StatisticsWaveOvertopping(Statistics):
-    def __init__(
-        self, location: Location, water_levels: np.ndarray, probability: np.ndarray
-    ):
+    def __init__(self, location: Location, water_levels: np.ndarray, probability: np.ndarray):
         """
         Init the Statistics class for the Eastern Scheldt
 
@@ -23,9 +21,7 @@ class StatisticsWaveOvertopping(Statistics):
         self.probability = probability
 
         #  Discrete, slow, fast stochatics
-        self.stochastics_discrete = {
-            "r": location.get_model().get_statistics().stochastics_discrete["r"]
-        }
+        self.stochastics_discrete = {"r": location.get_model().get_statistics().stochastics_discrete["r"]}
         self.stochastics_fast = {
             "wlev": water_levels,
             "u": location.get_model().get_statistics().stochastics_fast["u"],
@@ -43,14 +39,10 @@ class StatisticsWaveOvertopping(Statistics):
         # Check dimensions
         for i, dim in enumerate(self.dimensions):
             if probability.shape[i] != len(discretisation[dim]):
-                raise ValueError(
-                    f"kansen.shape[i] {probability.shape[i]} != len(discretisatie[{dim}]) ({len(discretisation[dim])})."
-                )
+                raise ValueError(f"kansen.shape[i] {probability.shape[i]} != len(discretisatie[{dim}]) ({len(discretisation[dim])}).")
             setattr(self, f"n{dim}", len(discretisation[dim]))
 
-    def calculate_probability(
-        self, wind_direction: float, closing_situation: int = 1, given: list = []
-    ) -> np.ndarray:
+    def calculate_probability(self, wind_direction: float, closing_situation: int = 1, given: list = []) -> np.ndarray:
         """
         Return the probability of wlev, u, xtr1, xtr2 given the wind direction.
 

@@ -68,11 +68,7 @@ class Profile:
             return False
 
         # Geometry
-        if (
-            (self.dike_x_coordinates is None)
-            or (self.dike_y_coordinates is None)
-            or (self.dike_roughness is None)
-        ):
+        if (self.dike_x_coordinates is None) or (self.dike_y_coordinates is None) or (self.dike_roughness is None):
             return False
 
         return True
@@ -149,9 +145,7 @@ class Profile:
         # No foreland or breakwater
         return False
 
-    def set_foreland_geometry(
-        self, foreland_x_coordinates: list = None, foreland_y_coordinates: list = None
-    ):
+    def set_foreland_geometry(self, foreland_x_coordinates: list = None, foreland_y_coordinates: list = None):
         """
         Change the geometry of the foreland
         Setting the foreland x and y coordinates to None will remove the foreland.
@@ -182,13 +176,9 @@ class Profile:
         Remove the foreland
         Wrapper for set_foreland_geometry()
         """
-        self.set_foreland_geometry(
-            foreland_x_coordinates=None, foreland_y_coordinates=None
-        )
+        self.set_foreland_geometry(foreland_x_coordinates=None, foreland_y_coordinates=None)
 
-    def set_breakwater(
-        self, breakwater_type: Breakwater = None, breakwater_level: float = 0.0
-    ):
+    def set_breakwater(self, breakwater_type: Breakwater = None, breakwater_level: float = 0.0):
         """
         Change the breakwater
         """
@@ -209,9 +199,7 @@ class Profile:
         Remove the breakwater
         Wrapper for set_breakwater()
         """
-        self.set_breakwater(
-            breakwater_type=Breakwater.NO_BREAKWATER, breakwater_level=0.0
-        )
+        self.set_breakwater(breakwater_type=Breakwater.NO_BREAKWATER, breakwater_level=0.0)
 
     def calculate_overtopping(
         self,
@@ -244,15 +232,13 @@ class Profile:
             List or float with the overtopping discharge
         """
         # Transform wave conditions
-        water_level, significant_wave_height, spectral_wave_period, wave_direction = (
-            self.transform_wave_conditions(
-                water_level,
-                significant_wave_height,
-                spectral_wave_period,
-                wave_direction,
-                tp_tspec,
-                force_array=True,
-            )
+        water_level, significant_wave_height, spectral_wave_period, wave_direction = self.transform_wave_conditions(
+            water_level,
+            significant_wave_height,
+            spectral_wave_period,
+            wave_direction,
+            tp_tspec,
+            force_array=True,
         )
 
         # Create profile loading
@@ -260,9 +246,7 @@ class Profile:
 
         # Calculate
         qov = []
-        for _h, _hs, _tspec, _dir in zip(
-            water_level, significant_wave_height, spectral_wave_period, wave_direction
-        ):
+        for _h, _hs, _tspec, _dir in zip(water_level, significant_wave_height, spectral_wave_period, wave_direction):
             qov.append(profile_loading.calculate_discharge(_h, _hs, _tspec, _dir))
 
         # Return
@@ -299,15 +283,13 @@ class Profile:
             List or float with the runup height
         """
         # Transform wave conditions
-        water_level, significant_wave_height, spectral_wave_period, wave_direction = (
-            self.transform_wave_conditions(
-                water_level,
-                significant_wave_height,
-                spectral_wave_period,
-                wave_direction,
-                tp_tspec,
-                force_array=True,
-            )
+        water_level, significant_wave_height, spectral_wave_period, wave_direction = self.transform_wave_conditions(
+            water_level,
+            significant_wave_height,
+            spectral_wave_period,
+            wave_direction,
+            tp_tspec,
+            force_array=True,
         )
 
         # Create profile loading
@@ -315,9 +297,7 @@ class Profile:
 
         # Calculate
         ru2p = []
-        for _h, _hs, _tspec, _dir in zip(
-            water_level, significant_wave_height, spectral_wave_period, wave_direction
-        ):
+        for _h, _hs, _tspec, _dir in zip(water_level, significant_wave_height, spectral_wave_period, wave_direction):
             ru2p.append(profile_loading.calculate_runup(_h, _hs, _tspec, _dir))
 
         # Return
@@ -357,15 +337,13 @@ class Profile:
             List or float with the crest level
         """
         # Transform wave conditions
-        water_level, significant_wave_height, spectral_wave_period, wave_direction = (
-            self.transform_wave_conditions(
-                water_level,
-                significant_wave_height,
-                spectral_wave_period,
-                wave_direction,
-                tp_tspec,
-                force_array=True,
-            )
+        water_level, significant_wave_height, spectral_wave_period, wave_direction = self.transform_wave_conditions(
+            water_level,
+            significant_wave_height,
+            spectral_wave_period,
+            wave_direction,
+            tp_tspec,
+            force_array=True,
         )
 
         # Length of the list
@@ -444,16 +422,8 @@ class Profile:
         """
         # Length of the lists
         n_h = 1 if isinstance(water_level, (float, int)) else len(water_level)
-        n_hs = (
-            1
-            if isinstance(significant_wave_height, (float, int))
-            else len(significant_wave_height)
-        )
-        n_tspec = (
-            1
-            if isinstance(spectral_wave_period, (float, int))
-            else len(spectral_wave_period)
-        )
+        n_hs = 1 if isinstance(significant_wave_height, (float, int)) else len(significant_wave_height)
+        n_tspec = 1 if isinstance(spectral_wave_period, (float, int)) else len(spectral_wave_period)
         n_dir = 1 if isinstance(wave_direction, (float, int)) else len(wave_direction)
         n_max = np.max([n_h, n_hs, n_tspec, n_dir])
 
@@ -487,13 +457,11 @@ class Profile:
         # Correct for foreland
         if self.has_foreland():
             fl = Foreland(self)
-            water_level, significant_wave_height, peak_wave_period, wave_direction = (
-                fl.transform_wave_conditions(
-                    water_level,
-                    significant_wave_height,
-                    spectral_wave_period * tp_tspec,
-                    wave_direction,
-                )
+            water_level, significant_wave_height, peak_wave_period, wave_direction = fl.transform_wave_conditions(
+                water_level,
+                significant_wave_height,
+                spectral_wave_period * tp_tspec,
+                wave_direction,
             )
             spectral_wave_period = peak_wave_period / tp_tspec
 
@@ -517,9 +485,7 @@ class Profile:
                 ]
             )
 
-    def to_prfl(
-        self, export_path: str, id: str = "Onbekend000", memo: str = ""
-    ) -> None:
+    def to_prfl(self, export_path: str, id: str = "Onbekend000", memo: str = "") -> None:
         """
         Export to a prfl file
 
@@ -531,51 +497,27 @@ class Profile:
             Memo to be added to the prfl file
         """
         # Check required info
-        if (
-            (self.dike_x_coordinates is None)
-            or (self.dike_crest_level is None)
-            or (self.dike_orientation is None)
-        ):
-            raise ValueError(
-                f"[ERROR] Cannot generate .prfl for profile '{self.profile_name}', geometry, crest level or orientation is missing."
-            )
+        if (self.dike_x_coordinates is None) or (self.dike_crest_level is None) or (self.dike_orientation is None):
+            raise ValueError(f"[ERROR] Cannot generate .prfl for profile '{self.profile_name}', geometry, crest level or orientation is missing.")
 
         # Version
-        breakwater_level = (
-            self.breakwater_level if self.breakwater_level is not None else 0.0
-        )
-        n_foreland = (
-            len(self.foreland_x_coordinates)
-            if self.foreland_x_coordinates is not None
-            else 0
-        )
-        n_dike = (
-            len(self.dike_x_coordinates) if self.dike_x_coordinates is not None else 0
-        )
+        breakwater_level = self.breakwater_level if self.breakwater_level is not None else 0.0
+        n_foreland = len(self.foreland_x_coordinates) if self.foreland_x_coordinates is not None else 0
+        n_dike = len(self.dike_x_coordinates) if self.dike_x_coordinates is not None else 0
         export = f"VERSIE 4.0\nID {id}\n\nRICHTING {self.dike_orientation}\n\nDAM {int(self.breakwater_type.value)}\nDAMHOOGTE {breakwater_level}\n\nVOORLAND {n_foreland}\n[FORELAND]\nDAMWAND 0\nKRUINHOOGTE {self.dike_crest_level}\nDIJK {n_dike}\n[DIKE]\nMEMO\nGenerated with Pydra for profile '{self.profile_name}'\n{memo}\n"
 
         # Foreland
         foreland = ""
         if n_foreland > 0:
-            for foreland_x, foreland_y in zip(
-                self.foreland_x_coordinates, self.foreland_y_coordinates
-            ):
-                foreland = (
-                    foreland
-                    + f"{round(foreland_x,3):.3f}\t{round(foreland_y,3):.3f}\t1.000\n"
-                )
+            for foreland_x, foreland_y in zip(self.foreland_x_coordinates, self.foreland_y_coordinates):
+                foreland = foreland + f"{round(foreland_x,3):.3f}\t{round(foreland_y,3):.3f}\t1.000\n"
         export = export.replace("[FORELAND]", foreland)
 
         # Dike
         dike = ""
         if n_dike > 0:
-            for dike_x, dike_y, dike_r in zip(
-                self.dike_x_coordinates, self.dike_y_coordinates, self.dike_roughness
-            ):
-                dike = (
-                    dike
-                    + f"{round(dike_x,3):.3f}\t{round(dike_y,3):.3f}\t{round(dike_r,3):.3f}\n"
-                )
+            for dike_x, dike_y, dike_r in zip(self.dike_x_coordinates, self.dike_y_coordinates, self.dike_roughness):
+                dike = dike + f"{round(dike_x,3):.3f}\t{round(dike_y,3):.3f}\t{round(dike_r,3):.3f}\n"
         export = export.replace("[DIKE]", dike)
 
         # Export .prfl
@@ -599,9 +541,7 @@ class Profile:
 
         # Add all settings to the dictionary
         for setting in dir(self):
-            if not str(setting).startswith("__") and not callable(
-                getattr(self, setting)
-            ):
+            if not str(setting).startswith("__") and not callable(getattr(self, setting)):
                 profile[setting] = getattr(self, setting)
 
         return profile
@@ -718,9 +658,7 @@ class Profile:
         """
         # Check if the file extension if .prfl
         if not prfl_path.lower().endswith(".prfl"):
-            raise FileNotFoundError(
-                f"[ERROR] Input file: {prfl_path} should be a .prfl file."
-            )
+            raise FileNotFoundError(f"[ERROR] Input file: {prfl_path} should be a .prfl file.")
 
         # Check if the provided path exists
         if not Path(prfl_path).exists():
@@ -741,33 +679,20 @@ class Profile:
         # Version
         version = float([entry for entry in prfl if "versie" in entry][0].split(" ")[1])
         if version != 4.0:
-            raise NotImplementedError(
-                f"[ERROR] Prfl version {version} is not supported."
-            )
+            raise NotImplementedError(f"[ERROR] Prfl version {version} is not supported.")
 
         # Sheet pile
-        sheetpile = (
-            True
-            if float([entry for entry in prfl if "damwand" in entry][0].split(" ")[1])
-            == 1.0
-            else False
-        )
+        sheetpile = True if float([entry for entry in prfl if "damwand" in entry][0].split(" ")[1]) == 1.0 else False
         if sheetpile:
             raise NotImplementedError("[ERROR] Sheet piles are not implemented.")
 
         # Breakwater
-        breakwater = Breakwater(
-            int([entry for entry in prfl if "dam" in entry][0].split(" ")[1])
-        )
-        breakwater_level = float(
-            [entry for entry in prfl if "damhoogte" in entry][0].split(" ")[1]
-        )
+        breakwater = Breakwater(int([entry for entry in prfl if "dam" in entry][0].split(" ")[1]))
+        breakwater_level = float([entry for entry in prfl if "damhoogte" in entry][0].split(" ")[1])
         profile.set_breakwater(breakwater, breakwater_level)
 
         # Foreland
-        n_foreland = int(
-            [entry for entry in prfl if "voorland" in entry][0].split(" ")[1]
-        )
+        n_foreland = int([entry for entry in prfl if "voorland" in entry][0].split(" ")[1])
         idx_foreland = prfl.index(f"voorland {n_foreland}") + 1
         foreland_x = []
         foreland_y = []
@@ -790,15 +715,11 @@ class Profile:
         profile.set_dike_geometry(dike_x, dike_y, dike_r)
 
         # Crest height
-        dike_crest_level = float(
-            [entry for entry in prfl if "kruinhoogte" in entry][0].split(" ")[1]
-        )
+        dike_crest_level = float([entry for entry in prfl if "kruinhoogte" in entry][0].split(" ")[1])
         profile.set_dike_crest_level(dike_crest_level)
 
         # Dike orientation
-        dike_orientation = float(
-            [entry for entry in prfl if "richting" in entry][0].split(" ")[1]
-        )
+        dike_orientation = float([entry for entry in prfl if "richting" in entry][0].split(" ")[1])
         profile.set_dike_orientation(dike_orientation)
 
         # Return the class
@@ -827,9 +748,7 @@ class Profile:
         return profile
 
     @classmethod
-    def from_gebugekb_tool(
-        cls, sql_path: str, profile_name: str = "Profile", berm_slope: float = 1 / 100
-    ):
+    def from_gebugekb_tool(cls, sql_path: str, profile_name: str = "Profile", berm_slope: float = 1 / 100):
         """
         Import a profile from the GEBUGEKB plugin.
 
@@ -849,9 +768,7 @@ class Profile:
         """
         # Check if the file extension if .prfl
         if not sql_path.lower().endswith(".sql"):
-            raise FileNotFoundError(
-                f"[ERROR] Input file: {sql_path} should be a .sql file."
-            )
+            raise FileNotFoundError(f"[ERROR] Input file: {sql_path} should be a .sql file.")
 
         # Check if the provided path exists
         if not Path(sql_path).exists():
@@ -859,9 +776,7 @@ class Profile:
 
         # Check if the berm slope is not too steep or shallow
         if berm_slope < 1 / 100 or berm_slope > 1 / 15:
-            raise ValueError(
-                f"[ERROR] The slope of the berm cannot be steeper than 1/15 or shallower than 1/100 (Given: 1/{1/berm_slope})."
-            )
+            raise ValueError(f"[ERROR] The slope of the berm cannot be steeper than 1/15 or shallower than 1/100 (Given: 1/{1/berm_slope}).")
 
         # Read the file
         with open(sql_path, "r") as file:
@@ -871,46 +786,28 @@ class Profile:
         commands = sql_commands.split("\n")
 
         # Remove all lines starting with 'DELETE FROM', '--' or is empty. Remove comments (by splitting at the semicolumn)
-        commands = [
-            entry.split(";")[0]
-            for entry in commands
-            if not entry.startswith("DELETE FROM")
-            and not entry.startswith("--")
-            and not entry == ""
-        ]
+        commands = [entry.split(";")[0] for entry in commands if not entry.startswith("DELETE FROM") and not entry.startswith("--") and not entry == ""]
 
         # Create a new profile
         profile = cls(profile_name)
 
         # Breakwater
         breakwater = [entry for entry in commands if "Breakwaters" in entry]
-        breakwater = np.array(
-            [ast.literal_eval(entry.split("VALUES ")[-1]) for entry in breakwater]
-        )
+        breakwater = np.array([ast.literal_eval(entry.split("VALUES ")[-1]) for entry in breakwater])
         if len(breakwater) > 1:
-            raise ValueError(
-                "[ERROR] Multiple breakwaters are defined. Only one can be defined at a time."
-            )
+            raise ValueError("[ERROR] Multiple breakwaters are defined. Only one can be defined at a time.")
         elif len(breakwater) == 1:
             profile.set_breakwater(Breakwater(int(breakwater[0][1])), breakwater[0][2])
 
         # Foreland
         foreland = [entry for entry in commands if "Forelands" in entry]
-        foreland = np.array(
-            [ast.literal_eval(entry.split("VALUES ")[-1]) for entry in foreland]
-        )
+        foreland = np.array([ast.literal_eval(entry.split("VALUES ")[-1]) for entry in foreland])
         if len(foreland) > 0:
             profile.set_foreland_geometry(foreland[:, 2], foreland[:, 3])
 
         # Dike geometry
-        dike = [
-            entry.replace("NULL", "-999")
-            for entry in commands
-            if "VariableDatas" in entry
-        ]
-        dike = np.array(
-            [ast.literal_eval(entry.split("VALUES ")[-1]) for entry in dike]
-        )[:, 4:]
+        dike = [entry.replace("NULL", "-999") for entry in commands if "VariableDatas" in entry]
+        dike = np.array([ast.literal_eval(entry.split("VALUES ")[-1]) for entry in dike])[:, 4:]
 
         # Dike geometry
         slope_lower = dike[dike[:, 0] == 10][0][1]
@@ -935,9 +832,7 @@ class Profile:
             dike_y.extend([berm_level])
         else:
             berm_difference = berm_slope * berm_length
-            dike_x.extend(
-                [(berm_level - 0.5 * berm_difference - toe_level) / slope_lower]
-            )
+            dike_x.extend([(berm_level - 0.5 * berm_difference - toe_level) / slope_lower])
             dike_y.extend([berm_level - 0.5 * berm_difference])
             dike_x.extend([dike_x[-1] + berm_length])
             dike_y.extend([berm_level + 0.5 * berm_difference])

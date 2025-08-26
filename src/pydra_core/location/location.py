@@ -53,9 +53,7 @@ class Location:
         """
         # Check if the HRDLocation is still the same
         if self.settings.location != settings.location:
-            raise ValueError(
-                f"[ERROR] Cannot apply settings for location {settings.location} to location {self.settings.location}."
-            )
+            raise ValueError(f"[ERROR] Cannot apply settings for location {settings.location} to location {self.settings.location}.")
 
         # Settings
         self.settings = settings

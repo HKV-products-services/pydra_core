@@ -88,9 +88,7 @@ class HRDatabase:
 
         # Otherwise, raise an exception
         else:
-            raise ValueError(
-                f"[ERROR] HRDLocation '{hrdlocation}' not found in the database."
-            )
+            raise ValueError(f"[ERROR] HRDLocation '{hrdlocation}' not found in the database.")
 
     def create_location(self, settings_or_str: Union[Settings, str]) -> Location:
         """
@@ -113,7 +111,7 @@ class HRDatabase:
 
             # Return location
             return self.locations[settings_or_str.location]
-        
+
         # If the object is a string
         elif isinstance(settings_or_str, str):
             # Check if the hrdlocation exists
@@ -150,12 +148,7 @@ class HRDatabase:
         Location
             The Location object for the hrdlocation
         """
-        warnings.warn(
-            "get_location() is deprecated and will be removed in a future version. "
-            "Use create_location() instead.",
-            DeprecationWarning,
-            stacklevel=2
-        )
+        warnings.warn("get_location() is deprecated and will be removed in a future version. " "Use create_location() instead.", DeprecationWarning, stacklevel=2)
         return self.create_location(hrdlocation)
 
     def check_location(self, hrdlocation: str) -> bool:

@@ -51,15 +51,11 @@ class ProbabilityFunctions:
         """
         # For multiple dimensions, use the _nd function
         if exceedance_probability.ndim > 1:
-            return ProbabilityFunctions.probability_density_nd(
-                values, exceedance_probability, bounded, axis=axis
-            )
+            return ProbabilityFunctions.probability_density_nd(values, exceedance_probability, bounded, axis=axis)
 
         # Check whether the values and exceedance probabilities are monotonously increasing
         if check:
-            for arr, tag in zip(
-                [values, exceedance_probability], ["Values", "Exceedance probabilities"]
-            ):
+            for arr, tag in zip([values, exceedance_probability], ["Values", "Exceedance probabilities"]):
                 diff = arr[1:] - arr[:-1]
                 if not (all(diff >= 0) or all(diff <= 0)):
                     raise ValueError(
@@ -73,9 +69,7 @@ class ProbabilityFunctions:
 
         # If bounded, add the first and last element based on the min and max in the exceedance probability
         if bounded:
-            bins_edges = np.concatenate(
-                [[exceedance_probability[0]], bins_edges, [exceedance_probability[-1]]]
-            )
+            bins_edges = np.concatenate([[exceedance_probability[0]], bins_edges, [exceedance_probability[-1]]])
 
         # Else, determine the bins between the 0 and 1
         else:
@@ -88,9 +82,7 @@ class ProbabilityFunctions:
         bins_probability = np.absolute(bins_edges[1:] - bins_edges[:-1])
 
         # Determine the delta of the values
-        bins_values = np.concatenate(
-            [[values[0]], (values[1:] + values[:-1]) / 2.0, [values[-1]]]
-        )
+        bins_values = np.concatenate([[values[0]], (values[1:] + values[:-1]) / 2.0, [values[-1]]])
         bins_deltas = np.absolute(np.diff(bins_values))
 
         # Probability density is the bins_probability divided by the delta
@@ -152,31 +144,21 @@ class ProbabilityFunctions:
                 (exceedance_probability[1:] + exceedance_probability[:-1]) / 2,
                 pad_width=(1, 1),
                 mode="constant",
-                constant_values=(0, 1)
-                if (exceedance_probability[0] < exceedance_probability[-1]).all()
-                else (1, 0),
+                constant_values=(0, 1) if (exceedance_probability[0] < exceedance_probability[-1]).all() else (1, 0),
             )
 
         # The difference between the bin_edges are the bins_probabilities
         bins_probability = np.absolute(bins_edges[1:, ...] - bins_edges[:-1, ...])
 
         # Edges between consecutive values, the difference gives the bin_deltas
-        bins_deltas = np.absolute(
-            np.diff(
-                np.concatenate(
-                    [[values[0]], (values[1:] + values[:-1]) / 2.0, [values[-1]]]
-                )
-            )
-        )
+        bins_deltas = np.absolute(np.diff(np.concatenate([[values[0]], (values[1:] + values[:-1]) / 2.0, [values[-1]]])))
 
         # Probability density is the bins_probability divided by the delta
         shp = [1] * bins_probability.ndim
         if axis is None:
             axis = 0
         shp[axis] = -1
-        probability_density = np.absolute(
-            bins_probability / bins_deltas.reshape(tuple(shp))
-        )
+        probability_density = np.absolute(bins_probability / bins_deltas.reshape(tuple(shp)))
 
         # Return as a structure
         return pdstruct(bins_deltas, bins_probability, probability_density, bins_edges)

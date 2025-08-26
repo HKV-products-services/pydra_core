@@ -52,9 +52,7 @@ class ProfileLoading:
             if all(k in list(self.MODEL_FACTORS.keys()) for k in list(settings.keys())):
                 self.MODEL_FACTORS.update(settings)
             else:
-                raise ValueError(
-                    "[ERROR] Settings dictionary contains unknown keys (check uppercase?)."
-                )
+                raise ValueError("[ERROR] Settings dictionary contains unknown keys (check uppercase?).")
 
         # Path to the library
         lib_path = Path(__file__).resolve().parent / "lib"
@@ -159,10 +157,7 @@ class ProfileLoading:
 
         # Catch errors
         if not self.succes:
-            raise ValueError(
-                self.message.value.decode().strip()
-                + f" (Load: h={water_level}, Hs={significant_wave_height}, Tm-1,0={spectral_wave_period}, wdir={wave_direction})"
-            )
+            raise ValueError(self.message.value.decode().strip() + f" (Load: h={water_level}, Hs={significant_wave_height}, Tm-1,0={spectral_wave_period}, wdir={wave_direction})")
 
         # Return the overtopping discharge
         return qov
@@ -211,10 +206,7 @@ class ProfileLoading:
 
         # Catch errors
         if not self.succes:
-            raise ValueError(
-                self.message.value.decode().strip()
-                + f" (Load: h={water_level}, Hs={significant_wave_height}, Tm-1,0={spectral_wave_period}, wdir={wave_direction})"
-            )
+            raise ValueError(self.message.value.decode().strip() + f" (Load: h={water_level}, Hs={significant_wave_height}, Tm-1,0={spectral_wave_period}, wdir={wave_direction})")
 
         # Return the runup discharge
         return ru2p
@@ -255,9 +247,7 @@ class ProfileLoading:
         if wave_direction > 360:
             if (wave_direction - 360) < 10e-4:
                 wave_direction = 0
-        load = self.load_rto(
-            water_level, significant_wave_height, spectral_wave_period, wave_direction
-        )
+        load = self.load_rto(water_level, significant_wave_height, spectral_wave_period, wave_direction)
         self.__calculate_crest_level_rto(load)
 
         # Catch errors

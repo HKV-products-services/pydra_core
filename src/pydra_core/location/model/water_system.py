@@ -21,9 +21,7 @@ class WaterSystem(BaseModel):
         # Loading
         self.loading = LoadingFactory.get_loading(self.settings)
 
-    def process_slow_stochastics(
-        self, exceedance_probability: np.ndarray, axis: int = None
-    ) -> np.ndarray:
+    def process_slow_stochastics(self, exceedance_probability: np.ndarray, axis: int = None) -> np.ndarray:
         """
         Convert probabilities given a discharge to probabilities per duration.
 
@@ -59,40 +57,26 @@ class WaterSystem(BaseModel):
 
         # Steps in probability density
         if len(slow_stochastics) == 1 and slow_stochastics[0] == "q":
-            p_peak = ProbabilityFunctions.probability_density(
-                statistics.discharge.qpeak, statistics.discharge.epqpeak
-            ).probability
+            p_peak = ProbabilityFunctions.probability_density(statistics.discharge.qpeak, statistics.discharge.epqpeak).probability
 
         elif len(slow_stochastics) == 1 and slow_stochastics[0] == "a":
-            p_peak = ProbabilityFunctions.probability_density(
-                statistics.lake_level.apeak, statistics.lake_level.epapeak
-            ).probability
+            p_peak = ProbabilityFunctions.probability_density(statistics.lake_level.apeak, statistics.lake_level.epapeak).probability
 
         elif len(slow_stochastics) == 2 and slow_stochastics == ["a", "q"]:
-            dq = ProbabilityFunctions.probability_density(
-                statistics.discharge.qblok, statistics.discharge.epqpeak
-            ).delta
-            dm = ProbabilityFunctions.probability_density(
-                statistics.lake_level.ablok, statistics.lake_level.epapeak
-            ).delta
+            dq = ProbabilityFunctions.probability_density(statistics.discharge.qblok, statistics.discharge.epqpeak).delta
+            dm = ProbabilityFunctions.probability_density(statistics.lake_level.ablok, statistics.lake_level.epapeak).delta
             p_peak = statistics.density_aq_peak * dm[:, None] * dq[None, :]
 
         elif len(slow_stochastics) == 2 and slow_stochastics == ["q", "a"]:
-            dq = ProbabilityFunctions.probability_density(
-                statistics.discharge.qblok, statistics.discharge.epqpeak
-            ).delta
-            da = ProbabilityFunctions.probability_density(
-                statistics.lake_level.ablok, statistics.lake_level.epapeak
-            ).delta
+            dq = ProbabilityFunctions.probability_density(statistics.discharge.qblok, statistics.discharge.epqpeak).delta
+            da = ProbabilityFunctions.probability_density(statistics.lake_level.ablok, statistics.lake_level.epapeak).delta
             p_peak = statistics.density_aq_peak.T * dq[:, None] * da[None, :]
 
         # Reshape steps when multiplying to trapezoidal probs
         shp = p_peak.shape + (1,) * (ep_ks.ndim - p_peak.ndim)
 
         # Trapezoidal probability
-        p_trapezoidal = (p_peak.reshape(shp) * ep_ks).sum(
-            axis=tuple(range(p_peak.ndim))
-        )
+        p_trapezoidal = (p_peak.reshape(shp) * ep_ks).sum(axis=tuple(range(p_peak.ndim)))
 
         return p_trapezoidal
 
@@ -135,20 +119,14 @@ class WaterSystem(BaseModel):
                 x = statistics.lake_level.get_wave_shape().get_wave_shapes()
                 tijden = statistics.lake_level.get_wave_shape().time
             else:
-                raise ValueError(
-                    f"Eerste trage stochast is niet 'q' of 'm'/'a' (gegeven eerste trage stochast: {_stochastic})"
-                )
+                raise ValueError(f"Eerste trage stochast is niet 'q' of 'm'/'a' (gegeven eerste trage stochast: {_stochastic})")
 
             # Check if the length matches
             if exceedance_probability.shape[i] != x.shape[1]:
-                raise ValueError(
-                    f"The number of elements in the stochast axis ({i}) should be {x.shape[1]} ({x.shape}), but is {exceedance_probability.shape[i]} ({exceedance_probability.shape})."
-                )
+                raise ValueError(f"The number of elements in the stochast axis ({i}) should be {x.shape[1]} ({x.shape}), but is {exceedance_probability.shape[i]} ({exceedance_probability.shape}).")
 
             # Bepaal de interpolatie-indices, de xp-punten rondom x waartussen wordt geïnterpoleerd
-            intidx = np.array(
-                [(xp[None, :] <= ix[:, None]).sum(1) - 1 for ix in x], dtype=np.uint16
-            )
+            intidx = np.array([(xp[None, :] <= ix[:, None]).sum(1) - 1 for ix in x], dtype=np.uint16)
             intidx = np.minimum(np.maximum(intidx, 0), len(xp) - 2)
 
             intidxs.append(intidx)
@@ -179,9 +157,7 @@ class WaterSystem(BaseModel):
                 fracshp = fracs.shape + (1,) * (fp.ndim - 1)
 
                 # Interpoleer alle overschrijdingskansen in één keer door de fracties met de resultaatwaarden (fp) te vermenigvuldigen
-                ovkansen[:] = (1 - fracs.reshape(fracshp)) * fp[iix] + fp[
-                    iix + 1
-                ] * fracs.reshape(fracshp)
+                ovkansen[:] = (1 - fracs.reshape(fracshp)) * fp[iix] + fp[iix + 1] * fracs.reshape(fracshp)
 
             elif len(slow_stochastics) == 2:
                 iix1 = intidxs[0][it]
@@ -200,9 +176,7 @@ class WaterSystem(BaseModel):
                 for i, (ix, ixp1) in enumerate(zip(iix1, iix1 + 1)):
                     # Interpoleer eerst over de eerste stochast
                     fy1 = (1 - fracs1[i]) * fp[ix][iix2] + fp[ixp1][iix2] * fracs1[i]
-                    fy2 = (1 - fracs1[i]) * fp[ix][iix2 + 1] + fp[ixp1][
-                        iix2 + 1
-                    ] * fracs1[i]
+                    fy2 = (1 - fracs1[i]) * fp[ix][iix2 + 1] + fp[ixp1][iix2 + 1] * fracs1[i]
 
                     # Interpoleer de tweede stochast
                     ovkansen[i] = fy1 + (fy2 - fy1) * fracs2.reshape(frac2shp)
@@ -218,9 +192,7 @@ class WaterSystem(BaseModel):
             # golfvormen heeft de gebuiker een andere duur opgegeven. De bovenstaande overschrijdings-
             # kansen worden hiervoor gecorrigeerd
             if block_duration != statistics.wind_speed.block_duration_wind:
-                ovkansen[:] = 1.0 - (1.0 - ovkansen) ** (
-                    block_duration / statistics.wind_speed.block_duration_wind
-                )
+                ovkansen[:] = 1.0 - (1.0 - ovkansen) ** (block_duration / statistics.wind_speed.block_duration_wind)
 
             # Bereken de onderschrijdingskans voor de basisduur gebruikmakend van de overschrijdingskansen per blokje
             # Factoren zijn 1

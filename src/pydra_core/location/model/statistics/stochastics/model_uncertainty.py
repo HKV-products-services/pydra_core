@@ -44,18 +44,14 @@ class ModelUncertainty:
 
         # Iterate over the model uncertainties and add them to the class
         for comb, uncertainty in mu.groupby(["k", "rvid"]):
-            self.model_uncertainties[comb] = DistributionUncertainty(
-                uncertainty.to_numpy()[0]
-            )
+            self.model_uncertainties[comb] = DistributionUncertainty(uncertainty.to_numpy()[0])
 
         # Iterate over the correlation between model uncertainties and add them to the class
         if cu is not None:
             for comb, correlation in cu.groupby(["k", "rvid", "rvid2"]):
-                self.correlations[comb] = CorrelationUncertainty(
-                    correlation.to_numpy()[0]
-                )
-    
-    def iterate_model_uncertainty(self, closing_situation = 1, wave_period: str = "tspec"):
+                self.correlations[comb] = CorrelationUncertainty(correlation.to_numpy()[0])
+
+    def iterate_model_uncertainty(self, closing_situation=1, wave_period: str = "tspec"):
         """
         Iterate over all model uncertainty combinations for the water leve, significant wave height and wave period
 
@@ -75,11 +71,11 @@ class ModelUncertainty:
         h, hedges = mu_h.discretise(self.step_size["h"])
         tmp = norm.cdf(hedges)
         p_h = tmp[1:] - tmp[:-1]
-        
+
         assert abs(p_h.sum() - 1) < 1e-6
 
         for i, _h in enumerate(h):
-            for (fhs, ftspec, p_munc) in self.iterate_model_uncertainty_wave_conditions(closing_situation, wave_period):
+            for fhs, ftspec, p_munc in self.iterate_model_uncertainty_wave_conditions(closing_situation, wave_period):
                 yield _h, fhs, ftspec, p_munc * p_h[i]
 
     def iterate_model_uncertainty_wave_conditions(self, closing_situation: int = 1, wave_period: str = "tspec"):
@@ -145,15 +141,11 @@ class ModelUncertainty:
 
                 # Take the difference in both directions
                 combined_probability = exc_probs[1:] - exc_probs[:-1]
-                combined_probability = (
-                    combined_probability[:, 1:] - combined_probability[:, :-1]
-                )
+                combined_probability = combined_probability[:, 1:] - combined_probability[:, :-1]
 
             # Otherwise give a warning
             else:
-                print(
-                    "[WARNING] Correlation between wave height and period defined. However can not be applied because no model uncertainty is defined for either the wave height, period or both."
-                )
+                print("[WARNING] Correlation between wave height and period defined. However can not be applied because no model uncertainty is defined for either the wave height, period or both.")
 
         # Check
         assert abs(combined_probability.sum() - 1) < 1e-6
@@ -185,9 +177,7 @@ class ModelUncertainty:
         # Try to return the model uncertainty, otherwise return None
         return self.model_uncertainties.get((closing_situation, rv))
 
-    def get_correlation(
-        self, result_variable1: str, result_variable2: str, closing_situation: int = 1
-    ):
+    def get_correlation(self, result_variable1: str, result_variable2: str, closing_situation: int = 1):
         """
         Return the correlation object between two result variables given a closing situation id
 
@@ -250,25 +240,19 @@ class ModelUncertainty:
             klassekansen = self.bepaal_klassekansen_additief(levels, dis.mu, dis.sigma)
 
         elif result_variable in ["hs", "tp", "tspec"]:
-            klassekansen = self.bepaal_klassekansen_multiplicatief(
-                levels, dis.mu, dis.sigma
-            )
+            klassekansen = self.bepaal_klassekansen_multiplicatief(levels, dis.mu, dis.sigma)
 
         else:
             raise KeyError(result_variable)
 
         # Calculate the exceedance probability
-        exceedance_probability = np.tensordot(
-            klassekansen, exceedance_probability, axes=([0], [haxis])
-        )
+        exceedance_probability = np.tensordot(klassekansen, exceedance_probability, axes=([0], [haxis]))
 
         return exceedance_probability
 
     def bepaal_klassekansen_additief(self, niveaus, mu, sigma):
         # Bepaal klassegrenzen en klassekansen
-        hgrens = np.concatenate(
-            [[-np.inf], (niveaus[1:] + niveaus[:-1]) / 2.0, [np.inf]]
-        )
+        hgrens = np.concatenate([[-np.inf], (niveaus[1:] + niveaus[:-1]) / 2.0, [np.inf]])
         klassekansen = []
 
         # Bereken per niveau (waterstand) de kans dat de waterstand door onzekerheid in een andere klasse valt
@@ -281,9 +265,7 @@ class ModelUncertainty:
 
     def bepaal_klassekansen_multiplicatief(self, niveaus, mu, sigma):
         # Bepaal klassegrenzen en klassekansen
-        hgrens = np.concatenate(
-            [[-np.inf], (niveaus[1:] + niveaus[:-1]) / 2.0, [np.inf]]
-        )
+        hgrens = np.concatenate([[-np.inf], (niveaus[1:] + niveaus[:-1]) / 2.0, [np.inf]])
         klassekansen = []
 
         # Bereken per niveau (waterstand) de kans dat de waterstand door onzekerheid in een andere klasse valt
@@ -338,9 +320,7 @@ class DistributionUncertainty:
         bovengrens = self.mu + afstand
 
         # Calculate the probability at the center of the bin
-        probabilities = (
-            ondergrens + np.arange(0.5, nsteps, 1) * (bovengrens - ondergrens) / nsteps
-        )
+        probabilities = ondergrens + np.arange(0.5, nsteps, 1) * (bovengrens - ondergrens) / nsteps
 
         # Determine the edges of the bins
         edges = (
@@ -381,6 +361,4 @@ class CorrelationUncertainty:
             ["hs", "tspec"],
             ["tspec", "hs"],
         ]:
-            raise ValueError(
-                f"Not Implemented: Correlation between ({self.rvid}) and ({self.rvid2})"
-            )
+            raise ValueError(f"Not Implemented: Correlation between ({self.rvid}) and ({self.rvid2})")

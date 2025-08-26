@@ -69,9 +69,7 @@ class ExceedanceFrequencyLine(Calculation):
 
         # Check if the levels are defined, if not, define it between the 1st and 99th percentile
         if levels is None:
-            lower, upper = loading.get_quantile_range(
-                self.result_variable, 0.01, 0.99, 3
-            )
+            lower, upper = loading.get_quantile_range(self.result_variable, 0.01, 0.99, 3)
             levels = np.arange(lower, upper + 0.5 * self.step_size, self.step_size)
 
         # Model uncertainty
@@ -81,9 +79,7 @@ class ExceedanceFrequencyLine(Calculation):
                 self.model_uncertainty_steps = monz.step_size[self.result_variable]
 
             # Discretise
-            _, edges = monz.model_uncertainties[1, self.result_variable].discretise(
-                self.model_uncertainty_steps
-            )
+            _, edges = monz.model_uncertainties[1, self.result_variable].discretise(self.model_uncertainty_steps)
             p = np.diff(norm.cdf(edges))
 
         # If not
@@ -104,11 +100,7 @@ class ExceedanceFrequencyLine(Calculation):
                     _unc = monz.model_uncertainties[deelmodel[1], self.result_variable]
                     _disc, _ = _unc.discretise(self.model_uncertainty_steps)
                     _data = getattr(result, self.result_variable)
-                    _data = (
-                        _data + _disc[_ip]
-                        if self.result_variable == "h"
-                        else _data * _disc[_ip]
-                    )
+                    _data = _data + _disc[_ip] if self.result_variable == "h" else _data * _disc[_ip]
                     setattr(result, self.result_variable, _data)
 
             # Repair
@@ -129,15 +121,11 @@ class ExceedanceFrequencyLine(Calculation):
             # Process slow stochastics (they are always at the last axes of the matrix)
             if len(list(_model.statistics.stochastics_slow.keys())) > 0:
                 p_trapezoidal = _model.process_slow_stochastics(ep_h_slow)
-                exceedance_probability = (
-                    p_trapezoidal * location.get_settings().periods_base_duration
-                )
+                exceedance_probability = p_trapezoidal * location.get_settings().periods_base_duration
 
             # Zo niet, geef de overschrijdingskansen direct terug
             else:
-                exceedance_probability = (
-                    ep_h_slow * location.settings.periods_block_duration
-                )
+                exceedance_probability = ep_h_slow * location.settings.periods_block_duration
 
             # Save
             if _ip:
@@ -159,9 +147,7 @@ class ExceedanceFrequencyLine(Calculation):
         """
         # Raise an error when assigning the wave direction (dir)
         if result_variable == "dir":
-            raise ValueError(
-                "[ERROR] Cannot calculate a frequency line for the wave direction (dir)."
-            )
+            raise ValueError("[ERROR] Cannot calculate a frequency line for the wave direction (dir).")
 
         # Save result variable
         self.result_variable = result_variable

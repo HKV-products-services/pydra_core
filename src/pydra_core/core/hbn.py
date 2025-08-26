@@ -61,17 +61,13 @@ class HBN(Calculation):
         """
         # Check if a profile is defined
         if not location.has_profile():
-            print(
-                f"[WARNING] Profile is not assiged to location '{location.get_settings().location}'. Skipping this calculation."
-            )
+            print(f"[WARNING] Profile is not assiged to location '{location.get_settings().location}'. Skipping this calculation.")
             return None
 
         # Obtain profile and validate
         profile = location.get_profile()
         if not profile.validate_profile():
-            print(
-                f"[WARNING] Something is wrong with the assigned profile of location '{location.get_settings().location}'. Skipping this calculation."
-            )
+            print(f"[WARNING] Something is wrong with the assigned profile of location '{location.get_settings().location}'. Skipping this calculation.")
             return None
 
         # Copy the levels
@@ -89,9 +85,7 @@ class HBN(Calculation):
         if levels is None:
             _, upper_ws = loading.get_quantile_range("h", 0.01, 0.99, 3)
             _, upper_hs = loading.get_quantile_range("hs", 0.01, 0.99, 3)
-            levels = np.arange(
-                0, upper_ws + 4 * upper_hs + 0.5 * self.step_size, self.step_size
-            )
+            levels = np.arange(0, upper_ws + 4 * upper_hs + 0.5 * self.step_size, self.step_size)
 
         # Calculate the boundaries
         h_boundaries = ProbabilityFunctions.calculate_boundaries(levels)
@@ -111,36 +105,18 @@ class HBN(Calculation):
         wave_overtopping_loading = wave_overtopping.get_loading()
 
         # Create an empty array for the levels and slow stochastics
-        p_hbn_slow = np.zeros(
-            (len(levels),)
-            + tuple(
-                [
-                    getattr(wave_overtopping_statistics, f"n{x}")
-                    for x in slow_stochastics
-                ]
-            )
-        )
+        p_hbn_slow = np.zeros((len(levels),) + tuple([getattr(wave_overtopping_statistics, f"n{x}") for x in slow_stochastics]))
 
         # Iterate over the wave conditions model uncertainty
         # ASSUME: model uncertainties for wave height/period do not differ given the state of the barrier
-        iterator = np.array(
-            list(
-                statistics.model_uncertainties.iterate_model_uncertainty_wave_conditions(
-                    wave_period="tspec"
-                )
-            )
-        )
+        iterator = np.array(list(statistics.model_uncertainties.iterate_model_uncertainty_wave_conditions(wave_period="tspec")))
         iterator = iterator if self.model_uncertainty else np.array([[1.0, 1.0, 1.0]])
         for n_id, (factor_hs, factor_tspec, p_occ) in enumerate(iterator):
             # Info
-            print(
-                f"[{datetime.now().strftime('%H:%M:%S')}]: Model uncertainties {n_id + 1}/{len(list(iterator))} (fhs = {round(factor_hs, 3)}; ftspec = {round(factor_tspec, 3)}; p = {round(p_occ, 3)})"
-            )
+            print(f"[{datetime.now().strftime('%H:%M:%S')}]: Model uncertainties {n_id + 1}/{len(list(iterator))} (fhs = {round(factor_hs, 3)}; ftspec = {round(factor_tspec, 3)}; p = {round(p_occ, 3)})")
 
             # Calculate the height of the HBNs
-            wave_overtopping_loading.calculate_hbn(
-                profile, self.q_overtopping, factor_hs, factor_tspec
-            )
+            wave_overtopping_loading.calculate_hbn(profile, self.q_overtopping, factor_hs, factor_tspec)
 
             # Repair HBN
             wave_overtopping_loading.repair_loadingmodels("hbn")

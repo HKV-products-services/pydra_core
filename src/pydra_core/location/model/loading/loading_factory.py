@@ -76,14 +76,10 @@ class LoadingFactory:
             If loading for the specified water system are not implemented.
         """
         # Obtain the right Loading class
-        loading_class = LoadingFactory.WATER_SYSTEM_LOADING_MAP.get(
-            settings.watersystem
-        )
+        loading_class = LoadingFactory.WATER_SYSTEM_LOADING_MAP.get(settings.watersystem)
 
         # Return if the class is found, otherwise raise an error
         if loading_class:
             return loading_class(settings)
         else:
-            raise NotImplementedError(
-                f"[ERROR] Loading for '{settings.watersystem.name}' not implemented (ID: {settings.watersystem.value})"
-            )
+            raise NotImplementedError(f"[ERROR] Loading for '{settings.watersystem.name}' not implemented (ID: {settings.watersystem.value})")
