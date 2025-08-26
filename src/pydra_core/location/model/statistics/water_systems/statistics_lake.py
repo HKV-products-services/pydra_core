@@ -45,9 +45,7 @@ class StatisticsLake(Statistics):
         self.stochastics_fast = {"u": self.wind_speed.get_discretisation()}
         self.stochastics_slow = {"a": self.lake_level.get_discretisation()}
 
-    def calculate_probability(
-        self, wind_direction: float, closing_situation: int = 1, given: list = []
-    ):
+    def calculate_probability(self, wind_direction: float, closing_situation: int = 1, given: list = []):
         """
         Calculate the probability of occurence for the discretisation given the wind direction.
 
@@ -76,7 +74,7 @@ class StatisticsLake(Statistics):
             # If not given, use the instantaneous probability
             p_lake_level = ProbabilityFunctions.probability_density(
                 self.lake_level.get_discretisation(),
-                1 - self.lake_level.get_exceedance_probability(),
+                self.lake_level.get_exceedance_probability(),
             ).probability
 
         # Probability of wind direction

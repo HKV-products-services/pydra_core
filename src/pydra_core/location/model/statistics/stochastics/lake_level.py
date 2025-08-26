@@ -111,7 +111,7 @@ class LakeLevel:
             self.wave_shape.transition_wave(settings.transition_lake_wave_shape)
 
         # Filter overschrijdingskansen die kleiner dan 0 of grote dan 1 zijn. Dit kan voorkomen door floating point precision
-        self.upablok = np.clip(1.0 - self.mom_ovkans_a, 0.0, 1.0)
+        self.epablok = np.clip(self.mom_ovkans_a, 0.0, 1.0)
 
     def __len__(self):
         """
@@ -144,7 +144,7 @@ class LakeLevel:
         np.ndarray
             A 1D array with the discharge exceedance probability
         """
-        return self.upablok
+        return self.epablok
 
     def get_wave_shape(self) -> WaveShape:
         """
