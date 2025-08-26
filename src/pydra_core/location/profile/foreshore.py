@@ -6,9 +6,9 @@ from pathlib import Path
 from typing import Tuple
 
 
-class Foreland:
+class Foreshore:
     """
-    This module will use the Dam and Foreland module (DaF) to transform wave conditions
+    This module will use the Dam and Foreshore module (DaF) to transform wave conditions
     based on the schematized foreshore. The DaF module can be used to transform wave conditions
     over a breakwater and/or foreshore.
     """
@@ -57,7 +57,7 @@ class Foreland:
         wave_direction: np.ndarray,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
-        Transform the wave conditions for the schematized foreland
+        Transform the wave conditions for the schematized foreshore
 
         Parameters
         ----------
@@ -88,9 +88,9 @@ class Foreland:
         refractedwaveangledike = np.zeros(N, order="F")
         message = "".ljust(1000).encode("utf-8")
         messagelength = c_int(1000)
-        n_vl = len(self.profile.foreland_x_coordinates) if self.profile.foreland_x_coordinates is not None else 1
-        x_vl = np.array(self.profile.foreland_x_coordinates).astype(np.float64) if self.profile.foreland_x_coordinates is not None else np.array([0]).astype(np.float64)
-        y_vl = np.array(self.profile.foreland_y_coordinates).astype(np.float64) if self.profile.foreland_x_coordinates is not None else np.array([-999]).astype(np.float64)
+        n_vl = len(self.profile.foreshore_x) if self.profile.foreshore_x is not None else 1
+        x_vl = np.array(self.profile.foreshore_x).astype(np.float64) if self.profile.foreshore_x is not None else np.array([0]).astype(np.float64)
+        y_vl = np.array(self.profile.foreshore_y).astype(np.float64) if self.profile.foreshore_x is not None else np.array([-999]).astype(np.float64)
 
         res = self.daf_library.C_FORTRANENTRY_RollerModel5(
             byref(c_int(self.profile.breakwater_type.value)),
@@ -126,8 +126,8 @@ class Foreland:
 
         if res != 0:
             print(message + " - Using uncorrected wave parameters.")
-            print(self.profile.foreland_x_coordinates)
-            print(self.profile.foreland_y_coordinates)
+            print(self.profile.foreshore_x)
+            print(self.profile.foreshore_y)
             hm0dike[:] = significant_wave_height[mask].ravel()[:]
             tpdike[:] = peak_wave_period[mask].ravel()[:]
             refractedwaveangledike[:] = wave_direction[mask].ravel()[:]

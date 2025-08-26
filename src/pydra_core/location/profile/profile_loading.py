@@ -274,15 +274,15 @@ class ProfileLoading:
         """
         Function to communicate with the dllDikesOvertopping.dll
         """
-        self.arr_ctype = c_double * len(self.profile.dike_x_coordinates)
+        self.arr_ctype = c_double * len(self.profile.dike_x)
         self.__set_argtypes()
         self.rto_library.calculateQoJ(
             load,
-            byref(self.arr_ctype(*self.profile.dike_x_coordinates)),
-            byref(self.arr_ctype(*self.profile.dike_y_coordinates)),
+            byref(self.arr_ctype(*self.profile.dike_x)),
+            byref(self.arr_ctype(*self.profile.dike_y)),
             byref(self.arr_ctype(*self.profile.dike_roughness)),
             byref(c_double(self.profile.dike_orientation)),
-            byref(c_int(len(self.profile.dike_x_coordinates))),
+            byref(c_int(len(self.profile.dike_x))),
             byref(c_double(self.profile.dike_crest_level)),
             byref(self.modelfactors_rto),
             byref(self.output),
@@ -294,15 +294,15 @@ class ProfileLoading:
         """
         Function to communicate with the dllDikesOvertopping.dll
         """
-        self.arr_ctype = c_double * len(self.profile.dike_x_coordinates)
+        self.arr_ctype = c_double * len(self.profile.dike_x)
         self.__set_argtypes()
         self.rto_library.omkeerVariantJ(
             load,
-            byref(self.arr_ctype(*self.profile.dike_x_coordinates)),
-            byref(self.arr_ctype(*self.profile.dike_y_coordinates)),
+            byref(self.arr_ctype(*self.profile.dike_x)),
+            byref(self.arr_ctype(*self.profile.dike_y)),
             byref(self.arr_ctype(*self.profile.dike_roughness)),
             byref(c_double(self.profile.dike_orientation)),
-            byref(c_int(len(self.profile.dike_x_coordinates))),
+            byref(c_int(len(self.profile.dike_x))),
             byref(self.qcr),
             byref(self.niveau),
             byref(self.modelfactors_rto),
@@ -315,13 +315,13 @@ class ProfileLoading:
         """
         Function to communicate with the CombOverloopOverslag64.dll
         """
-        self.arr_ctype = c_double * len(self.profile.dike_x_coordinates)
+        self.arr_ctype = c_double * len(self.profile.dike_x)
         self.__set_argtypes()
         self.coo_library.CalculateDischarge(
             byref(c_double(self.profile.dike_orientation)),
-            byref(c_int(len(self.profile.dike_x_coordinates))),
-            byref(self.arr_ctype(*self.profile.dike_x_coordinates)),
-            byref(self.arr_ctype(*self.profile.dike_y_coordinates)),
+            byref(c_int(len(self.profile.dike_x))),
+            byref(self.arr_ctype(*self.profile.dike_x)),
+            byref(self.arr_ctype(*self.profile.dike_y)),
             byref(self.arr_ctype(*self.profile.dike_roughness)),
             load,
             byref(self.modelfactors_coo),
@@ -335,13 +335,13 @@ class ProfileLoading:
         """
         Function to communicate with the CombOverloopOverslag64.dll
         """
-        self.arr_ctype = c_double * len(self.profile.dike_x_coordinates)
+        self.arr_ctype = c_double * len(self.profile.dike_x)
         self.__set_argtypes()
         self.coo_library.CalculateHeight(
             byref(c_double(self.profile.dike_orientation)),
-            byref(c_int(len(self.profile.dike_x_coordinates))),
-            byref(self.arr_ctype(*self.profile.dike_x_coordinates)),
-            byref(self.arr_ctype(*self.profile.dike_y_coordinates)),
+            byref(c_int(len(self.profile.dike_x))),
+            byref(self.arr_ctype(*self.profile.dike_x)),
+            byref(self.arr_ctype(*self.profile.dike_y)),
             byref(self.arr_ctype(*self.profile.dike_roughness)),
             load,
             byref(self.modelfactors_coo),
