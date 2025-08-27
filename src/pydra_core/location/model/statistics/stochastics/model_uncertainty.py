@@ -35,6 +35,7 @@ class ModelUncertainty:
             "h": settings.model_uncertainty_water_level_steps,
             "hs": settings.model_uncertainty_wave_height_steps,
             "tspec": settings.model_uncertainty_wave_period_steps,
+            "tp": settings.model_uncertainty_wave_period_steps,
         }
 
         # Obtain the model uncertainties and correlation between model uncertainties

@@ -69,7 +69,7 @@ class ExceedanceFrequencyLine(Calculation):
 
         # Check if the levels are defined, if not, define it between the 1st and 99th percentile
         if levels is None:
-            lower, upper = loading.get_quantile_range(self.result_variable, 0.01, 0.99, 3)
+            lower, upper = loading.get_quantile_range(self.result_variable, 0.0, 1.0, 3)
             levels = np.arange(lower, upper + 0.5 * self.step_size, self.step_size)
 
         # Model uncertainty

@@ -20,6 +20,7 @@ class HBN(Calculation):
         levels: list = None,
         step_size: float = 0.1,
         model_uncertainty: bool = True,
+        verbose: bool = True,
     ):
         """
         The __init__ method initializes an instance of the ExceedanceFrequencyLine class. It takes in several parameters to configure the calculation of the frequency line.
@@ -34,6 +35,8 @@ class HBN(Calculation):
             The step size of the frequency line. Default is 0.1.
         model_uncertainty : bool (optional)
             Enable or disable the use of model uncertainties when calculating the frequency line. Default is True.
+        verbose : bool (optional)
+            Show info during calculation
         """
         # Inherit
         super().__init__()
@@ -42,6 +45,7 @@ class HBN(Calculation):
         self.set_critical_overtopping(q_overtopping)
         self.set_levels(levels)
         self.set_step_size(step_size)
+        self.set_verbose(verbose)
         self.use_model_uncertainty(model_uncertainty)
 
     def calculate_location(self, location: Location) -> float:
@@ -83,9 +87,9 @@ class HBN(Calculation):
         # TODO: Beter levels bepalen
         # If no levels are defined, derive them based on the water level in the database
         if levels is None:
-            _, upper_ws = loading.get_quantile_range("h", 0.01, 0.99, 3)
-            _, upper_hs = loading.get_quantile_range("hs", 0.01, 0.99, 3)
-            levels = np.arange(0, upper_ws + 4 * upper_hs + 0.5 * self.step_size, self.step_size)
+            lower_ws, upper_ws = loading.get_quantile_range("h", 0.0, 1.0, 3)
+            _, upper_hs = loading.get_quantile_range("hs", 0.0, 1.0, 3)
+            levels = np.arange(lower_ws, upper_ws + 2 * upper_hs + 0.5 * self.step_size, self.step_size)
 
         # Calculate the boundaries
         h_boundaries = ProbabilityFunctions.calculate_boundaries(levels)
@@ -111,9 +115,10 @@ class HBN(Calculation):
         # ASSUME: model uncertainties for wave height/period do not differ given the state of the barrier
         iterator = np.array(list(statistics.model_uncertainties.iterate_model_uncertainty_wave_conditions(wave_period="tspec")))
         iterator = iterator if self.model_uncertainty else np.array([[1.0, 1.0, 1.0]])
-        for n_id, (factor_hs, factor_tspec, p_occ) in enumerate(iterator):
+        for n_id, (addition_h, factor_hs, factor_tspec, p_occ) in enumerate(iterator):
             # Info
-            print(f"[{datetime.now().strftime('%H:%M:%S')}]: Model uncertainties {n_id + 1}/{len(list(iterator))} (fhs = {round(factor_hs, 3)}; ftspec = {round(factor_tspec, 3)}; p = {round(p_occ, 3)})")
+            if self.verbose:
+                print(f"[{datetime.now().strftime('%H:%M:%S')}]: Model uncertainties {n_id + 1}/{len(list(iterator))} (fhs = {round(factor_hs, 3)}; ftspec = {round(factor_tspec, 3)}; p = {round(p_occ, 3)})")
 
             # Calculate the height of the HBNs
             wave_overtopping_loading.calculate_hbn(profile, self.q_overtopping, factor_hs, factor_tspec)
@@ -189,6 +194,17 @@ class HBN(Calculation):
 
         # Save step size
         self.step_size = step_size
+
+    def set_verbose(self, verbose: bool):
+        """
+        Show info during calculation.
+
+        Parameters
+        ----------
+        verbose : bool
+            Show info during calculation.
+        """
+        self.verbose = verbose
 
     def use_model_uncertainty(self, model_uncertainty: bool):
         """

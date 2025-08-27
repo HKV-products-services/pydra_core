@@ -23,6 +23,9 @@ class FrequencyLine:
     level: np.ndarray
     exceedance_frequency: np.ndarray
 
+    def __post_init__(self):
+        self.drop_zeros()
+
     def interpolate_exceedance_probability(self, exceedance_probability: np.ndarray):
         exceedance_probability = np.atleast_1d(exceedance_probability)
         order_x = np.argsort(exceedance_probability)

@@ -21,42 +21,44 @@ class LakeLevel:
         settings : Settings
             The Settings object
         """
-        # Read exceedance probability peak lake level
+        # Read exceedance probability of peak lake level within one block (of base duration)
         apeak, epapeak = FileHydraNL.read_file_2columns(settings.lake_level_probability)
 
         # Adjust for lake level rise
         apeak += settings.lake_level_rise
 
-        # Lowest lake level
+        # Determine lowest lake level
         a_min_piek = max(apeak[0] - settings.lake_level_rise, settings.a_min)
 
-        # Creeer rooster met meerpeilen voor de trapezia
+        # Create grid for exceedance probability of peak lake level within one block (of base duration)
         self.apeak = np.r_[np.arange(a_min_piek, settings.a_max, settings.a_step), settings.a_max]
         self.napeak = len(self.apeak)
 
-        # Als de meerpeilen bekend zijn kunnen de trapezia worden geïnitialiseerd
-        # (Vul de vector met meerpeilen)
-        self.wave_shape = WaveShape(settings, type=WaveShapeType.LAKE_LEVEL)
-        self.wave_shape.initialise_wave_shapes(self.apeak, climate_change=settings.lake_level_rise)
-
-        # Creeer rooster met meerpeilen voor het opdelen van de golfvormen in blokken
-        # TODO self.invoergeg.m_min #= MLAAGST? Moet dit dan kol1.min() zijn?
-        # self.mblok = roosterblokken(self.invoergeg.m_min, self.mpiek)
-        self.ablok = self.apeak.copy()
-        self.nablok = len(self.ablok)
-
-        # Blaas de tabel met overschrijdingskansen voor het meerpeil op
-        # De interpolatie wordt logaritmische uitgevoerd.
+        # Inter/extrapolate the the exc. prob. of apeak on the new grid
         self.epapeak = np.exp(Interpolate.inextrp1d(x=self.apeak, xp=apeak, fp=np.log(epapeak)))
         self.epapeak[self.epapeak > 1] = 1.0
 
+        # Create grid for the instateneous exceedancy probability P(Q > q)
+        self.ablok = self.apeak.copy()
+        self.nablok = len(self.ablok)
+
+        # Initialise the wave shapes
+        self.wave_shape = WaveShape(settings, type=WaveShapeType.LAKE_LEVEL)
+        self.wave_shape.initialise_wave_shapes(self.apeak, climate_change=settings.lake_level_rise)
+
+        # Calculate the instateneous exceedancy probability P(Q > q) (probability of Q exceeding q in one day)
+        self.mom_ovkans_a = self.wave_shape.instantaneous_exceedance_probability(self.epapeak, self.ablok)
+
+        # Clip exceedance probabilities
+        self.epablok = np.clip(self.mom_ovkans_a, 0.0, 1.0)
+
+        # Transition
+        if (settings.transition_lake_wave_shape is not None) and (settings.transition_lake_wave_shape != 0.0):
+            self.wave_shape.transition_wave(settings.transition_lake_wave_shape)
+
         # IJssel-Vechtdelta and VZM related
-        if settings.watersystem in [
-            WaterSystem.IJSSEL_DELTA,
-            WaterSystem.VECHT_DELTA,
-            WaterSystem.VOLKERAK_ZOOMMEER,
-        ]:
-            # Lokale paramters
+        if settings.watersystem in [WaterSystem.IJSSEL_DELTA, WaterSystem.VECHT_DELTA, WaterSystem.VOLKERAK_ZOOMMEER]:
+            # Lokale parameters
             N = 376
 
             # Geef verwachtingswaarde en standaarddeviatie van de normale verdeling in de getransformeerde ruimte een waarde
@@ -90,16 +92,6 @@ class LakeLevel:
                 D -= 1
 
             self.k_apeak = Interpolate.inextrp1d(x=1 - self.epapeak, xp=f_y_sigma[D:], fp=f_y_k[D:])
-
-        #  Bereken de momentane overschrijdingskansen van het meerpeil
-        self.mom_ovkans_a = self.wave_shape.instantaneous_exceedance_probability(self.epapeak, self.ablok)
-
-        # Transition
-        if (settings.transition_lake_wave_shape is not None) and (settings.transition_lake_wave_shape != 0.0):
-            self.wave_shape.transition_wave(settings.transition_lake_wave_shape)
-
-        # Filter overschrijdingskansen die kleiner dan 0 of grote dan 1 zijn. Dit kan voorkomen door floating point precision
-        self.epablok = np.clip(self.mom_ovkans_a, 0.0, 1.0)
 
     def __len__(self):
         """
