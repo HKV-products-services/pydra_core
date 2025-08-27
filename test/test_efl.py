@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import platform
 
 from datetime import datetime
 from pathlib import Path
@@ -50,6 +51,11 @@ def test_exceedance_frequency_lines():
 
             # HBN
             elif result_variable in ["hbn"]:
+                # Only for Windows (due to the .dlls)
+                sys_platform = platform.system()
+                if sys_platform != "Windows":
+                    continue
+
                 # Create a Profile
                 prof = Profile(
                     "Profile",
