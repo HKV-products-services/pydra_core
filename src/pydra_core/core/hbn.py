@@ -17,9 +17,9 @@ class HBN(Calculation):
     def __init__(
         self,
         q_overtopping: float = 0.010,
-        levels: list = None,
-        step_size: float = 0.1,
         model_uncertainty: bool = True,
+        levels: list = None,
+        step_size: float = 0.05,
         verbose: bool = True,
     ):
         """
@@ -29,12 +29,12 @@ class HBN(Calculation):
         ----------
         q_overtopping : float (optional)
             The critical overtopping discharge. Default is 0.01 m3/m/s (10 l/m/s)
+        model_uncertainty : bool (optional)
+            Enable or disable the use of model uncertainties when calculating the frequency line. Default is True.
         levels : list (optional):
             The levels at which the exceedance probability has to be calculated. If not specified, the levels will be chosen between the 1st and 99th percentile of the values in the HRDatabase.
         step_size : float (optional)
             The step size of the frequency line. Default is 0.1.
-        model_uncertainty : bool (optional)
-            Enable or disable the use of model uncertainties when calculating the frequency line. Default is True.
         verbose : bool (optional)
             Show info during calculation
         """
@@ -89,7 +89,7 @@ class HBN(Calculation):
         if levels is None:
             lower_ws, upper_ws = loading.get_quantile_range("h", 0.0, 1.0, 3)
             _, upper_hs = loading.get_quantile_range("hs", 0.0, 1.0, 3)
-            levels = np.arange(lower_ws, upper_ws + 2 * upper_hs + 0.5 * self.step_size, self.step_size)
+            levels = np.arange(lower_ws - upper_hs, upper_ws + 4 * upper_hs + 0.5 * self.step_size, self.step_size)
 
         # Calculate the boundaries
         h_boundaries = ProbabilityFunctions.calculate_boundaries(levels)
@@ -115,7 +115,7 @@ class HBN(Calculation):
         # ASSUME: model uncertainties for wave height/period do not differ given the state of the barrier
         iterator = np.array(list(statistics.model_uncertainties.iterate_model_uncertainty_wave_conditions(wave_period="tspec")))
         iterator = iterator if self.model_uncertainty else np.array([[1.0, 1.0, 1.0]])
-        for n_id, (addition_h, factor_hs, factor_tspec, p_occ) in enumerate(iterator):
+        for n_id, (factor_hs, factor_tspec, p_occ) in enumerate(iterator):
             # Info
             if self.verbose:
                 print(f"[{datetime.now().strftime('%H:%M:%S')}]: Model uncertainties {n_id + 1}/{len(list(iterator))} (fhs = {round(factor_hs, 3)}; ftspec = {round(factor_tspec, 3)}; p = {round(p_occ, 3)})")
