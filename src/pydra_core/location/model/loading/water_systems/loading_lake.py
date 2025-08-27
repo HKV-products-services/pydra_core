@@ -35,12 +35,12 @@ class LoadingLake(Loading):
             table = database.get_result_table(self.settings)
             ivids = database.get_input_variables()
             rvids = database.get_result_variables()
-        
+
         # Replace d with a (lake level) for Grevelingen
         if self.settings.watersystem is WaterSystem.GREVELINGEN:
             table = table.rename(columns={"d": "a"})
             ivids = ["u", "a"]
-        
+
         # Replace p with a (lake level) for Veluwe Lakes
         if self.settings.watersystem is WaterSystem.VELUWE_LAKES:
             table = table.rename(columns={"p": "a"})

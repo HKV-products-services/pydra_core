@@ -58,11 +58,11 @@ class Profile:
         self.profile_name = profile_name
 
         # Arguments
-        if (crest_level is not None):
+        if crest_level is not None:
             self.set_dike_crest_level(crest_level)
-        if (orientation is not None):
+        if orientation is not None:
             self.set_dike_orientation(orientation)
-        if (cota_slope is not None):
+        if cota_slope is not None:
             self.set_dike_geometry([-10 * cota_slope, crest_level * cota_slope], [-10, crest_level])
 
     def validate_profile(self) -> bool:
