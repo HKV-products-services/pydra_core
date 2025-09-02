@@ -212,7 +212,7 @@ class DatabaseHR:
             },
             inplace=True,
         )
-        data["rvid"].replace(rvids, inplace=True)
+        data["rvid"] = data["rvid"].replace(rvids)
 
         # Return the model uncertainties
         return data
