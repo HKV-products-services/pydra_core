@@ -105,7 +105,7 @@ class BaseModel(ABC):
                     exceedance_probability=probability_loading,
                     haxis=0,
                 )
-            
+
             # Find nonzero positions in probability_loading
             nz = np.nonzero(probability_loading)
 
@@ -118,7 +118,7 @@ class BaseModel(ABC):
                     idx[split_input_variables.index("r") + 1] = ir
                 if "k" in split_input_variables:
                     idx[split_input_variables.index("k") + 1] = ik
-                #probability[tuple(idx)] += probability_loading
+                # probability[tuple(idx)] += probability_loading
                 probability[tuple(idx)][nz] += probability_loading[nz]
 
         return probability
