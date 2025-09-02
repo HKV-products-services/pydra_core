@@ -105,16 +105,21 @@ class BaseModel(ABC):
                     exceedance_probability=probability_loading,
                     haxis=0,
                 )
+            
+            # Find nonzero positions in probability_loading
+            nz = np.nonzero(probability_loading)
 
             # Create an index to accumulate the probabilities.
             # If the discrete variables are included in the splitting, assign a specific position here.
             # Otherwise, they are added to the rest of the probabilities.
-            idx = [slice(None)] * len(shp)
-            if "r" in split_input_variables:
-                idx[split_input_variables.index("r") + 1] = ir
-            if "k" in split_input_variables:
-                idx[split_input_variables.index("k") + 1] = ik
-            probability[tuple(idx)] += probability_loading
+            if nz[0].size > 0:
+                idx = [slice(None)] * len(shp)
+                if "r" in split_input_variables:
+                    idx[split_input_variables.index("r") + 1] = ir
+                if "k" in split_input_variables:
+                    idx[split_input_variables.index("k") + 1] = ik
+                #probability[tuple(idx)] += probability_loading
+                probability[tuple(idx)][nz] += probability_loading[nz]
 
         return probability
 
