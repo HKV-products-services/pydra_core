@@ -19,7 +19,7 @@ class HBN(Calculation):
         q_overtopping: float = 0.010,
         model_uncertainty: bool = True,
         levels: list = None,
-        step_size: float = 0.05,
+        step_size: float = 0.1,
         verbose: bool = True,
     ):
         """

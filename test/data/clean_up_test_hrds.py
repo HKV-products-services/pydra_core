@@ -7,7 +7,7 @@ from pathlib import Path
 
 # Load results
 path = Path(__file__).parent
-df = pd.read_excel(path / "hydranl_bor_results.xlsx")
+df = pd.read_excel(path / "hydranl_results.xlsx")
 
 # Per database
 for hrd, deeldf in df.groupby(by = "HRDatabase"):
@@ -50,39 +50,79 @@ for hrd, deeldf in df.groupby(by = "HRDatabase"):
     """
     cur.execute(delete_query, tuple(hrd_ids))
 
-    # Select loading to save
-    placeholders = ",".join("?" * len(hrd_ids))
-    select_query = f"""
-        SELECT HydroDynamicDataId
-        FROM HydroDynamicData
-        WHERE HRDLocationId IN ({placeholders})
-    """
-    cur.execute(select_query, tuple(hrd_ids))
-    hdd_ids = [row[0] for row in cur.fetchall()]
-    con.commit()
+    # Skip WBI2023 databases
+    if ws != "14_EASTERN_SCHELDT":
 
-    # Empty other loading
-    ph_hdd = ",".join("?" * len(hdd_ids))
+        # Select loading to save
+        placeholders = ",".join("?" * len(hrd_ids))
+        select_query = f"""
+            SELECT HydroDynamicDataId
+            FROM HydroDynamicData
+            WHERE HRDLocationId IN ({placeholders})
+        """
+        cur.execute(select_query, tuple(hrd_ids))
+        hdd_ids = [row[0] for row in cur.fetchall()]
 
-    # Delete from HydroDynamicData
-    cur.execute(f"""
-        DELETE FROM HydroDynamicData
-        WHERE HydroDynamicDataId NOT IN ({ph_hdd})
-    """, tuple(hdd_ids))
-    con.commit()
+        # Empty other loading
+        ph_hdd = ",".join("?" * len(hdd_ids))
 
-    # Delete from HydroDynamicInputData
-    cur.execute(f"""
-        DELETE FROM HydroDynamicInputData
-        WHERE HydroDynamicDataId NOT IN ({ph_hdd})
-    """, tuple(hdd_ids))
-    con.commit()
+        # Delete from HydroDynamicData
+        cur.execute(f"""
+            DELETE FROM HydroDynamicData
+            WHERE HydroDynamicDataId NOT IN ({ph_hdd})
+        """, tuple(hdd_ids))
 
-    # Delete from HydroDynamicResultData
-    cur.execute(f"""
-        DELETE FROM HydroDynamicResultData
-        WHERE HydroDynamicDataId NOT IN ({ph_hdd})
-    """, tuple(hdd_ids))
+        # Delete from HydroDynamicInputData
+        cur.execute(f"""
+            DELETE FROM HydroDynamicInputData
+            WHERE HydroDynamicDataId NOT IN ({ph_hdd})
+        """, tuple(hdd_ids))
+
+        # Delete from HydroDynamicResultData
+        cur.execute(f"""
+            DELETE FROM HydroDynamicResultData
+            WHERE HydroDynamicDataId NOT IN ({ph_hdd})
+        """, tuple(hdd_ids))
+    
+    # WBI2023
+    else:
+
+        # Select loading to save
+        placeholders = ",".join("?" * len(hrd_ids))
+        select_query = f"""
+            SELECT HydraulicLoadId
+            FROM HydroDynamicResultData
+            WHERE HRDLocationId IN ({placeholders})
+        """
+        cur.execute(select_query, tuple(hrd_ids))
+        hdd_ids = [row[0] for row in cur.fetchall()]
+
+        # Empty other loading
+        ph_hdd = ",".join("?" * len(hdd_ids))
+
+        # Delete from HydroDynamicData
+        cur.execute(f"""
+            DELETE FROM HydroDynamicData
+            WHERE HydraulicLoadId NOT IN ({ph_hdd})
+        """, tuple(hdd_ids))
+
+        # Delete from HydroDynamicInputData
+        cur.execute(f"""
+            DELETE FROM HydroDynamicInputData
+            WHERE HydraulicLoadId NOT IN ({ph_hdd})
+        """, tuple(hdd_ids))
+
+        # Delete from HydroDynamicResultData
+        cur.execute(f"""
+            DELETE FROM HydroDynamicResultData
+            WHERE HRDLocationId NOT IN ({placeholders})
+        """, tuple(hrd_ids))
+
+        # Delete from HydroDynamicResultData
+        cur.execute(f"""
+            DELETE FROM WaterLevelRaise
+            WHERE HRDLocationId NOT IN ({placeholders})
+        """, tuple(hrd_ids))
 
     # Commit
     con.commit()
