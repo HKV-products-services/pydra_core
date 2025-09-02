@@ -263,7 +263,7 @@ class DatabaseHR:
                     """
             data_hrdid2 = self.con.execute(sql).fetchall()
             hrdid2_to_rvid = {_hrdid: _hrdid2 for _hrdid, _hrdid2 in data_hrdid2}
-            data.replace({"HRDResultColumnId2": hrdid2_to_rvid}, inplace=True)
+            data = data.replace({"HRDResultColumnId2": hrdid2_to_rvid})
         except Exception as e:
             print(f"ERROR: {e}, continuing without")
             pass
@@ -284,8 +284,8 @@ class DatabaseHR:
             raise ValueError("ERROR")
 
         # Change ResultVariableId(2) to rvids
-        data["rvid"].replace(rvids, inplace=True)
-        data["rvid2"].replace(rvids, inplace=True)
+        data["rvid"] = data["rvid"].replace(rvids)
+        data["rvid2"] = data["rvid2"].replace(rvids)
 
         # Return the model uncertainties
         return data
