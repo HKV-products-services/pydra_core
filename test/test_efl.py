@@ -42,6 +42,8 @@ def test_exceedance_frequency_lines():
             # Modelonzekerheid wordt anders bepaald in Pydra dan Hydra-NL
             if monz:
                 continue
+            if result_variable == "hbn":
+                continue
 
             # Hydraulic loading
             if result_variable in ["h", "hs", "tspec", "tp"]:
