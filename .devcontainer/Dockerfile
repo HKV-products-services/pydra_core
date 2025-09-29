@@ -1,23 +1,19 @@
-FROM debian:bookworm-slim
+FROM ghcr.io/prefix-dev/pixi:0.53.0-bookworm-slim
 
-# Stel de werkdirectory in
-WORKDIR /code
+# Install only essential system dependencies in a single layer
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    build-essential \
+    ca-certificates \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/* /var/tmp/*
 
-# Kopieer alle files naar de werkdirectory
-COPY .github/ /code/.github/
-COPY .vscode/ /code/.vscode/
-COPY data/ /code/data/
-COPY docs/ /code/docs/
-COPY src/ /code/src/
-COPY .gitattributes /code/.gitattributes
-COPY .gitignore /code/.gitignore
-COPY CITATION.cff /code/CITATION.cff
-COPY LICENSE /code/LICENSE
-COPY pixi.lock /code/pixi.lock
-COPY pixi.toml /code/pixi.toml
-COPY README.md /code/README.md
+# Set working directory
+WORKDIR /app
 
-# RUN pip install -r /code/requirements.txt
-RUN apt-get -y update
-RUN apt-get -y install git curl
-RUN curl -fsSL https://pixi.sh/install.sh | bash
+# Note: Files are mounted via devcontainer volume mount, not copied
+
+# Set the default command to start a bash shell
+CMD ["/bin/bash"]
