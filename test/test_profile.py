@@ -1,15 +1,35 @@
 import numpy as np
-import platform
 
 from pydra_core import Profile, Breakwater
 
 
 def test_profile():
-    # Only for Windows for now
-    sys_platform = platform.system()
-    if sys_platform != "Windows":
-        return
+    # Create new profile
+    prof = Profile()
+    prof.set_dike_geometry([0, 6, 9, 18], [0.0, 3.0, 3.05, 6.0], [0.7, 0.8, 1])
+    prof.set_dike_crest_level(5.0)
+    prof.set_dike_orientation(20)
 
+    # Wave conditions
+    h = 2.0
+    hs = 3.0
+    tspec = 8.0
+    wdir = 350
+
+    # Calculate q_avg
+    q_avg = prof.calculate_overtopping(h, hs, tspec, wdir) * 1000
+    assert np.isclose(q_avg, 19.7, atol=0.1)
+
+    # Calculate req crest level
+    req_crest = prof.calculate_crest_level(0.01, h, hs, tspec, wdir)
+    assert np.isclose(req_crest, 5.45, atol=0.01)
+
+    # Remove calculate ru2p
+    ru2p = prof.calculate_runup(h, hs, tspec, wdir)
+    assert np.isclose(ru2p, 7.32, atol=0.01)
+
+
+def test_profile_bw_foreland():
     # Create new profile
     prof = Profile()
     prof.set_breakwater(Breakwater.CAISSON, 1.0)
@@ -41,3 +61,4 @@ def test_profile():
 
 if __name__ == "__main__":
     test_profile()
+    test_profile_bw_foreland()
