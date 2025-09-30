@@ -25,7 +25,7 @@ jobs:
         with:
           path: pydra_core
 
-      - uses: prefix-dev/setup-pixi@v0.8.1
+      - uses: prefix-dev/setup-pixi@v0.9.1
         with:
           manifest-path: pydra_core/pixi.toml
           pixi-version: "latest"
