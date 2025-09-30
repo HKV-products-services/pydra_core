@@ -1,6 +1,7 @@
+import ctypes
 import numpy as np
 import platform
-from ctypes import CDLL, POINTER, c_char_p, c_double, c_int, c_long, byref
+from ctypes import CDLL, POINTER, byref, c_char, c_double, c_int, c_long, create_string_buffer
 from numpy.ctypeslib import ndpointer
 from pathlib import Path
 from typing import Tuple
@@ -17,11 +18,15 @@ class Foreland:
         # Path to the library
         lib_path = Path(__file__).resolve().parent / "lib"
 
-        # Load the DaF library v20.1.1.692 (differ from Hydra-NL, there are some slight changes)
+        # Load the DaF library (differ from Hydra-NL, there are some slight changes)
         sys_pltfrm = platform.system()
+        lib_path = Path(__file__).resolve().parent / "lib" / "DaF_25.1.1"
         if sys_pltfrm == "Windows":
-            lib_path = Path(__file__).resolve().parent / "lib" / "win64"
-            self.daf_library = CDLL(str(lib_path / "DynamicLib-DaF.dll"))
+            self.daf_library = CDLL(str(lib_path / "win64" / "DynamicLib-DaF.dll"))
+            self.roller_model5 = getattr(self.daf_library, "C_FORTRANENTRY_RollerModel5")
+        elif sys_pltfrm == "Linux":
+            self.daf_library = CDLL(str(lib_path / "linux64" / "libDamAndForeshore.so"))
+            self.roller_model5 = getattr(self.daf_library, "c_fortranentry_rollermodel5_")
         else:
             raise NotImplementedError(f"'{sys_pltfrm}' is not supported for DaF.")
 
@@ -32,8 +37,8 @@ class Foreland:
         self.minstepsize_c = c_double(1.0)
         self.invalid_c = c_double(-999.99)
         self.logging_c = c_int(int(log))
-        self.loggingfilename_c = c_char_p("dlldaf_log.txt".encode("utf-8"))
-        self.loggingfilenamelength_c = c_int(len(self.loggingfilename_c.value))
+        self.loggingfilename_buffer = create_string_buffer(b"dlldaf_log.txt", 256)
+        self.loggingfilename_c = self.loggingfilename_buffer
         self.g_c = c_double(9.81)
         self.rho_c = c_double(1000.0)
 
@@ -91,35 +96,39 @@ class Foreland:
         hm0dike = np.zeros(N, order="F")
         tpdike = np.zeros(N, order="F")
         refractedwaveangledike = np.zeros(N, order="F")
-        message = "".ljust(1000).encode("utf-8")
-        messagelength = c_int(1000)
+        message_buffer = create_string_buffer(1000)
         n_vl = (
             len(self.profile.foreland_x_coordinates)
             if self.profile.foreland_x_coordinates is not None
             else 1
         )
         x_vl = (
-            np.array(self.profile.foreland_x_coordinates).astype(np.float64)
+            np.asfortranarray(self.profile.foreland_x_coordinates, dtype=np.float64)
             if self.profile.foreland_x_coordinates is not None
-            else np.array([0]).astype(np.float64)
+            else np.asfortranarray([0.0], dtype=np.float64)
         )
         y_vl = (
-            np.array(self.profile.foreland_y_coordinates).astype(np.float64)
+            np.asfortranarray(self.profile.foreland_y_coordinates, dtype=np.float64)
             if self.profile.foreland_x_coordinates is not None
-            else np.array([-999]).astype(np.float64)
+            else np.asfortranarray([-999.0], dtype=np.float64)
         )
 
-        res = self.daf_library.C_FORTRANENTRY_RollerModel5(
+        hm0_input = np.asfortranarray(significant_wave_height[mask], dtype=np.float64)
+        tp_input = np.asfortranarray(peak_wave_period[mask], dtype=np.float64)
+        water_level_input = np.asfortranarray(water_level[mask], dtype=np.float64)
+        wave_direction_input = np.asfortranarray(wave_direction[mask], dtype=np.float64)
+
+        res = self.roller_model5(
             byref(c_int(self.profile.breakwater_type.value)),
             byref(c_double(self.profile.breakwater_level)),
             byref(self.alpha_c),
             byref(self.fc_c),
             byref(self.invalid_c),
             byref(c_int(N)),
-            significant_wave_height[mask].astype(np.float64),
-            peak_wave_period[mask].astype(np.float64),
-            water_level[mask].astype(np.float64),
-            wave_direction[mask].astype(np.float64),
+            hm0_input,
+            tp_input,
+            water_level_input,
+            wave_direction_input,
             byref(c_double(self.profile.dike_orientation)),
             byref(c_int(n_vl)),
             x_vl,
@@ -128,18 +137,15 @@ class Foreland:
             byref(self.ratiodepth_c),
             byref(self.logging_c),
             self.loggingfilename_c,
-            self.loggingfilenamelength_c,
             byref(self.g_c),
             byref(self.rho_c),
             hm0dike,
             tpdike,
             refractedwaveangledike,
-            message,
-            messagelength,
+            message_buffer,
         )
-        message = message.decode("utf-8")
+        message = message_buffer.value.decode("utf-8", errors="ignore")
         message = message.rstrip()
-        messagelength = len(message)
 
         if res != 0:
             print(message + " - Using uncorrected wave parameters.")
@@ -202,20 +208,18 @@ class Foreland:
             "BottomLevel": arraypointer,
             "RatioDepth": POINTER(c_double),
             "Logging": POINTER(c_int),
-            "LoggingFileName": c_char_p,
-            "LoggingFileNameLength": c_int,
+            "LoggingFileName": POINTER(c_char),
             "Ag": POINTER(c_double),
             "Rho": POINTER(c_double),
             "Hm0Dike": arraypointer,
             "TpDike": arraypointer,
             "RefractedWaveAngleDike": arraypointer,
-            "Message": c_char_p,
-            "MessageLength": c_int,
+            "Message": POINTER(c_char),
         }
 
         # Note function definition for DAF module ROLLERMODEL5
-        self.daf_library.C_FORTRANENTRY_RollerModel5.restype = c_long
-        self.daf_library.C_FORTRANENTRY_RollerModel5.argtypes = [
+        self.roller_model5.restype = c_long
+        self.roller_model5.argtypes = [
             argtypes[name]
             for name in [
                 "DamType",
@@ -236,16 +240,11 @@ class Foreland:
                 "RatioDepth",
                 "Logging",
                 "LoggingFileName",
-                "LoggingFileNameLength",
                 "Ag",
                 "Rho",
                 "Hm0Dike",
                 "TpDike",
                 "RefractedWaveAngleDike",
                 "Message",
-                "MessageLength",
             ]
         ]
-
-        # Note function definition for DAF function to obtain version number.
-        self.daf_library.GetVersionInfo.argtypes = [c_char_p, c_int]
