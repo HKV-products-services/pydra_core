@@ -59,15 +59,20 @@ class ProfileLoading:
         # Load RTO-libary (used for runup / overtopping when the water level is below crest level)
         # Load COO-library (used for overflow) (Note: DiKErnel does not include this .dll)
         sys_pltfrm = platform.system()
-        lib_path_rto = Path(__file__).resolve().parent / "lib" / "DikesOvertopping_25.1.1"
-        lib_path_coo = Path(__file__).resolve().parent / "lib" / "CombOverloopOverslag"
+        cur_path = Path(__file__).resolve().parent
+        path_rto = cur_path / "lib" / "DikesOvertopping_25.1.1"
+        path_coo = cur_path / "lib" / "CombOverloopOverslag"
         if sys_pltfrm == "Windows":
-            self.rto_library = CDLL(str(lib_path_rto / "win64" / "dllDikesOvertopping.dll"))
-            self.coo_library = CDLL(str(lib_path_coo / "win64" / "CombOverloopOverslag.dll"))
+            path_rto = path_rto / "win64"
+            path_coo = path_coo / "win64"
+            self.rto_library = CDLL(str(path_rto / "dllDikesOvertopping.dll"))
+            self.coo_library = CDLL(str(path_coo / "CombOverloopOverslag.dll"))
         elif sys_pltfrm == "Linux":
-            CDLL(str(lib_path_rto / "linux64" / "libFeedbackDll.so"))
-            self.rto_library = CDLL(str(lib_path_rto / "linux64" / "libDikesOvertopping.so"))
-            self.coo_library = CDLL(str(lib_path_coo / "linux64" / "libCombOverloopOverslag.so"))
+            path_rto = path_rto / "linux64"
+            path_coo = path_coo / "linux64"
+            CDLL(str(path_rto / "libFeedbackDll.so"))
+            self.rto_library = CDLL(str(path_rto / "libDikesOvertopping.so"))
+            self.coo_library = CDLL(str(path_coo / "libCombOverloopOverslag.so"))
         else:
             raise NotImplementedError(f"'{sys_pltfrm}' is not supported for RTO/COO.")
 

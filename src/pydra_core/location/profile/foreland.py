@@ -1,7 +1,15 @@
-import ctypes
 import numpy as np
 import platform
-from ctypes import CDLL, POINTER, byref, c_char, c_double, c_int, c_long, create_string_buffer
+from ctypes import (
+    CDLL,
+    POINTER,
+    byref,
+    c_char,
+    c_double,
+    c_int,
+    c_long,
+    create_string_buffer,
+)
 from numpy.ctypeslib import ndpointer
 from pathlib import Path
 from typing import Tuple
@@ -23,10 +31,10 @@ class Foreland:
         lib_path = Path(__file__).resolve().parent / "lib" / "DaF_25.1.1"
         if sys_pltfrm == "Windows":
             self.daf_library = CDLL(str(lib_path / "win64" / "DynamicLib-DaF.dll"))
-            self.roller_model5 = getattr(self.daf_library, "C_FORTRANENTRY_RollerModel5")
+            self.rm5 = getattr(self.daf_library, "C_FORTRANENTRY_RollerModel5")
         elif sys_pltfrm == "Linux":
             self.daf_library = CDLL(str(lib_path / "linux64" / "libDamAndForeshore.so"))
-            self.roller_model5 = getattr(self.daf_library, "c_fortranentry_rollermodel5_")
+            self.rm5 = getattr(self.daf_library, "c_fortranentry_rollermodel5_")
         else:
             raise NotImplementedError(f"'{sys_pltfrm}' is not supported for DaF.")
 
@@ -118,7 +126,7 @@ class Foreland:
         water_level_input = np.asfortranarray(water_level[mask], dtype=np.float64)
         wave_direction_input = np.asfortranarray(wave_direction[mask], dtype=np.float64)
 
-        res = self.roller_model5(
+        res = self.rm5(
             byref(c_int(self.profile.breakwater_type.value)),
             byref(c_double(self.profile.breakwater_level)),
             byref(self.alpha_c),
@@ -218,8 +226,8 @@ class Foreland:
         }
 
         # Note function definition for DAF module ROLLERMODEL5
-        self.roller_model5.restype = c_long
-        self.roller_model5.argtypes = [
+        self.rm5.restype = c_long
+        self.rm5.argtypes = [
             argtypes[name]
             for name in [
                 "DamType",
