@@ -38,7 +38,6 @@ class Foreland:
         else:
             raise NotImplementedError(f"'{sys_pltfrm}' is not supported for DaF.")
 
-
         self._requires_string_lengths = sys_pltfrm == "Windows"
         # Default settings
         self.alpha_c = c_double(1.0)
@@ -247,7 +246,6 @@ class Foreland:
         if self._requires_string_lengths:
             argtypes["LoggingFileNameLength"] = c_int
             argtypes["MessageLength"] = c_int
-
 
         # Note function definition for DAF module ROLLERMODEL5
         self.rm5.restype = c_long
