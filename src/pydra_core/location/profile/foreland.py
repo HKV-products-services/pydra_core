@@ -38,6 +38,8 @@ class Foreland:
         else:
             raise NotImplementedError(f"'{sys_pltfrm}' is not supported for DaF.")
 
+
+        self._requires_string_lengths = sys_pltfrm == "Windows"
         # Default settings
         self.alpha_c = c_double(1.0)
         self.fc_c = c_double(0.021)
@@ -47,6 +49,8 @@ class Foreland:
         self.logging_c = c_int(int(log))
         self.loggingfilename_buffer = create_string_buffer(b"dlldaf_log.txt", 256)
         self.loggingfilename_c = self.loggingfilename_buffer
+        self.loggingfilename_length = c_int(len(self.loggingfilename_buffer.value))
+        self._message_buffer_size = 1000
         self.g_c = c_double(9.81)
         self.rho_c = c_double(1000.0)
 
@@ -104,7 +108,8 @@ class Foreland:
         hm0dike = np.zeros(N, order="F")
         tpdike = np.zeros(N, order="F")
         refractedwaveangledike = np.zeros(N, order="F")
-        message_buffer = create_string_buffer(1000)
+        message_buffer = create_string_buffer(self._message_buffer_size)
+        message_length = c_int(self._message_buffer_size)
         n_vl = (
             len(self.profile.foreland_x_coordinates)
             if self.profile.foreland_x_coordinates is not None
@@ -125,33 +130,48 @@ class Foreland:
         tp_input = np.asfortranarray(peak_wave_period[mask], dtype=np.float64)
         water_level_input = np.asfortranarray(water_level[mask], dtype=np.float64)
         wave_direction_input = np.asfortranarray(wave_direction[mask], dtype=np.float64)
+        breakwater_type = c_int(self.profile.breakwater_type.value)
+        breakwater_level = c_double(self.profile.breakwater_level)
+        dike_orientation = c_double(self.profile.dike_orientation)
+        n_values = c_int(N)
+        n_vl_c = c_int(n_vl)
 
-        res = self.rm5(
-            byref(c_int(self.profile.breakwater_type.value)),
-            byref(c_double(self.profile.breakwater_level)),
+        rm5_args = [
+            byref(breakwater_type),
+            byref(breakwater_level),
             byref(self.alpha_c),
             byref(self.fc_c),
             byref(self.invalid_c),
-            byref(c_int(N)),
+            byref(n_values),
             hm0_input,
             tp_input,
             water_level_input,
             wave_direction_input,
-            byref(c_double(self.profile.dike_orientation)),
-            byref(c_int(n_vl)),
+            byref(dike_orientation),
+            byref(n_vl_c),
             x_vl,
             byref(self.minstepsize_c),
             y_vl,
             byref(self.ratiodepth_c),
             byref(self.logging_c),
             self.loggingfilename_c,
-            byref(self.g_c),
-            byref(self.rho_c),
-            hm0dike,
-            tpdike,
-            refractedwaveangledike,
-            message_buffer,
+        ]
+        if self._requires_string_lengths:
+            rm5_args.append(self.loggingfilename_length)
+        rm5_args.extend(
+            [
+                byref(self.g_c),
+                byref(self.rho_c),
+                hm0dike,
+                tpdike,
+                refractedwaveangledike,
+                message_buffer,
+            ]
         )
+        if self._requires_string_lengths:
+            rm5_args.append(message_length)
+
+        res = self.rm5(*rm5_args)
         message = message_buffer.value.decode("utf-8", errors="ignore")
         message = message.rstrip()
 
@@ -224,30 +244,37 @@ class Foreland:
             "RefractedWaveAngleDike": arraypointer,
             "Message": POINTER(c_char),
         }
+        if self._requires_string_lengths:
+            argtypes["LoggingFileNameLength"] = c_int
+            argtypes["MessageLength"] = c_int
+
 
         # Note function definition for DAF module ROLLERMODEL5
         self.rm5.restype = c_long
-        self.rm5.argtypes = [
-            argtypes[name]
-            for name in [
-                "DamType",
-                "DamHeight",
-                "Alpha",
-                "Fc",
-                "Invalid",
-                "DimHm0",
-                "Hm0",
-                "Tp",
-                "Wlev",
-                "IncomingWaveAngle",
-                "DikeNormal",
-                "DimX",
-                "X",
-                "MinStepSize",
-                "BottomLevel",
-                "RatioDepth",
-                "Logging",
-                "LoggingFileName",
+        argtype_order = [
+            "DamType",
+            "DamHeight",
+            "Alpha",
+            "Fc",
+            "Invalid",
+            "DimHm0",
+            "Hm0",
+            "Tp",
+            "Wlev",
+            "IncomingWaveAngle",
+            "DikeNormal",
+            "DimX",
+            "X",
+            "MinStepSize",
+            "BottomLevel",
+            "RatioDepth",
+            "Logging",
+            "LoggingFileName",
+        ]
+        if self._requires_string_lengths:
+            argtype_order.append("LoggingFileNameLength")
+        argtype_order.extend(
+            [
                 "Ag",
                 "Rho",
                 "Hm0Dike",
@@ -255,4 +282,8 @@ class Foreland:
                 "RefractedWaveAngleDike",
                 "Message",
             ]
-        ]
+        )
+        if self._requires_string_lengths:
+            argtype_order.append("MessageLength")
+
+        self.rm5.argtypes = [argtypes[name] for name in argtype_order]
