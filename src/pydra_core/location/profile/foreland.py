@@ -30,15 +30,16 @@ class Foreland:
         sys_pltfrm = platform.system()
         lib_path = Path(__file__).resolve().parent / "lib" / "DaF_25.1.1"
         if sys_pltfrm == "Windows":
+            self._requires_string_lengths = True
             self.daf_library = CDLL(str(lib_path / "win64" / "DynamicLib-DaF.dll"))
             self.rm5 = getattr(self.daf_library, "C_FORTRANENTRY_RollerModel5")
         elif sys_pltfrm == "Linux":
+            self._requires_string_lengths = False
             self.daf_library = CDLL(str(lib_path / "linux64" / "libDamAndForeshore.so"))
             self.rm5 = getattr(self.daf_library, "c_fortranentry_rollermodel5_")
         else:
             raise NotImplementedError(f"'{sys_pltfrm}' is not supported for DaF.")
 
-        self._requires_string_lengths = sys_pltfrm == "Windows"
         # Default settings
         self.alpha_c = c_double(1.0)
         self.fc_c = c_double(0.021)
