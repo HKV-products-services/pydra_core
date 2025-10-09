@@ -52,7 +52,6 @@ def test_exceedance_frequency_lines():
 
             # HBN
             elif result_variable in ["hbn"]:
-                continue
 
                 # Create a Profile
                 prof = Profile(
@@ -69,7 +68,6 @@ def test_exceedance_frequency_lines():
                     model_uncertainty=monz,
                     verbose=False,
                 )
-                efl.set_step_size(0.05)
 
             # Not found
             else:
