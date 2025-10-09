@@ -1,0 +1,29 @@
+{
+    "name": "${localWorkspaceFolderBasename}",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "github.copilot",
+                "github.vscode-github-actions",
+                "ms-python.python",
+                "charliermarsh.ruff",
+                "ms-python.debugpy",
+                "ms-toolsai.jupyter",
+                "openai.chatgpt"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/app/.pixi/envs/default/bin/python",
+                "python.terminal.activateEnvironment": true
+            }
+        }
+    },
+    "workspaceFolder": "/app",
+    "mounts": [
+        "source=${localWorkspaceFolder},target=/app,type=bind,consistency=cached"
+    ],
+    "postCreateCommand": "cd /app && pixi config set run-post-link-scripts insecure && pixi install && echo 'eval \"$(pixi shell-hook)\"' >> ~/.bashrc"
+}

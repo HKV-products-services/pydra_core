@@ -23,9 +23,9 @@ jobs:
     # Specifying a GitHub environment is optional, but strongly encouraged
     environment: release
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v6
       with:
         python-version: '3.x'
     - name: Install dependencies

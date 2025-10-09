@@ -3,7 +3,7 @@ name = "pydra_core"
 version = "0.0.10"
 description = "Python package for calculating hydraulic loads"
 channels = ["conda-forge"]
-platforms = ["win-64", "linux-64", "osx-64"]
+platforms = ["win-64", "linux-64"]
 readme = "README.md"
 license = "GPL-3.0"
 license-file = "LICENSE"
@@ -54,5 +54,3 @@ pydra_core = { path = "src", editable = true }
 
 [environments]
 default = { features = ["common"] }
-
-

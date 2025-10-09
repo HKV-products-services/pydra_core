@@ -1,5 +1,5 @@
 import numpy as np
-
+import platform
 from ctypes import (
     ARRAY,
     CDLL,
@@ -54,14 +54,25 @@ class ProfileLoading:
             else:
                 raise ValueError("[ERROR] Settings dictionary contains unknown keys (check uppercase?).")
 
-        # Path to the library
-        lib_path = Path(__file__).resolve().parent / "lib"
-
-        # Load RTO-libary (VTV v17.1.1.0) (used for runup / overtopping when the water level is below crest level)
-        self.rto_library = CDLL(str(lib_path / "dllDikesOvertopping.dll"))
-
+        # Load RTO-libary (used for runup / overtopping when the water level is below crest level)
         # Load COO-library (used for overflow) (Note: DiKErnel does not include this .dll)
-        self.coo_library = CDLL(str(lib_path / "CombOverloopOverslag64.dll"))
+        sys_pltfrm = platform.system()
+        cur_path = Path(__file__).resolve().parent
+        path_rto = cur_path / "lib" / "DikesOvertopping_25.1.1"
+        path_coo = cur_path / "lib" / "CombOverloopOverslag"
+        if sys_pltfrm == "Windows":
+            path_rto = path_rto / "win64"
+            path_coo = path_coo / "win64"
+            self.rto_library = CDLL(str(path_rto / "dllDikesOvertopping.dll"))
+            self.coo_library = CDLL(str(path_coo / "CombOverloopOverslag.dll"))
+        elif sys_pltfrm == "Linux":
+            path_rto = path_rto / "linux64"
+            path_coo = path_coo / "linux64"
+            CDLL(str(path_rto / "libFeedbackDll.so"))
+            self.rto_library = CDLL(str(path_rto / "libDikesOvertopping.so"))
+            self.coo_library = CDLL(str(path_coo / "libCombOverloopOverslag.so"))
+        else:
+            raise NotImplementedError(f"'{sys_pltfrm}' is not supported for RTO/COO.")
 
         # Modelfactors
         factors = np.array(list(self.MODEL_FACTORS.items()))[:, 1].astype(float)
