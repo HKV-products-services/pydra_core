@@ -29,7 +29,7 @@ def test_profile():
     assert np.isclose(ru2p, 7.32, atol=0.01)
 
 
-def test_profile_bw_foreland():
+def test_profile_bw_foreshore():
     # Create new profile
     prof = Profile()
     prof.set_breakwater(Breakwater.CAISSON, 1.0)
@@ -61,4 +61,4 @@ def test_profile_bw_foreland():
 
 if __name__ == "__main__":
     test_profile()
-    test_profile_bw_foreland()
+    test_profile_bw_foreshore()
