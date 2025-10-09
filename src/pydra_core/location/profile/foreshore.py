@@ -110,21 +110,9 @@ class Foreshore:
         refractedwaveangledike = np.zeros(N, order="F")
         message_buffer = create_string_buffer(self._message_buffer_size)
         message_length = c_int(self._message_buffer_size)
-        n_vl = (
-            len(self.profile.foreland_x_coordinates)
-            if self.profile.foreland_x_coordinates is not None
-            else 1
-        )
-        x_vl = (
-            np.asfortranarray(self.profile.foreland_x_coordinates, dtype=np.float64)
-            if self.profile.foreland_x_coordinates is not None
-            else np.asfortranarray([0.0], dtype=np.float64)
-        )
-        y_vl = (
-            np.asfortranarray(self.profile.foreland_y_coordinates, dtype=np.float64)
-            if self.profile.foreland_x_coordinates is not None
-            else np.asfortranarray([-999.0], dtype=np.float64)
-        )
+        n_vl = len(self.profile.foreland_x_coordinates) if self.profile.foreland_x_coordinates is not None else 1
+        x_vl = np.asfortranarray(self.profile.foreland_x_coordinates, dtype=np.float64) if self.profile.foreland_x_coordinates is not None else np.asfortranarray([0.0], dtype=np.float64)
+        y_vl = np.asfortranarray(self.profile.foreland_y_coordinates, dtype=np.float64) if self.profile.foreland_x_coordinates is not None else np.asfortranarray([-999.0], dtype=np.float64)
 
         hm0_input = np.asfortranarray(significant_wave_height[mask], dtype=np.float64)
         tp_input = np.asfortranarray(peak_wave_period[mask], dtype=np.float64)

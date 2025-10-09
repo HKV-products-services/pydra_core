@@ -10,10 +10,9 @@ path = Path(__file__).parent
 df = pd.read_excel(path / "hydranl_results.xlsx")
 
 # Per database
-for hrd, deeldf in df.groupby(by = "HRDatabase"):
-
+for hrd, deeldf in df.groupby(by="HRDatabase"):
     # Select WS
-    ws = np.unique(deeldf['WaterSystem'])
+    ws = np.unique(deeldf["WaterSystem"])
     assert len(ws) == 1
     ws = ws[0]
 
@@ -23,7 +22,7 @@ for hrd, deeldf in df.groupby(by = "HRDatabase"):
     cur = con.cursor()
 
     # Select HRDLoc to preserve
-    hrdloc = np.unique(deeldf['HRLocation'])
+    hrdloc = np.unique(deeldf["HRLocation"])
     placeholders = ",".join("?" * len(hrdloc))
     query = f"""
         SELECT HRDLocationId
@@ -52,7 +51,6 @@ for hrd, deeldf in df.groupby(by = "HRDatabase"):
 
     # Skip WBI2023 databases
     if ws != "14_EASTERN_SCHELDT":
-
         # Select loading to save
         placeholders = ",".join("?" * len(hrd_ids))
         select_query = f"""
@@ -67,26 +65,34 @@ for hrd, deeldf in df.groupby(by = "HRDatabase"):
         ph_hdd = ",".join("?" * len(hdd_ids))
 
         # Delete from HydroDynamicData
-        cur.execute(f"""
+        cur.execute(
+            f"""
             DELETE FROM HydroDynamicData
             WHERE HydroDynamicDataId NOT IN ({ph_hdd})
-        """, tuple(hdd_ids))
+        """,
+            tuple(hdd_ids),
+        )
 
         # Delete from HydroDynamicInputData
-        cur.execute(f"""
+        cur.execute(
+            f"""
             DELETE FROM HydroDynamicInputData
             WHERE HydroDynamicDataId NOT IN ({ph_hdd})
-        """, tuple(hdd_ids))
+        """,
+            tuple(hdd_ids),
+        )
 
         # Delete from HydroDynamicResultData
-        cur.execute(f"""
+        cur.execute(
+            f"""
             DELETE FROM HydroDynamicResultData
             WHERE HydroDynamicDataId NOT IN ({ph_hdd})
-        """, tuple(hdd_ids))
-    
+        """,
+            tuple(hdd_ids),
+        )
+
     # WBI2023
     else:
-
         # Select loading to save
         placeholders = ",".join("?" * len(hrd_ids))
         select_query = f"""
@@ -101,28 +107,40 @@ for hrd, deeldf in df.groupby(by = "HRDatabase"):
         ph_hdd = ",".join("?" * len(hdd_ids))
 
         # Delete from HydroDynamicData
-        cur.execute(f"""
+        cur.execute(
+            f"""
             DELETE FROM HydroDynamicData
             WHERE HydraulicLoadId NOT IN ({ph_hdd})
-        """, tuple(hdd_ids))
+        """,
+            tuple(hdd_ids),
+        )
 
         # Delete from HydroDynamicInputData
-        cur.execute(f"""
+        cur.execute(
+            f"""
             DELETE FROM HydroDynamicInputData
             WHERE HydraulicLoadId NOT IN ({ph_hdd})
-        """, tuple(hdd_ids))
+        """,
+            tuple(hdd_ids),
+        )
 
         # Delete from HydroDynamicResultData
-        cur.execute(f"""
+        cur.execute(
+            f"""
             DELETE FROM HydroDynamicResultData
             WHERE HRDLocationId NOT IN ({placeholders})
-        """, tuple(hrd_ids))
+        """,
+            tuple(hrd_ids),
+        )
 
         # Delete from HydroDynamicResultData
-        cur.execute(f"""
+        cur.execute(
+            f"""
             DELETE FROM WaterLevelRaise
             WHERE HRDLocationId NOT IN ({placeholders})
-        """, tuple(hrd_ids))
+        """,
+            tuple(hrd_ids),
+        )
 
     # Commit
     con.commit()

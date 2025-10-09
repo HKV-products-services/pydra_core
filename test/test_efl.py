@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import platform
 
 from datetime import datetime
 from pathlib import Path
@@ -38,11 +37,11 @@ def test_exceedance_frequency_lines():
         loc = hrd.create_location(settings)
 
         # Different calculations
-        for (result_variable, monz), calc_df in ws_df.groupby(by=["ResultVariable", "ModelUncertainty"]):
+        for (result_variable, monz), calc_df in ws_df.groupby(
+            by=["ResultVariable", "ModelUncertainty"]
+        ):
             # Modelonzekerheid wordt anders bepaald in Pydra dan Hydra-NL
             if monz:
-                continue
-            if result_variable == "hbn":
                 continue
 
             # Hydraulic loading
@@ -52,17 +51,21 @@ def test_exceedance_frequency_lines():
 
             # HBN
             elif result_variable in ["hbn"]:
-                # Only for Windows (due to the .dlls)
-                sys_platform = platform.system()
-                if sys_platform != "Windows":
-                    continue
-
                 # Create a Profile
-                prof = Profile("Profile", crest_level=2, orientation=calc_df.iloc[0]["Orientation"], cota_slope=3)
+                prof = Profile(
+                    "Profile",
+                    crest_level=2,
+                    orientation=calc_df.iloc[0]["Orientation"],
+                    cota_slope=3,
+                )
                 loc.set_profile(prof)
 
                 # Create EFL
-                efl = HBN(q_overtopping=calc_df.iloc[0]["AverageDischarge"] / 1000, model_uncertainty=monz, verbose=False)
+                efl = HBN(
+                    q_overtopping=calc_df.iloc[0]["AverageDischarge"] / 1000,
+                    model_uncertainty=monz,
+                    verbose=False,
+                )
                 efl.set_step_size(0.05)
 
             # Not found
@@ -81,16 +84,37 @@ def test_exceedance_frequency_lines():
             res_pydra = res.interpolate_exceedance_probability(1 / return_period)
 
             # Save
-            df.loc[(df['WaterSystem'] == ws) & (df['ResultVariable'] == result_variable) & (df['ModelUncertainty'] == monz), 'Pydra_Value'] = res_pydra
-            df.loc[(df['WaterSystem'] == ws) & (df['ResultVariable'] == result_variable) & (df['ModelUncertainty'] == monz), 'Pydra_Time'] = duration
+            df.loc[
+                (df["WaterSystem"] == ws)
+                & (df["ResultVariable"] == result_variable)
+                & (df["ModelUncertainty"] == monz),
+                "Pydra_Value",
+            ] = res_pydra
+            df.loc[
+                (df["WaterSystem"] == ws)
+                & (df["ResultVariable"] == result_variable)
+                & (df["ModelUncertainty"] == monz),
+                "Pydra_Time",
+            ] = duration
 
             # Check
             if not np.allclose(results_hydranl, res_pydra, atol=atol):
                 found_tol = np.max(np.abs(results_hydranl - res_pydra))
-                error.append([ws, result_variable, monz, f"Tolerance larger than {atol}m ({found_tol})"])
+                error.append(
+                    [
+                        ws,
+                        result_variable,
+                        monz,
+                        f"Tolerance larger than {atol}m ({found_tol})",
+                    ]
+                )
 
     # Save results
-    df.to_excel(path / "output" / f"{datetime.now().strftime('%y%M%d%H%M%S')}_{platform.system()}_EFL.xlsx")
+    df.to_excel(
+        path
+        / "output"
+        / f"{datetime.now().strftime('%y%M%d%H%M%S')}_{platform.system()}_EFL.xlsx"
+    )
 
     # Print all errors
     print_time(f"Done with {len(error)} errors.")
