@@ -6,7 +6,7 @@ from .calculation import Calculation
 from .datamodels.frequency_line import FrequencyLine
 from ..common.probability import ProbabilityFunctions
 from ..location.location import Location
-from ..location.model.wave_overtopping import WaveOvertopping
+from ..location.model.model_hbn import ModelHBN
 
 
 class HBN(Calculation):
@@ -14,27 +14,18 @@ class HBN(Calculation):
     Calculate the HBN for a location
     """
 
-    def __init__(
-        self,
-        q_overtopping: float = 0.010,
-        model_uncertainty: bool = True,
-        levels: list = None,
-        step_size: float = 0.1,
-        verbose: bool = True,
-    ):
+    def __init__(self, q_overtopping: float, model_uncertainty: bool = True, step_size: float = 0.1, verbose: bool = True):
         """
         The __init__ method initializes an instance of the ExceedanceFrequencyLine class. It takes in several parameters to configure the calculation of the frequency line.
 
         Parameters
         ----------
-        q_overtopping : float (optional)
-            The critical overtopping discharge. Default is 0.01 m3/m/s (10 l/m/s)
+        q_overtopping : float
+            The average overtopping discharge.
         model_uncertainty : bool (optional)
             Enable or disable the use of model uncertainties when calculating the frequency line. Default is True.
-        levels : list (optional):
-            The levels at which the exceedance probability has to be calculated. If not specified, the levels will be chosen between the 1st and 99th percentile of the values in the HRDatabase.
-        step_size : float (optional)
-            The step size of the frequency line. Default is 0.1.
+        step_size: float (optional)
+            Step size of the frequency line discretisation. Default is 0.1.
         verbose : bool (optional)
             Show info during calculation
         """
@@ -42,16 +33,15 @@ class HBN(Calculation):
         super().__init__()
 
         # Save settings
-        self.set_critical_overtopping(q_overtopping)
-        self.set_levels(levels)
+        self.set_overtopping_discharge(q_overtopping)
+        self.use_model_uncertainty(model_uncertainty)
         self.set_step_size(step_size)
         self.set_verbose(verbose)
-        self.use_model_uncertainty(model_uncertainty)
+        self.set_levels(None)
 
-    def calculate_location(self, location: Location) -> float:
+    def calculate_location(self, location: Location) -> FrequencyLine:
         """
         Calculate the exceedance probability of the variable at a given set of levels.
-        If the levels are not specified, they will be chosen at the 1st and 99th percentile of all values in the database.
 
         Parameter
         ---------
@@ -104,12 +94,12 @@ class HBN(Calculation):
         )
 
         # Init wave overtopping statistics and loading
-        wave_overtopping = WaveOvertopping(location, levels, p_hur_tr[1:-1])
-        wave_overtopping_statistics = wave_overtopping.get_statistics()
-        wave_overtopping_loading = wave_overtopping.get_loading()
+        model_hbn = ModelHBN(location, levels, p_hur_tr[1:-1])
+        model_hbn_statistics = model_hbn.get_statistics()
+        model_hbn_loading = model_hbn.get_loading()
 
         # Create an empty array for the levels and slow stochastics
-        p_hbn_slow = np.zeros((len(levels),) + tuple([getattr(wave_overtopping_statistics, f"n{x}") for x in slow_stochastics]))
+        p_hbn_slow = np.zeros((len(levels),) + tuple([getattr(model_hbn_statistics, f"n{x}") for x in slow_stochastics]))
 
         # Iterate over the wave conditions model uncertainty
         # ASSUME: model uncertainties for wave height/period do not differ given the state of the barrier
@@ -121,13 +111,13 @@ class HBN(Calculation):
                 print(f"[{datetime.now().strftime('%H:%M:%S')}]: Model uncertainties {n_id + 1}/{len(list(iterator))} (fhs = {round(factor_hs, 3)}; ftspec = {round(factor_tspec, 3)}; p = {round(p_occ, 3)})")
 
             # Calculate the height of the HBNs
-            wave_overtopping_loading.calculate_hbn(profile, self.q_overtopping, factor_hs, factor_tspec)
+            model_hbn_loading.calculate_hbn(profile, self.q_overtopping, factor_hs, factor_tspec)
 
             # Repair HBN
-            wave_overtopping_loading.repair_loadingmodels("hbn")
+            model_hbn_loading.repair_loadingmodels("hbn")
 
             # Calculate the probability of a HBN
-            p_hbn_monz = wave_overtopping.calculate_probability_loading(
+            p_hbn_monz = model_hbn.calculate_probability_loading(
                 result_variable="hbn",
                 levels=levels[1:],
                 model_uncertainty=False,
@@ -151,33 +141,43 @@ class HBN(Calculation):
         # Return the exceedance frequency line of the HBN
         return FrequencyLine(levels, exceedance_probability)
 
-    def set_critical_overtopping(self, q_overtopping: float):
+    def set_overtopping_discharge(self, q_overtopping: float):
         """
-        Change the critical overtopping
+        Change the average overtopping discharge
 
         Parameters
         ----------
         q_overtopping : float
-            The critical overtopping [m3/m/s]
+            The average overtopping discharge [m3/m/s]
         """
         # Cannot be smaller or equal to 0
         if q_overtopping <= 0:
-            raise ValueError("[ERROR] Critical overtopping should be larger than 0.")
+            raise ValueError("[ERROR] Average overtopping discharge should be larger than 0.")
 
         # Save the critical overtopping
         self.q_overtopping = q_overtopping
 
-    def set_levels(self, levels: list = None):
+    def use_model_uncertainty(self, model_uncertainty: bool):
         """
-        Change the levels.
-        If levels is not defined, the frequency line is calculated based upon the 1st and 99th percentile.
+        Use model uncertainty when calculating a frequency line.
 
         Parameters
         ----------
-        levels : list, optional
-            The levels at which the exceedance probability has to be calculated
+        model_uncertainty : bool
+            Enable or disable the use of model uncertainties
         """
-        self.levels = levels
+        self.model_uncertainty = model_uncertainty
+
+    def set_verbose(self, verbose: bool):
+        """
+        Show info during calculation.
+
+        Parameters
+        ----------
+        verbose : bool
+            Show info during calculation.
+        """
+        self.verbose = verbose
 
     def set_step_size(self, step_size: float):
         """
@@ -195,24 +195,14 @@ class HBN(Calculation):
         # Save step size
         self.step_size = step_size
 
-    def set_verbose(self, verbose: bool):
+    def set_levels(self, levels: list = None):
         """
-        Show info during calculation.
+        Change the levels.
+        If levels is not defined, the frequency line is calculated based upon the 1st and 99th percentile.
 
         Parameters
         ----------
-        verbose : bool
-            Show info during calculation.
+        levels : list, optional
+            The levels at which the exceedance probability has to be calculated
         """
-        self.verbose = verbose
-
-    def use_model_uncertainty(self, model_uncertainty: bool):
-        """
-        Use model uncertainty when calculating a frequency line.
-
-        Parameters
-        ----------
-        model_uncertainty : bool
-            Enable or disable the use of model uncertainties
-        """
-        self.model_uncertainty = model_uncertainty
+        self.levels = levels

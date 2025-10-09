@@ -9,7 +9,7 @@ from ....location import Location
 from ....profile.profile import Profile
 
 
-class LoadingWaveOvertopping(Loading):
+class LoadingHBN(Loading):
     """
     This Loading is used to calculate HBNs
     """
@@ -90,6 +90,28 @@ class LoadingWaveOvertopping(Loading):
         """
         for _, model in self.iter_models():
             model.calculate_hbn(profile, qcrit, factor_hs, factor_tspec)
+
+    def calculate_qavg(
+        self,
+        profile: Profile,
+        factor_hs: float = 1.0,
+        factor_tspec: float = 1.0,
+    ) -> None:
+        """
+        Add qavg result variables to each of the LoadingModels.
+        If 'qavg' is already defined, it will overwrite the old result variable.
+
+        Parameters
+        ----------
+        profile : Profile
+            The profile
+        factor_hs : float
+            Factor for the significant wave height, used for model uncertainty
+        factor_tspec : float
+            Factor for the spectral wave period, used for model uncertainty
+        """
+        for _, model in self.iter_models():
+            model.calculate_qavg(profile, factor_hs, factor_tspec)
 
     def bepaal_kh_waterstanden(self, ws_belasting, ws_range):
         """

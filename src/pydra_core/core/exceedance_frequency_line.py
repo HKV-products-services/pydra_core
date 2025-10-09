@@ -37,7 +37,7 @@ class ExceedanceFrequencyLine(Calculation):
         # Save settings
         self.set_result_variable(result_variable.lower())
         self.use_model_uncertainty(model_uncertainty)
-        self.set_step_size(0.1)
+        self.set_step_size(step_size)
         self.set_levels(None)
 
     def calculate_location(self, location: Location) -> FrequencyLine:

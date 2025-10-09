@@ -296,3 +296,34 @@ class LoadingModel:
 
         # Add the result variable
         self.result_variables.append("hbn")
+
+    def calculate_qavg(self, profile: Profile, factor_hs: float, factor_tspec: float):
+        """
+        Add qavg result variables to each of the LoadingModels.
+        If 'qavg' is already defined, it will overwrite the old result variable.
+
+        Parameters
+        ----------
+        profile : Profile
+            The profile
+        factor_hs : float
+            Factor for the significant wave height, used for model uncertainty
+        factor_tspec : float
+            Factor for the spectral wave period, used for model uncertainty
+        """
+        # Controleer of de juiste resultaatwaarden aanwezig zijn
+        for resvar in ["h", "hs", "tspec", "dir"]:
+            if not hasattr(self, resvar):
+                raise KeyError(f"Resultaatvariabele '{resvar}' is nodig voor kruinhoogteberekening, maar niet aanwezig.")
+
+        # Prepare wave conditions
+        _h = self.h.ravel()
+        _hs = np.array(self.hs * factor_hs).ravel()
+        _tspec = np.array(self.tspec * factor_tspec).ravel()
+        _dir = np.array(self.dir).ravel()
+
+        # Calculate qavg
+        self.qavg = np.reshape([profile.calculate_overtopping(_h, _hs, _tspec, _dir)], self.h.shape)
+
+        # Add the result variable
+        self.result_variables.append("qavg")

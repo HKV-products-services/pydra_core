@@ -4,7 +4,7 @@ from ..statistics import Statistics
 from ....location import Location
 
 
-class StatisticsWaveOvertopping(Statistics):
+class StatisticsHBN(Statistics):
     def __init__(self, location: Location, water_levels: np.ndarray, probability: np.ndarray):
         """
         Init the Statistics class for the Eastern Scheldt
@@ -51,11 +51,9 @@ class StatisticsWaveOvertopping(Statistics):
         wind_direction : float
             The wind direction.
         closing_situation : int, optional
-            The closing situation. Does not have any effect for
-            StatisticsWaveOvertopping (default is 0)
+            The closing situation. Does not have any effect for StatisticsHBN (default is 0)
         given : list, optional
-            Given variables. Does not have any effect for
-            StatisticsWaveOvertopping (default is 0)
+            Given variables. Does not have any effect for StatisticsHBN (default is 0)
         """
         # Obtain the wind direction id
         ir = list(self.stochastics_discrete["r"]).index(wind_direction)

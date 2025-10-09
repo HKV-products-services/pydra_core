@@ -8,7 +8,7 @@ from ..settings.settings import Settings
 from ...common.probability import ProbabilityFunctions
 
 
-class BaseModel(ABC):
+class ModelBase(ABC):
     def __init__(self, settings: Settings):
         """
         Base class

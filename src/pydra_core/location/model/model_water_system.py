@@ -1,13 +1,13 @@
 import numpy as np
 
-from .base_model import BaseModel
+from .model_base import ModelBase
 from .loading.loading_factory import LoadingFactory
 from .statistics.statistics_factory import StatisticsFactory
 from ..settings.settings import Settings
 from ...common.probability import ProbabilityFunctions
 
 
-class WaterSystem(BaseModel):
+class ModelWaterSystem(ModelBase):
     def __init__(self, settings: Settings):
         """
         Water System model

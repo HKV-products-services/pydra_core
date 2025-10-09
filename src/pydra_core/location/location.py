@@ -1,4 +1,4 @@
-from .model.water_system import WaterSystem
+from .model.model_water_system import ModelWaterSystem
 from .profile.profile import Profile
 from .settings.settings import Settings
 
@@ -11,7 +11,7 @@ class Location:
     """
 
     settings: Settings
-    model: WaterSystem
+    model: ModelWaterSystem
     profile: Profile
 
     def __init__(self, settings: Settings, profile: Profile = None):
@@ -28,7 +28,7 @@ class Location:
             the cross-section.
         """
         self.settings = settings
-        self.model = WaterSystem(settings)
+        self.model = ModelWaterSystem(settings)
         self.profile = profile
 
     def get_settings(self) -> Settings:
@@ -59,15 +59,15 @@ class Location:
         self.settings = settings
 
         # Statistics
-        self.model = WaterSystem(settings)
+        self.model = ModelWaterSystem(settings)
 
-    def get_model(self) -> WaterSystem:
+    def get_model(self) -> ModelWaterSystem:
         """
         Returns the WaterSystem model.
 
         Returns
         -------
-        WaterSystem
+        ModelWaterSystem
             The WaterSystem model
         """
         return self.model
