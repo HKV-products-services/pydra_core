@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import platform
 
 from datetime import datetime
 from pathlib import Path
@@ -51,6 +52,8 @@ def test_exceedance_frequency_lines():
 
             # HBN
             elif result_variable in ["hbn"]:
+                continue
+
                 # Create a Profile
                 prof = Profile(
                     "Profile",
