@@ -10,7 +10,7 @@ packages = ["pydra_core"]
 
 [project]
 name = "pydra_core"
-version = "0.0.10"
+version = "0.0.11"
 description = "Python package for calculating hydraulic loads"
 readme = "README.md"
 license = {text = "GNU-GPL V3"}
