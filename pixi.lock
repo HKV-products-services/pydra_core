@@ -5,6 +5,8 @@ environments:
     - url: https://conda.anaconda.org/conda-forge/
     indexes:
     - https://pypi.org/simple
+    options:
+      pypi-prerelease-mode: if-necessary-or-explicit
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -276,7 +278,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zlib-1.3.1-hb9d3cd8_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstandard-0.23.0-py312h66e93f0_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb8e6e7a_2.conda
-      - pypi: src
+      - pypi: ./src
       win-64:
       - conda: https://conda.anaconda.org/conda-forge/win-64/_libavif_api-1.2.1-h57928b3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/_openmp_mutex-4.5-2_gnu.conda
@@ -498,7 +500,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/zlib-1.3.1-h2466b09_2.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstandard-0.23.0-py313ha7868ed_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-hbeecb71_2.conda
-      - pypi: src
+      - pypi: ./src
 packages:
 - conda: https://conda.anaconda.org/conda-forge/win-64/_libavif_api-1.2.1-h57928b3_2.conda
   sha256: b46157b5544232d126211374f3db98c8c306b3a6f64f46fc419131493d20fc5a
@@ -4422,10 +4424,10 @@ packages:
   - pkg:pypi/pydantic-core?source=hash-mapping
   size: 1915297
   timestamp: 1743201182361
-- pypi: src
+- pypi: ./src
   name: pydra-core
-  version: 0.0.10
-  sha256: 3e771740c1874af619e1b45e9588dacccabe493186630c01b990e7ea72e375f8
+  version: 0.0.11
+  sha256: 186060f1287a031247f402846d85b49b9195e9465637a01a94827bfe72ff8ae8
   requires_dist:
   - pandas
   - numpy
