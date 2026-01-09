@@ -42,9 +42,7 @@ class BarrierEuropoort(Barrier):
         with DatabaseHR(settings.database_path) as database:
             # Closing levels
             self.closing_levels = LoadingModel(None, None, ["u", "q", "r"], ["m"])
-            self.closing_levels.initialise(
-                database.get_closing_levels_table_europoort()
-            )
+            self.closing_levels.initialise(database.get_closing_levels_table_europoort())
 
         # Extend
         self.closing_levels.extend("q", [self.settings.q_min, self.settings.q_max])
@@ -53,9 +51,7 @@ class BarrierEuropoort(Barrier):
         # Prepare probabilities
         self.prepare_barrier_probability(sea_level)
 
-    def calculate_closing_probability(
-        self, wind_direction: float, closing_situation: int = None
-    ) -> np.ndarray:
+    def calculate_closing_probability(self, wind_direction: float, closing_situation: int = None) -> np.ndarray:
         # Translate to wind direction id
         ir = self.wind_direction.get_discretisation().tolist().index(wind_direction)
         nqblok = len(self.discharge)
@@ -63,9 +59,7 @@ class BarrierEuropoort(Barrier):
 
         # Bepaal de index van de richting in de sluitpeilen
         if wind_direction not in self.closing_levels.r:
-            raise KeyError(
-                f"[ERROR] Wind direction {wind_direction} not defined in closing levels loading."
-            )
+            raise KeyError(f"[ERROR] Wind direction {wind_direction} not defined in closing levels loading.")
 
         ir = self.closing_levels.r.tolist().index(wind_direction)
         if closing_situation == 1:  # Open
@@ -84,14 +78,10 @@ class BarrierEuropoort(Barrier):
         # Eerste worden de sluitpeilen uitgebreid voor alle windsnelheden en afvoerniveaus in de statistiek
 
         # Interpoleer over de windsnelheden, de eerste as van peilen
-        sluitpeil = InterpStruct(
-            x=self.wind_speed.get_discretisation(), xp=self.closing_levels.u
-        ).interp(fp=self.closing_levels.m[:, :, ir], axis=0)
+        sluitpeil = InterpStruct(x=self.wind_speed.get_discretisation(), xp=self.closing_levels.u).interp(fp=self.closing_levels.m[:, :, ir], axis=0)
 
         # Interpoleer dit resultaat over de afvoeren, de tweede as van de peilen
-        sluitpeil = InterpStruct(
-            x=self.discharge.get_discretisation(), xp=self.closing_levels.q
-        ).interp(fp=sluitpeil, axis=1)
+        sluitpeil = InterpStruct(x=self.discharge.get_discretisation(), xp=self.closing_levels.q).interp(fp=sluitpeil, axis=1)
 
         # Daarna wordt de sluitkans bepaald, door de zeewaterstanden bij deze windsnelheid, zeewaterstand en keringsituatie
         # te interpoleren in de berekende sluitkansen per cm.
@@ -107,13 +97,9 @@ class BarrierEuropoort(Barrier):
         for iq in range(nqblok):
             # bepaal de sluitkansen voor de combinatie van afvoer, kering en zeewaterstand
             if isinstance(ik, int):
-                sluitkans[:, :, iq] = InterpStruct(
-                    x=sluitpeil[:, iq], xp=self.cmsp
-                ).interp(self.kansen[:, :, ik], axis=0)
+                sluitkans[:, :, iq] = InterpStruct(x=sluitpeil[:, iq], xp=self.cmsp).interp(self.kansen[:, :, ik], axis=0)
             else:
-                sluitkans[:, :, iq, :] = InterpStruct(
-                    x=sluitpeil[:, iq], xp=self.cmsp
-                ).interp(self.kansen[:, :, :], axis=0)
+                sluitkans[:, :, iq, :] = InterpStruct(x=sluitpeil[:, iq], xp=self.cmsp).interp(self.kansen[:, :, :], axis=0)
 
         return sluitkans
 
@@ -164,35 +150,13 @@ class BarrierEuropoort(Barrier):
             if barrier != 2:
                 #  Normal distribution
                 if distribution == 0:
-                    s = (
-                        self.cmsp[:, None]
-                        - sea_level.get_discretisation()[None, :]
-                        - mu
-                    ) / sigma
+                    s = (self.cmsp[:, None] - sea_level.get_discretisation()[None, :] - mu) / sigma
                     kansdicht = 1.0 - norm(loc=0.0, scale=1.0).cdf(x=s)
 
                 # Cosinus-squared distribution
                 elif distribution == 1:
                     s = np.pi * sigma * (3.0 / (np.pi * np.pi - 6.0)) ** 0.5
-                    kansdicht = 0.5 * (
-                        1.0
-                        + (
-                            self.cmsp[:, None]
-                            - sea_level.get_discretisation()[None, :]
-                            - mu
-                        )
-                        / s
-                        + np.sin(
-                            np.pi
-                            * (
-                                self.cmsp[:, None]
-                                - sea_level.get_discretisation()[None, :]
-                                - mu
-                            )
-                            / s
-                        )
-                        / np.pi
-                    )
+                    kansdicht = 0.5 * (1.0 + (self.cmsp[:, None] - sea_level.get_discretisation()[None, :] - mu) / s + np.sin(np.pi * (self.cmsp[:, None] - sea_level.get_discretisation()[None, :] - mu) / s) / np.pi)
 
                 # Undefined distribution
                 else:

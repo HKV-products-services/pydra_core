@@ -91,9 +91,7 @@ class Loading(ABC):
                         list(filter(None, [self.settings.a_min, self.settings.a_max])),
                     )
 
-    def repair_loadingmodels(
-        self, result_variables: Union[list, str], epsilon: float = 1e-6
-    ) -> None:
+    def repair_loadingmodels(self, result_variables: Union[list, str], epsilon: float = 1e-6) -> None:
         """
         Repair the result variables for all LoadingModels
         Repairs depending on the '{input_variable}_repair' flag in the Settings
@@ -169,10 +167,7 @@ class Loading(ABC):
         """
         # Loop over every discrete model and add all result variables values to an array
         arr = np.concatenate(
-            [
-                getattr(model, result_variable).ravel()
-                for _, model in self.iter_models()
-            ],
+            [getattr(model, result_variable).ravel() for _, model in self.iter_models()],
             axis=-1,
         )
 
@@ -266,10 +261,7 @@ class Loading(ABC):
         first_model = loading_r[0]
 
         # Create an empty dictionary for the wave conditions
-        wave_conditions = {
-            resvar: np.zeros((len(waterlevel), len(first_model.u)), dtype=np.float32)
-            for resvar in resvars
-        }
+        wave_conditions = {resvar: np.zeros((len(waterlevel), len(first_model.u)), dtype=np.float32) for resvar in resvars}
 
         # Change the loading shape such that all wave conditions are available per wind direction and wind speed
         loading_reshaped = {}
@@ -350,13 +342,9 @@ class Loading(ABC):
                     # Otherwise, interpolate the wave loading
                     else:
                         if resvar == "dir":
-                            intbelast = intstr.interp_angle(
-                                fp=fp, extrapolate=extrapolate
-                            )
+                            intbelast = intstr.interp_angle(fp=fp, extrapolate=extrapolate)
                         else:
-                            intbelast = np.maximum(
-                                0, intstr.interp(fp=fp, extrapolate=extrapolate)
-                            )
+                            intbelast = np.maximum(0, intstr.interp(fp=fp, extrapolate=extrapolate))
 
                     # Add the resvar to the result 'wave_conditions' dictionary
                     wave_conditions[resvar][:, iu] = intbelast

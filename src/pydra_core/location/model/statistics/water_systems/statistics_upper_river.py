@@ -45,9 +45,7 @@ class StatisticsUpperRiver(Statistics):
         self.stochastics_fast = {"u": self.wind_speed.get_discretisation()}
         self.stochastics_slow = {"q": self.discharge.get_discretisation()}
 
-    def calculate_probability(
-        self, wind_direction: float, closing_situation: int = 1, given: list = []
-    ):
+    def calculate_probability(self, wind_direction: float, closing_situation: int = 1, given: list = []):
         """
         Calculate the probability of occurence for the discretisation given the wind direction.
 

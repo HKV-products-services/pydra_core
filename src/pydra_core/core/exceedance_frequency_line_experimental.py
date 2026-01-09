@@ -35,9 +35,7 @@ class ExceedanceFrequencyLineExperimental(Calculation):
         super().__init__()
 
         # Warning
-        print(
-            "Experimental version may give different results for water levels when applying model uncertainty."
-        )
+        print("Experimental version may give different results for water levels when applying model uncertainty.")
 
         # Save settings
         self.set_result_variable(result_variable.lower())
@@ -69,9 +67,7 @@ class ExceedanceFrequencyLineExperimental(Calculation):
 
         # Check if the levels are defined, if not, define it between the 1st and 99th percentile
         if levels is None:
-            lower, upper = loading.get_quantile_range(
-                self.result_variable, 0.01, 0.99, 3
-            )
+            lower, upper = loading.get_quantile_range(self.result_variable, 0.01, 0.99, 3)
             levels = np.arange(lower, upper + 0.5 * self.step_size, self.step_size)
 
         # Repair
@@ -92,15 +88,11 @@ class ExceedanceFrequencyLineExperimental(Calculation):
         # Process slow stochastics (they are always at the last axes of the matrix)
         if len(list(model.statistics.stochastics_slow.keys())) > 0:
             p_trapezoidal = model.process_slow_stochastics(ep_h_slow)
-            exceedance_probability = (
-                p_trapezoidal * location.get_settings().periods_base_duration
-            )
+            exceedance_probability = p_trapezoidal * location.get_settings().periods_base_duration
 
         # Zo niet, geef de overschrijdingskansen direct terug
         else:
-            exceedance_probability = (
-                ep_h_slow * location.settings.periods_block_duration
-            )
+            exceedance_probability = ep_h_slow * location.settings.periods_block_duration
 
         # Return the frequency line
         return FrequencyLine(levels, exceedance_probability)
@@ -116,9 +108,7 @@ class ExceedanceFrequencyLineExperimental(Calculation):
         """
         # Raise an error when assigning the wave direction (dir)
         if result_variable == "dir":
-            raise ValueError(
-                "[ERROR] Cannot calculate a frequency line for the wave direction (dir)."
-            )
+            raise ValueError("[ERROR] Cannot calculate a frequency line for the wave direction (dir).")
 
         # Save result variable
         self.result_variable = result_variable

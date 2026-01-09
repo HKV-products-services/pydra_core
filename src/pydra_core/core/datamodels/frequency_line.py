@@ -23,6 +23,9 @@ class FrequencyLine:
     level: np.ndarray
     exceedance_frequency: np.ndarray
 
+    def __post_init__(self):
+        self.drop_zeros()
+
     def interpolate_exceedance_probability(self, exceedance_probability: np.ndarray):
         exceedance_probability = np.atleast_1d(exceedance_probability)
         order_x = np.argsort(exceedance_probability)
@@ -35,17 +38,11 @@ class FrequencyLine:
         return f[np.argsort(order_x)]
 
     def interpolate_level(self, level: np.ndarray):
-        return np.exp(
-            Interpolate.inextrp1d(
-                x=level, xp=self.level, fp=np.log(self.exceedance_frequency)
-            )
-        )
+        return np.exp(Interpolate.inextrp1d(x=level, xp=self.level, fp=np.log(self.exceedance_frequency)))
 
     def to_file(self, path: Path, overwrite=False):
         if not overwrite and path.exists():
-            raise OSError(
-                f'Path "{path}" already exists. Choose overwrite=True or give another path.'
-            )
+            raise OSError(f'Path "{path}" already exists. Choose overwrite=True or give another path.')
 
         with path.open("w") as f:
             f.write(f"{len(self.level):5d}\n")

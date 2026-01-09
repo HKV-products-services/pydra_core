@@ -1,6 +1,6 @@
 [workspace]
 name = "pydra_core"
-version = "0.0.9"
+version = "0.0.10"
 description = "Python package for calculating hydraulic loads"
 channels = ["conda-forge"]
 platforms = ["win-64", "linux-64"]
@@ -40,6 +40,7 @@ shapely = "*"
 pathlib = "*"
 pytest = "*"
 pytest-cov = "*"
+openpyxl = "*"
 quarto = ">=1.5.57,<2"
 quartodoc = ">=0.9.1,<0.10"
 matplotlib = ">=3.9.3,<4"
