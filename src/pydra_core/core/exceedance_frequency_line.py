@@ -69,7 +69,6 @@ class ExceedanceFrequencyLine(Calculation):
 
         # Model uncertainty
         if self.model_uncertainty:
-
             # Model uncertainty steps (if None use default)
             model_uncertainty_steps = monz.step_size[self.result_variable]
 
@@ -85,7 +84,6 @@ class ExceedanceFrequencyLine(Calculation):
         # Discretise
         exp = 0
         for _ip, _p in enumerate(p):
-
             # Deepcopy
             _model = deepcopy(model)
             _loading = _model.get_loading()
