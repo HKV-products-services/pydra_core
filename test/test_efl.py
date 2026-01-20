@@ -122,8 +122,8 @@ def test_exceedance_frequency_lines():
         print(f"- {_error[0]} | {_error[1]} | {_error[2]} | {_error[3]}")
 
     # Pass the test if there are no errors
-    # Vanwege de ruwere numerieke integratie is 1-op-1 vergelijking voor nu 
-    # lastig. Toch komt het goed in de buurt, we laten de test erin om een 
+    # Vanwege de ruwere numerieke integratie is 1-op-1 vergelijking voor nu
+    # lastig. Toch komt het goed in de buurt, we laten de test erin om een
     # indruk te krijgen van de performance.
     assert len(error) >= 0
 
