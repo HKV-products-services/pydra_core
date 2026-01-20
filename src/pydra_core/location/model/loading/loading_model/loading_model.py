@@ -293,6 +293,7 @@ class LoadingModel:
 
         # Calculate HBN
         self.hbn = np.reshape([profile.calculate_crest_level(qcrit, _h, _hs, _tspec, _dir)], self.h.shape)
+        self.hbn[self.hbn < self.h] = self.h[self.hbn < self.h]
 
         # Add the result variable
         self.result_variables.append("hbn")

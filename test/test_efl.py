@@ -35,6 +35,7 @@ def test_exceedance_frequency_lines():
         # Load HRDatabase and location
         hrd = HRDatabase(path / "data" / ws / ws_df.iloc[0]["HRDatabase"])
         settings = hrd.get_settings(ws_df.iloc[0]["HRLocation"])
+        settings.m_step = 0.001
         loc = hrd.create_location(settings)
 
         # Different calculations
