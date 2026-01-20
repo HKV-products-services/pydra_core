@@ -97,8 +97,6 @@ class HBN(Calculation):
         model_hbn = ModelHBN(location, levels, p_hur_tr[1:-1])
         model_hbn_statistics = model_hbn.get_statistics()
         model_hbn_loading = model_hbn.get_loading()
-        for _, model in model_hbn_loading.iter_models():
-            model.extend("wlev", np.arange(lower_ws, upper_ws + 0.5 * self.step_size, self.step_size))
 
         # Create an empty array for the levels and slow stochastics
         p_hbn_slow = np.zeros((len(levels),) + tuple([getattr(model_hbn_statistics, f"n{x}") for x in slow_stochastics]))
