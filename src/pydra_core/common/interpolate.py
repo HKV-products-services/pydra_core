@@ -143,6 +143,7 @@ class Interpolate:
         """
         # Check if the input locations are invalid
         if (x1 == x2 and y1 == y2) or (x1 == x3 and y1 == y3) or (x2 == x3 and y2 == y3):
+            return h1
             raise ValueError("[ERROR] Two input locations in triangle interpolation are exactly the same. This is not allowed.")
         if (x1 == x2 == x3) or (y1 == y2 == y3):
             raise ValueError("[ERROR] The three input locations in triangle interpolation are collinear. This is not allowed.")
@@ -151,21 +152,21 @@ class Interpolate:
         a_1 = (y1 - y2) / (x1 - x2)
         b_1 = y1 - a_1 * x1
         a_2 = (y3 - y2) / (x3 - x2)
-        b_2 = y3 - a_1 * x3
+        b_2 = y3 - a_2 * x3
         if (a_1 == a_2) and (b_1 == b_2):
             raise ValueError("[ERROR] The three input locations in triangle interpolation are collinear. This is not allowed.")
 
         # Calculate auxiliary parameter a
-        a = x1 * (y2 - y3) - x2 * (y1 - y3) + x3 * (y1 - y2)
+        a = x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)
 
         # Parameter a should not be equal to 0
         if a == 0.0:
             raise ValueError("[ERROR] In triangle interpolation, there is an auxiliary parameter (a) that should not be equal to 0, but it is currently set to 0.")
 
         # Calculate parameters B1, B2 en B3
-        b1 = h1 * (y2 - y3) - h2 * (y1 - y3) + h3 * (y1 - y2)
-        b2 = x1 * (h2 - h3) - x2 * (h1 - h3) + x3 * (h1 - h2)
-        b3 = x1 * (y2 * h3 - y3 * h2) - x2 * (y1 * h3 - y3 * h1) + x3 * (y1 * h2 - y2 * h1)
+        b1 = h1 * (y2 - y3) + h2 * (y3 - y1) + h3 * (y1 - y2)
+        b2 = x1 * (h2 - h3) + x2 * (h3 - h1) + x3 * (h1 - h2)
+        b3 = x1 * (y2 * h3 - y3 * h2) + x2 * (y3 * h1 - y1 * h3) + x3 * (y1 * h2 - y2 * h1)
 
         # Calculate the value at (x, y) using the triangular interpolation
         triangular_interp = (b1 / a) * x + (b2 / a) * y + b3 / a
