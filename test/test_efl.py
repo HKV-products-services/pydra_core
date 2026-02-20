@@ -113,7 +113,7 @@ def test_exceedance_frequency_lines():
     df.to_excel(
         path
         / "output"
-        / f"{datetime.now().strftime('%y%M%d%H%M%S')}_{platform.system()}_EFL.xlsx"
+        / f"{datetime.now().strftime('%y%m%d%H%M%S')}_{platform.system()}_EFL.xlsx"
     )
 
     # Print all errors
