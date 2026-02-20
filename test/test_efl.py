@@ -65,8 +65,8 @@ def test_exceedance_frequency_lines():
                 efl = HBN(
                     q_overtopping=calc_df.iloc[0]["AverageDischarge"] / 1000,
                     model_uncertainty=monz,
-                    verbose=False,
                 )
+                efl.set_verbose(False)
 
             # Not found
             else:
