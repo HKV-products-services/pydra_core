@@ -9,9 +9,9 @@ from ....location import Location
 from ....profile.profile import Profile
 
 
-class LoadingHBN(Loading):
+class LoadingOvertopping(Loading):
     """
-    This Loading is used to calculate HBNs
+    This Loading is used to calculate overtopping
     """
 
     def __init__(self, location: Location, ws_range: np.ndarray):

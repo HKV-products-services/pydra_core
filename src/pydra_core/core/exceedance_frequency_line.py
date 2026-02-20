@@ -13,12 +13,7 @@ class ExceedanceFrequencyLine(Calculation):
     Calculate a frequency line for a result variable (e.g. h (waterlevel), hs (significant wave height)) for a location
     """
 
-    def __init__(
-        self,
-        result_variable: str,
-        model_uncertainty: bool = True,
-        step_size: float = 0.1,
-    ):
+    def __init__(self, result_variable: str, model_uncertainty: bool = True):
         """
         The __init__ method initializes an instance of the ExceedanceFrequencyLine class. It takes in several parameters to configure the calculation of the frequency line.
 
@@ -28,8 +23,6 @@ class ExceedanceFrequencyLine(Calculation):
             The result variable for which the frequency line will be calculated.
         model_uncertainty: bool
             Enable or disable the use of model uncertainties when calculating the frequency line. Default is True.
-        step_size: float (optional)
-            Step size of the frequency line discretisation. Default is 0.1.
         """
         # Inherit
         super().__init__()
@@ -37,8 +30,10 @@ class ExceedanceFrequencyLine(Calculation):
         # Save settings
         self.set_result_variable(result_variable.lower())
         self.use_model_uncertainty(model_uncertainty)
-        self.set_step_size(step_size)
-        self.set_levels(None)
+
+        # Optional settings, can be adjusted by user outside of __init__
+        self.set_range(None, None)
+        self.set_step_size(0.1)
 
     def calculate_location(self, location: Location) -> FrequencyLine:
         """
@@ -60,12 +55,11 @@ class ExceedanceFrequencyLine(Calculation):
         loading = model.get_loading()
         monz = model.get_statistics().get_model_uncertainties()
 
-        # Check if the levels are defined, if not, define it between the 1st and 99th percentile
-        if self.levels is None:
-            lower, upper = loading.get_quantile_range(self.result_variable, 0.0, 1.0, 3)
-            levels = np.arange(lower, upper + 0.5 * self.step_size, self.step_size)
-        else:
-            levels = self.levels
+        # Check if the levels are defined, if not, define it the min and max water level in the HRD
+        lower, upper = loading.get_quantile_range("h", 0.0, 1.0, 3)
+        lower = np.floor(lower * 10) / 10 if self.lower_bound is None else self.lower_bound
+        upper = upper if self.upper_bound is None else self.upper_bound
+        levels = np.arange(lower, upper + 0.5 * self.step_size, self.step_size)
 
         # Model uncertainty
         if self.model_uncertainty:
@@ -157,17 +151,17 @@ class ExceedanceFrequencyLine(Calculation):
         """
         self.model_uncertainty = model_uncertainty
 
-    def set_levels(self, levels: list = None):
+    def set_range(self, lower_bound: float = None, upper_bound: float = None):
         """
-        Change the levels.
-        If levels is not defined, the frequency line is calculated based upon the 1st and 99th percentile.
+        Set the lower and upper bound of the fragility curve.
 
         Parameters
         ----------
         levels : list, optional
             The levels at which the exceedance probability has to be calculated
         """
-        self.levels = levels
+        self.lower_bound = None
+        self.upper_bound = None
 
     def set_step_size(self, step_size: float):
         """

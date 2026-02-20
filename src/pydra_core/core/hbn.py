@@ -6,7 +6,7 @@ from .calculation import Calculation
 from .datamodels.frequency_line import FrequencyLine
 from ..common.probability import ProbabilityFunctions
 from ..location.location import Location
-from ..location.model.model_hbn import ModelHBN
+from ..location.model.model_overtopping import ModelHBN
 
 
 class HBN(Calculation):
@@ -14,7 +14,7 @@ class HBN(Calculation):
     Calculate the HBN for a location
     """
 
-    def __init__(self, q_overtopping: float, model_uncertainty: bool = True, step_size: float = 0.1, verbose: bool = True):
+    def __init__(self, q_overtopping: float, model_uncertainty: bool = True):
         """
         The __init__ method initializes an instance of the ExceedanceFrequencyLine class. It takes in several parameters to configure the calculation of the frequency line.
 
@@ -24,10 +24,6 @@ class HBN(Calculation):
             The average overtopping discharge.
         model_uncertainty : bool (optional)
             Enable or disable the use of model uncertainties when calculating the frequency line. Default is True.
-        step_size: float (optional)
-            Step size of the frequency line discretisation. Default is 0.1.
-        verbose : bool (optional)
-            Show info during calculation
         """
         # Inherit
         super().__init__()
@@ -35,9 +31,11 @@ class HBN(Calculation):
         # Save settings
         self.set_overtopping_discharge(q_overtopping)
         self.use_model_uncertainty(model_uncertainty)
-        self.set_step_size(step_size)
-        self.set_verbose(verbose)
-        self.set_levels(None)
+
+        # Optional settings, can be adjusted by user outside of __init__
+        self.set_range(None, None)
+        self.set_step_size(0.1)
+        self.set_verbose(True)
 
     def calculate_location(self, location: Location) -> FrequencyLine:
         """
@@ -76,10 +74,11 @@ class HBN(Calculation):
 
         # TODO: Beter levels bepalen
         # If no levels are defined, derive them based on the water level in the database
-        if levels is None:
-            lower_ws, upper_ws = loading.get_quantile_range("h", 0.0, 1.0, 3)
-            _, upper_hs = loading.get_quantile_range("hs", 0.0, 1.0, 3)
-            levels = np.arange(lower_ws - upper_hs, upper_ws + 4 * upper_hs + 0.5 * self.step_size, self.step_size)
+        lower, upper = loading.get_quantile_range("h", 0.0, 1.0, 3)
+        _, upper_hs = loading.get_quantile_range("hs", 0.0, 1.0, 3)
+        lower = np.floor((lower - upper_hs) * 10) / 10 if self.lower_bound is None else self.lower_bound
+        upper = upper + 4 * upper_hs if self.upper_bound is None else self.upper_bound
+        levels = np.arange(lower, upper + 0.5 * self.step_size, self.step_size)
 
         # Calculate the boundaries
         h_boundaries = ProbabilityFunctions.calculate_boundaries(levels)
@@ -168,16 +167,17 @@ class HBN(Calculation):
         """
         self.model_uncertainty = model_uncertainty
 
-    def set_verbose(self, verbose: bool):
+    def set_range(self, lower_bound: float = None, upper_bound: float = None):
         """
-        Show info during calculation.
+        Set the lower and upper bound of the fragility curve.
 
         Parameters
         ----------
-        verbose : bool
-            Show info during calculation.
+        levels : list, optional
+            The levels at which the exceedance probability has to be calculated
         """
-        self.verbose = verbose
+        self.lower_bound = None
+        self.upper_bound = None
 
     def set_step_size(self, step_size: float):
         """
@@ -195,14 +195,13 @@ class HBN(Calculation):
         # Save step size
         self.step_size = step_size
 
-    def set_levels(self, levels: list = None):
+    def set_verbose(self, verbose: bool):
         """
-        Change the levels.
-        If levels is not defined, the frequency line is calculated based upon the 1st and 99th percentile.
+        Show info during calculation.
 
         Parameters
         ----------
-        levels : list, optional
-            The levels at which the exceedance probability has to be calculated
+        verbose : bool
+            Show info during calculation.
         """
-        self.levels = levels
+        self.verbose = verbose
