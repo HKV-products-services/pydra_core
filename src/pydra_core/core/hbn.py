@@ -6,7 +6,7 @@ from .calculation import Calculation
 from .datamodels.frequency_line import FrequencyLine
 from ..common.probability import ProbabilityFunctions
 from ..location.location import Location
-from ..location.model.model_overtopping import ModelHBN
+from ..location.model.model_overtopping import ModelOvertopping
 
 
 class HBN(Calculation):
@@ -93,7 +93,7 @@ class HBN(Calculation):
         )
 
         # Init wave overtopping statistics and loading
-        model_hbn = ModelHBN(location, levels, p_hur_tr[1:-1])
+        model_hbn = ModelOvertopping(location, levels, p_hur_tr[1:-1])
         model_hbn_statistics = model_hbn.get_statistics()
         model_hbn_loading = model_hbn.get_loading()
 
