@@ -62,9 +62,6 @@ class HBN(Calculation):
             print(f"[WARNING] Something is wrong with the assigned profile of location '{location.get_settings().location}'. Skipping this calculation.")
             return None
 
-        # Copy the levels
-        levels = self.levels
-
         # Obtain location object
         settings = location.get_settings()
         model = location.get_model()
