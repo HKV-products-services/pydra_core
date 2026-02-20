@@ -14,7 +14,7 @@ For the following water systems:
 * Tidal Rivers (Benedenrivieren 03 Rijn, 04 Maas)
 * Coast (09/10 Waddenzee Oost en West; 11/12/13 Hollandse Kust Noord, Midden en Zuid; 15 Westerschelde)
 * Eastern Scheldt 'WBI2023' databases (14 Oosterschelde)
-* Lakes (07 IJsselmeer; 08 Markermeer)
+* Lakes (07 IJsselmeer; 08 Markermeer; 19 Grevelingen; 20 Veluwe randmeren)
 * Vecht-IJssel Delta (05 IJssel Delta; 06 Vecht Delta)
 
 Pydra Core is published under de GNU GPL-3 license. Certain submodules have their own licensing.
