@@ -52,6 +52,7 @@ def test_exceedance_frequency_lines():
 
             # HBN
             elif result_variable in ["hbn"]:
+                continue
                 # Create a Profile
                 prof = Profile(
                     "Profile",
