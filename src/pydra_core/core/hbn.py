@@ -71,10 +71,10 @@ class HBN(Calculation):
 
         # TODO: Beter levels bepalen
         # If no levels are defined, derive them based on the water level in the database
-        lower, upper = loading.get_quantile_range("h", 0.0, 1.0, 3)
+        lower_h, upper_h = loading.get_quantile_range("h", 0.0, 1.0, 3)
         _, upper_hs = loading.get_quantile_range("hs", 0.0, 1.0, 3)
-        lower = np.floor((lower - upper_hs) * 10) / 10 if self.lower_bound is None else self.lower_bound
-        upper = upper + 4 * upper_hs if self.upper_bound is None else self.upper_bound
+        lower = np.floor((lower_h - upper_hs) * 10) / 10 if self.lower_bound is None else self.lower_bound
+        upper = upper_h + 4 * upper_hs if self.upper_bound is None else self.upper_bound
         levels = np.arange(lower, upper + 0.5 * self.step_size, self.step_size)
 
         # Calculate the boundaries
