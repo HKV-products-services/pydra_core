@@ -28,6 +28,7 @@ def test_exceedance_frequency_lines():
 
     # Per water system
     error = []
+    score = []
     for ws, ws_df in df.groupby(by="WaterSystem"):
         # Print
         print_time(f"Testing: {ws}")
@@ -82,6 +83,8 @@ def test_exceedance_frequency_lines():
             return_period = calc_df["ReturnPeriod"].to_numpy()
             results_hydranl = calc_df["Value"].to_numpy()
             res_pydra = res.interpolate_exceedance_probability(1 / return_period)
+            res_score = np.abs(res_pydra / results_hydranl - 1)
+            score.append(np.mean(res_score))
 
             # Save
             df.loc[
@@ -96,6 +99,12 @@ def test_exceedance_frequency_lines():
                 & (df["ModelUncertainty"] == monz),
                 "Pydra_Time",
             ] = duration
+            df.loc[
+                (df["WaterSystem"] == ws)
+                & (df["ResultVariable"] == result_variable)
+                & (df["ModelUncertainty"] == monz),
+                "Score",
+            ] = res_score
 
             # Check
             if not np.allclose(results_hydranl, res_pydra, atol=atol):
@@ -117,7 +126,7 @@ def test_exceedance_frequency_lines():
     )
 
     # Print all errors
-    print_time(f"Done with {len(error)} errors.")
+    print_time(f"Done with {len(error)} errors and score = {np.mean(score) / len(score) * 100:.2f}%.")
     for _error in error:
         print(f"- {_error[0]} | {_error[1]} | {_error[2]} | {_error[3]}")
 

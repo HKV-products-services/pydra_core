@@ -56,9 +56,9 @@ class ExceedanceFrequencyLine(Calculation):
         monz = model.get_statistics().get_model_uncertainties()
 
         # Check if the levels are defined, if not, define it the min and max water level in the HRD
-        lower_h, upper_h = loading.get_quantile_range(self.result_variable, 0.0, 1.0, 3)
-        lower = np.floor(lower_h * 10) / 10 if self.lower_bound is None else self.lower_bound
-        upper = upper_h if self.upper_bound is None else self.upper_bound
+        lower, upper = loading.get_quantile_range(self.result_variable, 0.0, 1.0, 3)
+        lower = np.floor(lower * 10) / 10 if self.lower_bound is None else self.lower_bound
+        upper = upper if self.upper_bound is None else self.upper_bound
         levels = np.arange(lower, upper + 0.5 * self.step_size, self.step_size)
 
         # Model uncertainty
@@ -160,8 +160,8 @@ class ExceedanceFrequencyLine(Calculation):
         levels : list, optional
             The levels at which the exceedance probability has to be calculated
         """
-        self.lower_bound = None
-        self.upper_bound = None
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
 
     def set_step_size(self, step_size: float):
         """
