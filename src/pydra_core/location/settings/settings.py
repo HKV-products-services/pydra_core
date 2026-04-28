@@ -312,10 +312,12 @@ class Settings:
         """
         Selecting the right settings for the lower rivers
         """
+        # Supress GDAL error if fiona is not required
+        import fiona as fn
+
         # Read from shape (MSTAP, MU, SIGMA, ALFA, QSTAP_Maas, QSTAP_rijn)
         PATH = (Path(__file__).resolve().parent.parent / ".." / "data" / "settings" / "lower_river_settings.shp").resolve()
 
-        import fiona as fn
         with fn.open(PATH, "r") as shp:
             # Define the point using Shapely's Point
             point = Point(self.x_coordinate, self.y_coordinate)
