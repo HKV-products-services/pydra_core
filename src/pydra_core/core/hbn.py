@@ -65,16 +65,17 @@ class HBN(Calculation):
         # Obtain location object
         settings = location.get_settings()
         model = location.get_model()
+        prof = location.get_profile()
         statistics = model.get_statistics()
         loading = model.get_loading()
         slow_stochastics = list(statistics.stochastics_slow.keys())
 
-        # TODO: Beter levels bepalen
         # If no levels are defined, derive them based on the water level in the database
         lower_h, upper_h = loading.get_quantile_range("h", 0.0, 1.0, 3)
         _, upper_hs = loading.get_quantile_range("hs", 0.0, 1.0, 3)
         lower = np.floor((lower_h - upper_hs) * 10) / 10 if self.lower_bound is None else self.lower_bound
-        upper = upper_h + 4 * upper_hs if self.upper_bound is None else self.upper_bound
+        upper_hbn = prof.calculate_crest_level(self.q_overtopping, upper_h, upper_hs, np.sqrt(2 * np.pi * upper_hs / (9.81 * 0.05)), prof.dike_orientation)
+        upper = upper_hbn if self.upper_bound is None else self.upper_bound
         levels = np.arange(lower, upper + 0.5 * self.step_size, self.step_size)
 
         # Calculate the boundaries
@@ -103,7 +104,7 @@ class HBN(Calculation):
         iterator = iterator if self.model_uncertainty else np.array([[1.0, 1.0, 1.0]])
         for n_id, (factor_hs, factor_tspec, p_occ) in enumerate(iterator):
             # Info
-            if self.verbose:
+            if self.verbose and self.model_uncertainty:
                 print(f"[{datetime.now().strftime('%H:%M:%S')}]: Model uncertainties {n_id + 1}/{len(list(iterator))} (fhs = {round(factor_hs, 3)}; ftspec = {round(factor_tspec, 3)}; p = {round(p_occ, 3)})")
 
             # Calculate the height of the HBNs

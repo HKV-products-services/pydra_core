@@ -50,78 +50,68 @@ class ExceedanceFrequencyLine(Calculation):
         FrequencyLine
             Frequency line of the result variable
         """
-        # Obtain location object
+        # Objecten uit locatie
         model = location.get_model()
         loading = model.get_loading()
-        monz = model.get_statistics().get_model_uncertainties()
+        stats = model.get_statistics()
+        monz = stats.get_model_uncertainties()
 
-        # Check if the levels are defined, if not, define it the min and max water level in the HRD
+        # Levels bepalen
         lower, upper = loading.get_quantile_range(self.result_variable, 0.0, 1.0, 3)
         lower = np.floor(lower * 10) / 10 if self.lower_bound is None else self.lower_bound
         upper = upper if self.upper_bound is None else self.upper_bound
         levels = np.arange(lower, upper + 0.5 * self.step_size, self.step_size)
 
-        # Model uncertainty
+        # Model uncertainty setup
         if self.model_uncertainty:
-            # Model uncertainty steps (if None use default)
-            model_uncertainty_steps = monz.step_size[self.result_variable]
-
-            # Discretise
-            _, edges = monz.model_uncertainties[1, self.result_variable].discretise(model_uncertainty_steps)
-            p = np.diff(norm.cdf(edges))
-
-        # If not
+            steps = monz.step_size[self.result_variable]
+            _, edges = monz.model_uncertainties[1, self.result_variable].discretise(steps)
+            weights = np.diff(norm.cdf(edges))
         else:
-            model_uncertainty_steps = 1
-            p = [1.0]
+            steps = 1
+            weights = np.array([1.0])
 
-        # Discretise
-        exp = 0
-        for _ip, _p in enumerate(p):
-            # Deepcopy
+        slow_keys = list(stats.stochastics_slow.keys())
+        exp = np.zeros(len(levels))
+        for ip, w in enumerate(weights):
             _model = deepcopy(model)
             _loading = _model.get_loading()
-
-            # Repair
             _loading.repair_loadingmodels(self.result_variable)
 
-            # Adjust loading models
+            # Model uncertainty toepassen
             if self.model_uncertainty:
                 for deelmodel, result in _loading.model.items():
-                    _unc = monz.model_uncertainties[deelmodel[1], self.result_variable]
-                    _disc, _ = _unc.discretise(model_uncertainty_steps)
-                    _data = getattr(result, self.result_variable)
-                    _data = _data + _disc[_ip] if self.result_variable == "h" else _data * _disc[_ip]
-                    setattr(result, self.result_variable, _data)
+                    unc = monz.model_uncertainties[deelmodel[1], self.result_variable]
+                    disc, _ = unc.discretise(steps)
+                    data = getattr(result, self.result_variable)
 
-            # Splits uit naar trage stochasten en windrichting
-            p_h_slow = _model.calculate_probability_loading(
+                    factor = disc[ip]
+                    data = data + factor if self.result_variable == "h" else data * factor
+
+                    setattr(result, self.result_variable, data)
+
+            # Kansmassa per bin
+            p_h = _model.calculate_probability_loading(
                 result_variable=self.result_variable,
                 levels=levels,
                 model_uncertainty=False,
-                split_input_variables=list(_model.statistics.stochastics_slow.keys()),
-                given=list(_model.statistics.stochastics_slow.keys()),
+                split_input_variables=slow_keys,
+                given=slow_keys,
             )
 
-            # Reken kansen om naar overschrijdingskansen door over de eerste te sommeren
-            ep_h_slow = np.cumsum(p_h_slow[::-1], axis=0)[-2::-1]
+            # Survival (P(H >= h))
+            ep = np.cumsum(p_h[::-1], axis=0)[-2::-1]
 
-            # Process slow stochastics (they are always at the last axes of the matrix)
-            if len(list(_model.statistics.stochastics_slow.keys())) > 0:
-                p_trapezoidal = _model.process_slow_stochastics(ep_h_slow)
-                exceedance_probability = p_trapezoidal * location.get_settings().periods_base_duration
-
-            # Zo niet, geef de overschrijdingskansen direct terug
+            # Trage stochasten verwerken
+            if slow_keys:
+                ep = _model.process_slow_stochastics(ep)
+                ep *= location.get_settings().periods_base_duration
             else:
-                exceedance_probability = ep_h_slow * location.settings.periods_block_duration
+                ep *= location.settings.periods_block_duration
 
-            # Save
-            if _ip:
-                exp = exp + exceedance_probability * _p
-            else:
-                exp = exceedance_probability * _p
+            # Accumuleren
+            exp += w * ep
 
-        # Return the frequency line
         return FrequencyLine(levels, exp)
 
     def set_result_variable(self, result_variable: str):
