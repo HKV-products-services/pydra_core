@@ -126,7 +126,9 @@ def test_exceedance_frequency_lines():
     )
 
     # Print all errors
-    print_time(f"Done with {len(error)} errors and score = {np.mean(score) / len(score) * 100:.2f}%.")
+    print_time(
+        f"Done with {len(error)} errors and score = {np.mean(score) / len(score) * 100:.2f}%."
+    )
     for _error in error:
         print(f"- {_error[0]} | {_error[1]} | {_error[2]} | {_error[3]}")
 
