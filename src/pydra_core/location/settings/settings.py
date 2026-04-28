@@ -1,4 +1,3 @@
-import fiona as fn
 import numpy as np
 import sqlite3
 
@@ -316,6 +315,7 @@ class Settings:
         # Read from shape (MSTAP, MU, SIGMA, ALFA, QSTAP_Maas, QSTAP_rijn)
         PATH = (Path(__file__).resolve().parent.parent / ".." / "data" / "settings" / "lower_river_settings.shp").resolve()
 
+        import fiona as fn
         with fn.open(PATH, "r") as shp:
             # Define the point using Shapely's Point
             point = Point(self.x_coordinate, self.y_coordinate)
