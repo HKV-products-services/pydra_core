@@ -8,7 +8,7 @@ from ..settings.settings import Settings
 from ...common.probability import ProbabilityFunctions
 
 
-class BaseModel(ABC):
+class ModelBase(ABC):
     def __init__(self, settings: Settings):
         """
         Base class
@@ -66,11 +66,7 @@ class BaseModel(ABC):
         probability = np.zeros(shp)
 
         # Seperate the discrete stochastics from the continuous stochastics (slow and fast)
-        contvars = [
-            var
-            for var in split_input_variables
-            if var not in statistics.stochastics_discrete
-        ]
+        contvars = [var for var in split_input_variables if var not in statistics.stochastics_discrete]
 
         # Loop through all loading models (per r, k)
         for (direction, closing_situation), _ in loading.iter_models():
@@ -96,33 +92,34 @@ class BaseModel(ABC):
             if model_uncertainty:
                 # Check
                 if result_variable not in ["h", "hs", "tspec", "tp"]:
-                    raise NotImplementedError(
-                        "[ERROR] Processing model uncertainties is only possible for database result variables."
-                    )
+                    raise NotImplementedError("[ERROR] Processing model uncertainties is only possible for database result variables.")
 
                 # Bepaal grenzen
                 boundaries = ProbabilityFunctions.calculate_boundaries(levels)
 
                 # Verwerk de onzekerheid gegeven de sluitsituatie
-                probability_loading = (
-                    statistics.get_model_uncertainties().process_model_uncertainty(
-                        closing_situation=closing_situation,
-                        result_variable=result_variable,
-                        levels=boundaries,
-                        exceedance_probability=probability_loading,
-                        haxis=0,
-                    )
+                probability_loading = statistics.get_model_uncertainties().process_model_uncertainty(
+                    closing_situation=closing_situation,
+                    result_variable=result_variable,
+                    levels=boundaries,
+                    exceedance_probability=probability_loading,
+                    haxis=0,
                 )
+
+            # Find nonzero positions in probability_loading
+            nz = np.nonzero(probability_loading)
 
             # Create an index to accumulate the probabilities.
             # If the discrete variables are included in the splitting, assign a specific position here.
             # Otherwise, they are added to the rest of the probabilities.
-            idx = [slice(None)] * len(shp)
-            if "r" in split_input_variables:
-                idx[split_input_variables.index("r") + 1] = ir
-            if "k" in split_input_variables:
-                idx[split_input_variables.index("k") + 1] = ik
-            probability[tuple(idx)] += probability_loading
+            if nz[0].size > 0:
+                idx = [slice(None)] * len(shp)
+                if "r" in split_input_variables:
+                    idx[split_input_variables.index("r") + 1] = ir
+                if "k" in split_input_variables:
+                    idx[split_input_variables.index("k") + 1] = ik
+                # probability[tuple(idx)] += probability_loading
+                probability[tuple(idx)][nz] += probability_loading[nz]
 
         return probability
 
@@ -171,27 +168,19 @@ class BaseModel(ABC):
 
         # Refine the loading onto the (finer) grid used in the statistics
         comb_fast_slow = {**statistics.stochastics_fast, **statistics.stochastics_slow}
-        comb_fast_slow = {
-            key: comb_fast_slow[key] for key in loading_model.input_variables
-        }
+        comb_fast_slow = {key: comb_fast_slow[key] for key in loading_model.input_variables}
         refined_load = loading_model.refine(result_variable, comb_fast_slow)
 
         # Calculate the probability of these loading combinations
-        loading_probability = statistics.calculate_probability(
-            loading_model.direction, loading_model.closing_situation, given=given
-        )
+        loading_probability = statistics.calculate_probability(loading_model.direction, loading_model.closing_situation, given=given)
 
         # Check the dimension from the loading and probability arrays
-        assert refined_load.shape == tuple(
-            loading_probability.shape[: refined_load.ndim]
-        )
+        assert refined_load.shape == tuple(loading_probability.shape[: refined_load.ndim])
         if refined_load.size != loading_probability.size:
             # When the dimensions of the interpolated load (refined_load) and the probabilities do not match,
             # this must be due to an additional dimension in the probabilities where the load is equal.
             # The assumption is that this variable is dependent on the given conditions.
-            loading_probability = loading_probability.reshape(
-                (refined_load.size,) + loading_probability.shape[refined_load.ndim :]
-            )
+            loading_probability = loading_probability.reshape((refined_load.size,) + loading_probability.shape[refined_load.ndim :])
             extra_kansvar = given[:]
 
         else:
@@ -199,10 +188,7 @@ class BaseModel(ABC):
             extra_kansvar = []
 
         # Determine the dimensions of the variables to split over
-        var_sizes = [
-            len({**statistics.stochastics_fast, **statistics.stochastics_slow}[var])
-            for var in split_input_variables
-        ]
+        var_sizes = [len({**statistics.stochastics_fast, **statistics.stochastics_slow}[var]) for var in split_input_variables]
 
         # Create an array to allocate probabilities, this is an array for the load variable,
         # plus the determined dimensions
@@ -224,9 +210,7 @@ class BaseModel(ABC):
         for var_size, var in zip(var_sizes, split_input_variables):
             # Check if the variable exists
             if (var not in list(comb_fast_slow)) and (var not in extra_kansvar):
-                raise ValueError(
-                    f"'{var}' is not in list ({', '.join(list(comb_fast_slow))})."
-                )
+                raise ValueError(f"'{var}' is not in list ({', '.join(list(comb_fast_slow))}).")
             if var in extra_kansvar:
                 continue
 

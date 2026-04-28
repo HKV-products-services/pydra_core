@@ -46,15 +46,11 @@ class WaveShape:
             raise TypeError("[ERROR] Unknown WaveShape type.")
 
         # Time
-        self.time = np.arange(
-            0.0, settings.base_duration + 1e-6, settings.waveshape_time_step
-        )
+        self.time = np.arange(0.0, settings.base_duration + 1e-6, settings.waveshape_time_step)
         self.ntime = len(self.time)
         if settings.base_duration != max(self.time):
             settings.base_duration = max(self.time)
-            print(
-                f"[NOTE] Base duration adjusted to blok wind ({settings.waveshape_time_step}h)."
-            )
+            print(f"[NOTE] Base duration adjusted to blok wind ({settings.waveshape_time_step}h).")
 
     def initialise_wave_shapes(self, peak: list, climate_change: float = 0.0):
         """
@@ -175,9 +171,7 @@ class WaveShape:
             # Het verschil is de afstand van het volgende punt ten opzichte van het huidige punt
             opgaand = np.concatenate([[True], diff > 0])
             neergaand = np.concatenate([diff < 0, [True]])
-            t_boven[~idx] = np.interp(
-                x=levels[~idx], xp=wave_shape[opgaand], fp=self.time[opgaand]
-            )
+            t_boven[~idx] = np.interp(x=levels[~idx], xp=wave_shape[opgaand], fp=self.time[opgaand])
             t_onder[~idx] = np.interp(
                 x=levels[~idx],
                 xp=wave_shape[neergaand][::-1],
@@ -201,9 +195,7 @@ class WaveShape:
         }
         """
         # Calculate the vector with probability densities of the discharge/water level
-        peak_probability = ProbabilityFunctions.probability_density(
-            self.peak, exceedance_peaks
-        ).probability
+        peak_probability = ProbabilityFunctions.probability_density(self.peak, exceedance_peaks).probability
         instantaneous_prob = np.zeros_like(levels)
         exceedance_duration = self.exceedance_timestamps(levels)
 
@@ -263,9 +255,7 @@ class WaveShape:
 
         # Check if the top duration is larger than the base duration
         if (_t_top > self.base_duration).any():
-            print(
-                f"[WARNING] Top duration from file '{self.top_duration}' is larger than base duration."
-            )
+            print(f"[WARNING] Top duration from file '{self.top_duration}' is larger than base duration.")
 
         # Increase the arrays with 1 element to allow for extrapolation
         q_m = np.r_[_q_m, 2.0 * _q_m[-1] - _q_m[-2]]
@@ -280,10 +270,7 @@ class WaveShape:
         # Create a trapezoid wave shape
         for ip, top_duration in enumerate(top_durations):
             # If the discretisation step for wave shapes is equal to the base_duration
-            if (
-                self.peak[ip] < q_m[0]
-                or (self.time[1] - self.time[0]) == self.base_duration
-            ):
+            if self.peak[ip] < q_m[0] or (self.time[1] - self.time[0]) == self.base_duration:
                 # Vul de vector met tijdstippen
                 ttabel = [0.0, self.base_duration]
 
@@ -309,11 +296,9 @@ class WaveShape:
                     gtabel = np.array(
                         [
                             self.lower_limit,
-                            self.lower_limit
-                            + self.ifh * (self.peak[ip] - self.lower_limit),
+                            self.lower_limit + self.ifh * (self.peak[ip] - self.lower_limit),
                             self.peak[ip],
-                            self.lower_limit
-                            + self.ifh * (self.peak[ip] - self.lower_limit),
+                            self.lower_limit + self.ifh * (self.peak[ip] - self.lower_limit),
                             self.lower_limit,
                         ]
                     )
@@ -321,30 +306,22 @@ class WaveShape:
                 # Als de golfvorm niet ingesnoerd wordt
                 elif self.ifh == 1.0:
                     # Vul de vector met tijdstippen
-                    ttabel = np.array(
-                        [0.0, self.base_duration / 2.0, self.base_duration]
-                    )
+                    ttabel = np.array([0.0, self.base_duration / 2.0, self.base_duration])
 
                     # Vul de vector met golfwaarden
-                    gtabel = np.array(
-                        [self.lower_limit, self.peak[ip], self.lower_limit]
-                    )
+                    gtabel = np.array([self.lower_limit, self.peak[ip], self.lower_limit])
 
                 # Als er sprake is van een blokgolf
                 elif self.ifb == (1.0 / (1.0 - self.ifh)):
                     # Vul de vector met tijdstippen
-                    ttabel = np.array(
-                        [0.0, self.base_duration / 2.0, self.base_duration]
-                    )
+                    ttabel = np.array([0.0, self.base_duration / 2.0, self.base_duration])
 
                     # Vul de vector met golfwaarden
                     gtabel = np.array(
                         [
-                            self.lower_limit
-                            + self.ifh * (self.peak[ip] - self.lower_limit),
+                            self.lower_limit + self.ifh * (self.peak[ip] - self.lower_limit),
                             self.peak[ip],
-                            self.lower_limit
-                            + self.ifh * (self.peak[ip] - self.lower_limit),
+                            self.lower_limit + self.ifh * (self.peak[ip] - self.lower_limit),
                         ]
                     )
 
@@ -366,11 +343,9 @@ class WaveShape:
                     gtabel = np.array(
                         [
                             self.lower_limit,
-                            self.lower_limit
-                            + self.ifh * (self.peak[ip] - self.lower_limit),
+                            self.lower_limit + self.ifh * (self.peak[ip] - self.lower_limit),
                             self.peak[ip],
-                            self.lower_limit
-                            + self.ifh * (self.peak[ip] - self.lower_limit),
+                            self.lower_limit + self.ifh * (self.peak[ip] - self.lower_limit),
                             self.lower_limit,
                         ]
                     )
@@ -405,12 +380,10 @@ class WaveShape:
                     gtabel = np.array(
                         [
                             self.lower_limit,
-                            self.lower_limit
-                            + self.ifh * (self.peak[ip] - self.lower_limit),
+                            self.lower_limit + self.ifh * (self.peak[ip] - self.lower_limit),
                             self.peak[ip],
                             self.peak[ip],
-                            self.lower_limit
-                            + self.ifh * (self.peak[ip] - self.lower_limit),
+                            self.lower_limit + self.ifh * (self.peak[ip] - self.lower_limit),
                             self.lower_limit,
                         ]
                     )
@@ -452,12 +425,10 @@ class WaveShape:
                     # Vul de vector met golfwaarden
                     gtabel = np.array(
                         [
-                            self.lower_limit
-                            + self.ifh * (self.peak[ip] - self.lower_limit),
+                            self.lower_limit + self.ifh * (self.peak[ip] - self.lower_limit),
                             self.peak[ip],
                             self.peak[ip],
-                            self.lower_limit
-                            + self.ifh * (self.peak[ip] - self.lower_limit),
+                            self.lower_limit + self.ifh * (self.peak[ip] - self.lower_limit),
                         ]
                     )
 
@@ -480,12 +451,10 @@ class WaveShape:
                     gtabel = np.array(
                         [
                             self.lower_limit,
-                            self.lower_limit
-                            + self.ifh * (self.peak[ip] - self.lower_limit),
+                            self.lower_limit + self.ifh * (self.peak[ip] - self.lower_limit),
                             self.peak[ip],
                             self.peak[ip],
-                            self.lower_limit
-                            + self.ifh * (self.peak[ip] - self.lower_limit),
+                            self.lower_limit + self.ifh * (self.peak[ip] - self.lower_limit),
                             self.lower_limit,
                         ]
                     )
@@ -500,9 +469,7 @@ class WaveShape:
         return wave_shapes
 
     @staticmethod
-    def bepaal_gezamenlijke_overschrijding(
-        golfvormen_st1, niveaus_st1, golfvormen_st2, niveaus_st2
-    ) -> np.ndarray:
+    def bepaal_gezamenlijke_overschrijding(golfvormen_st1, niveaus_st1, golfvormen_st2, niveaus_st2) -> np.ndarray:
         # Bepaal overschrijdingstijdstippen van beide stochasten in de golfvorm
         kruisng = np.zeros((len(niveaus_st1), len(niveaus_st2), 4))
         helling = np.zeros((len(niveaus_st1), len(niveaus_st2), 4), dtype=int)
@@ -517,17 +484,11 @@ class WaveShape:
         )
 
         # Bepaal eerst alle tijdstippen voor stochast 1
-        kruisingen_st1 = np.zeros(
-            (golfvormen_st1.npeak, len(niveaus_st1), 2), dtype=float
-        )
+        kruisingen_st1 = np.zeros((golfvormen_st1.npeak, len(niveaus_st1), 2), dtype=float)
         helling_st1 = np.zeros((golfvormen_st1.npeak, len(niveaus_st1), 2), dtype=int)
         for ip1 in range(golfvormen_st1.npeak):
             # Bepaal voor elk blokniveau de overschrijdingsduren
-            kruisingen_st1[ip1, :, :], helling_st1[ip1, :, :] = (
-                golfvormen_st1._overschrijdingstijdstip_op_af_v2(
-                    golfvormen_st1.wave_shapes[:, ip1], golfvormen_st1.time, niveaus_st1
-                )
-            )
+            kruisingen_st1[ip1, :, :], helling_st1[ip1, :, :] = golfvormen_st1._overschrijdingstijdstip_op_af_v2(golfvormen_st1.wave_shapes[:, ip1], golfvormen_st1.time, niveaus_st1)
 
         arange = np.arange(max(len(niveaus_st1), len(niveaus_st2)))
 
@@ -536,11 +497,7 @@ class WaveShape:
         helling_st2 = np.zeros((len(niveaus_st2), 2))
         for ip2 in range(golfvormen_st2.npeak):
             # Bepaal voor elk blokniveau de overschrijdingsduren
-            kruisingen_st2[:, :], helling_st2[:, :] = (
-                golfvormen_st2._overschrijdingstijdstip_op_af_v2(
-                    golfvormen_st2.wave_shapes[:, ip2], golfvormen_st2.time, niveaus_st2
-                )
-            )
+            kruisingen_st2[:, :], helling_st2[:, :] = golfvormen_st2._overschrijdingstijdstip_op_af_v2(golfvormen_st2.wave_shapes[:, ip2], golfvormen_st2.time, niveaus_st2)
 
             # Bepaal voor elk piekniveau van stochast 2 de gezamenlijke overschrijdingen
             # Doe dit door de tijdstippen voor elke combinatie samen te voegen, te sorteren
@@ -574,18 +531,14 @@ class WaveShape:
                 # Bereken het tijdsverschil bij tekenwisseling
                 diff = kruisng[wh[0], wh[1], wh[2] + 1] - kruisng[wh[0], wh[1], wh[2]]
                 # Zet tijdverschil bij neergaand naar opgaand op 0
-                diff[
-                    (helling[wh[0], wh[1], wh[2] + 1] < helling[wh[0], wh[1], wh[2]])
-                ] = 0.0
+                diff[(helling[wh[0], wh[1], wh[2] + 1] < helling[wh[0], wh[1], wh[2]])] = 0.0
                 # print(diff.max(), diff.min())
                 duren[ip1, ip2, wh[0], wh[1]] += diff
 
         return duren
 
     @staticmethod
-    def _overschrijdingstijdstip_op_af_v2(
-        vormgolf: np.ndarray, tijden: np.ndarray, niveaus: np.ndarray
-    ):
+    def _overschrijdingstijdstip_op_af_v2(vormgolf: np.ndarray, tijden: np.ndarray, niveaus: np.ndarray):
         # Bepaal waar de golfvorm boven het te testen niveau zit
         diff = (vormgolf[None, :] - niveaus[:, None]) >= 0.0
         # Bepaal alle plekken waar een tekenwisseling (kruising tussen golf en niveau) plaatsvindt

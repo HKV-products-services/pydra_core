@@ -18,7 +18,5 @@ class SigmaFunction:
             The Settings object
         """
         # Read the statistics file
-        self.sigma_sea_level, self.sigma = FileHydraNL.read_file_ncolumns(
-            settings.sigma_function
-        )
+        self.sigma_sea_level, self.sigma = FileHydraNL.read_file_ncolumns(settings.sigma_function)
         self.correlation = self.sigma.min(axis=0) > 0.0

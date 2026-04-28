@@ -37,7 +37,5 @@ class Barrier(ABC):
         return self.k
 
     @abstractmethod
-    def calculate_closing_probability(
-        self, wind_direction: float, closing_situation: int
-    ) -> np.ndarray:
+    def calculate_closing_probability(self, wind_direction: float, closing_situation: int) -> np.ndarray:
         pass

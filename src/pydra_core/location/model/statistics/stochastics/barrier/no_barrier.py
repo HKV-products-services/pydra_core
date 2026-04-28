@@ -12,9 +12,7 @@ class NoBarrier(Barrier):
         self.k = [1]
         self.nk = len(self.k)
 
-    def calculate_closing_probability(
-        self, wind_direction: float, closing_situation: int
-    ) -> np.ndarray:
+    def calculate_closing_probability(self, wind_direction: float, closing_situation: int) -> np.ndarray:
         """
         Irrelevant for no barrier
         """

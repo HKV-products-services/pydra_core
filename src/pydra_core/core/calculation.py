@@ -31,9 +31,7 @@ class Calculation(ABC):
             return self.calculate_location(input)
 
         elif isinstance(input, HRDatabase):
-            return {
-                loc: self.calculate_location(input.get_location(loc)) for loc in input
-            }
+            return {loc: self.calculate_location(input.create_location(loc)) for loc in input}
 
         else:
             raise NotImplementedError("[ERROR] Input type not implemented")

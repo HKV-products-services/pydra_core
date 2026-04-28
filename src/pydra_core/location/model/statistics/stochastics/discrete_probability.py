@@ -17,9 +17,7 @@ class DiscreteProbability:
         statistics_file_path : str
             Path to the statistics file
         """
-        self.discretisation, self.probability = FileHydraNL.read_file_2columns(
-            statistics_file_path
-        )
+        self.discretisation, self.probability = FileHydraNL.read_file_2columns(statistics_file_path)
 
     def __len__(self):
         """

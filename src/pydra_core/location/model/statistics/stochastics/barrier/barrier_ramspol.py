@@ -25,9 +25,7 @@ class BarrierRamspol(Barrier):
         # Save failure probability of the Ramspol
         self.failure_probability_ramspol = settings.failure_probability_ramspol
 
-    def calculate_closing_probability(
-        self, wind_direction: float, closing_situation: int
-    ) -> np.ndarray:
+    def calculate_closing_probability(self, wind_direction: float, closing_situation: int) -> np.ndarray:
         """
         Calculate the failure probability of the Ramspol
         """
@@ -36,6 +34,4 @@ class BarrierRamspol(Barrier):
         elif closing_situation == 2:
             return 1 - self.failure_probability_ramspol
         else:
-            raise KeyError(
-                f"[ERROR] Unknown closing situation: {closing_situation}, expecting 1 or 2."
-            )
+            raise KeyError(f"[ERROR] Unknown closing situation: {closing_situation}, expecting 1 or 2.")

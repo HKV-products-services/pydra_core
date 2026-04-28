@@ -52,9 +52,7 @@ class LoadingModel:
         """
         # Rename columns
         if any(ivar not in table.columns for ivar in self.input_variables):
-            raise KeyError(
-                f"Not all input variables are present. Expected a column for each of: {', '.join(self.input_variables)}, got: {', '.join(table.columns.tolist())}."
-            )
+            raise KeyError(f"Not all input variables are present. Expected a column for each of: {', '.join(self.input_variables)}, got: {', '.join(table.columns.tolist())}.")
 
         # Add the discretisation of each input variable to the object
         for key in self.input_variables:
@@ -115,13 +113,7 @@ class LoadingModel:
 
         # If include_bounds = True, add values between the min and max, otherwise add all
         if not include_bounds:
-            x = np.array(
-                [
-                    val
-                    for val in np.atleast_1d(grid)
-                    if not (xp.min() <= val <= xp.max())
-                ]
-            )
+            x = np.array([val for val in np.atleast_1d(grid) if not (xp.min() <= val <= xp.max())])
 
         # If merge_grid, add the grid to the existing values
         if merge_grid:
@@ -137,9 +129,7 @@ class LoadingModel:
             # Obtain the result variable
             arr = getattr(self, resvar)
             if np.isnan(arr).any():
-                raise ValueError(
-                    f'[ERROR] NaN values ({np.isnan(arr).sum()}) in array "{resvar}" to interpolate.'
-                )
+                raise ValueError(f'[ERROR] NaN values ({np.isnan(arr).sum()}) in array "{resvar}" to interpolate.')
 
             # Interpolate wave conditions
             if resvar in ["hs", "tp", "tspec"]:
@@ -163,9 +153,7 @@ class LoadingModel:
         # Add the extended input variable back to the object
         setattr(self, input_variable, x)
 
-    def refine(
-        self, result_variable: str, grid: Dict[str, Union[list, np.ndarray]]
-    ) -> np.ndarray:
+    def refine(self, result_variable: str, grid: Dict[str, Union[list, np.ndarray]]) -> np.ndarray:
         """
         Extend the grid of the input variable and therefore also the output variables.
 
@@ -185,9 +173,7 @@ class LoadingModel:
         """
         # Controleer of variabele aanwezig is
         if result_variable not in self.result_variables:
-            raise KeyError(
-                f"[ERROR] Result variable '{result_variable}' not in loading model."
-            )
+            raise KeyError(f"[ERROR] Result variable '{result_variable}' not in loading model.")
 
         # Obtain the array from the result variable
         belasting_int = getattr(self, result_variable)
@@ -195,9 +181,7 @@ class LoadingModel:
         # Loop over the different grid items
         for inpvar, x in grid.items():
             if inpvar not in self.input_variables:
-                raise KeyError(
-                    f"[ERROR] Input variable '{inpvar}' not in loading model ({', '.join(self.input_variables)})"
-                )
+                raise KeyError(f"[ERROR] Input variable '{inpvar}' not in loading model ({', '.join(self.input_variables)})")
 
             # Obtain the current grid and axis
             xp = getattr(self, inpvar)
@@ -210,9 +194,7 @@ class LoadingModel:
             # If all x in xp, just select the requested values
             if np.isin(x, xp).all():
                 idx = np.isin(xp, x)
-                belasting_int = np.take(
-                    belasting_int, indices=np.where(idx)[0], axis=axis
-                )
+                belasting_int = np.take(belasting_int, indices=np.where(idx)[0], axis=axis)
                 continue
 
             # If xp is just one value, duplicate
@@ -225,9 +207,7 @@ class LoadingModel:
 
             # Interpolate wave conditions
             if result_variable in ["hs", "tp", "tspec"]:
-                belasting_int = np.maximum(
-                    0.0, intstr.interp(fp=belasting_int, axis=axis)
-                )
+                belasting_int = np.maximum(0.0, intstr.interp(fp=belasting_int, axis=axis))
 
             # Interpolate wave direction
             elif result_variable == "dir":
@@ -284,9 +264,7 @@ class LoadingModel:
             # Add the adjusted grid to the loadingmodel
             setattr(self, var, np.stack(rows, axis=axis))
 
-    def calculate_hbn(
-        self, profile: Profile, qcrit: float, factor_hs: float, factor_tspec: float
-    ):
+    def calculate_hbn(self, profile: Profile, qcrit: float, factor_hs: float, factor_tspec: float):
         """
         Add hbn result variables to each of the LoadingModels.
         If 'hbn' is already defined, it will overwrite the old result variable.
@@ -305,9 +283,7 @@ class LoadingModel:
         # Controleer of de juiste resultaatwaarden aanwezig zijn
         for resvar in ["h", "hs", "tspec", "dir"]:
             if not hasattr(self, resvar):
-                raise KeyError(
-                    f"Resultaatvariabele '{resvar}' is nodig voor kruinhoogteberekening, maar niet aanwezig."
-                )
+                raise KeyError(f"Resultaatvariabele '{resvar}' is nodig voor kruinhoogteberekening, maar niet aanwezig.")
 
         # Prepare wave conditions
         _h = self.h.ravel()
@@ -316,9 +292,38 @@ class LoadingModel:
         _dir = np.array(self.dir).ravel()
 
         # Calculate HBN
-        self.hbn = np.reshape(
-            [profile.calculate_crest_level(qcrit, _h, _hs, _tspec, _dir)], self.h.shape
-        )
+        self.hbn = np.reshape([profile.calculate_crest_level(qcrit, _h, _hs, _tspec, _dir)], self.h.shape)
 
         # Add the result variable
         self.result_variables.append("hbn")
+
+    def calculate_qavg(self, profile: Profile, factor_hs: float, factor_tspec: float):
+        """
+        Add qavg result variables to each of the LoadingModels.
+        If 'qavg' is already defined, it will overwrite the old result variable.
+
+        Parameters
+        ----------
+        profile : Profile
+            The profile
+        factor_hs : float
+            Factor for the significant wave height, used for model uncertainty
+        factor_tspec : float
+            Factor for the spectral wave period, used for model uncertainty
+        """
+        # Controleer of de juiste resultaatwaarden aanwezig zijn
+        for resvar in ["h", "hs", "tspec", "dir"]:
+            if not hasattr(self, resvar):
+                raise KeyError(f"Resultaatvariabele '{resvar}' is nodig voor kruinhoogteberekening, maar niet aanwezig.")
+
+        # Prepare wave conditions
+        _h = self.h.ravel()
+        _hs = np.array(self.hs * factor_hs).ravel()
+        _tspec = np.array(self.tspec * factor_tspec).ravel()
+        _dir = np.array(self.dir).ravel()
+
+        # Calculate qavg
+        self.qavg = np.reshape([profile.calculate_overtopping(_h, _hs, _tspec, _dir)], self.h.shape)
+
+        # Add the result variable
+        self.result_variables.append("qavg")

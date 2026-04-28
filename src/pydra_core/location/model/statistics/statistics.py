@@ -52,9 +52,7 @@ class Statistics(ABC):
         self.stochastics_slow = {}
 
     @abstractmethod
-    def calculate_probability(
-        self, wind_direction: float, closing_situation: int = 1, given: list = []
-    ):
+    def calculate_probability(self, wind_direction: float, closing_situation: int = 1, given: list = []):
         """
         TODO
         """

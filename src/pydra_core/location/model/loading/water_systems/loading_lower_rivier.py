@@ -44,18 +44,12 @@ class LoadingLowerRiver(Loading):
             wind_direction, closing_situation = comb
 
             # Sector west
-            if ((wind_direction >= 0.0) and (wind_direction <= 11.25)) or (
-                (wind_direction > 212.75) and (wind_direction <= 360.0)
-            ):
-                model = LoadingModel(
-                    wind_direction, closing_situation, ivids_west, rvids
-                )
+            if ((wind_direction >= 0.0) and (wind_direction <= 11.25)) or ((wind_direction > 212.75) and (wind_direction <= 360.0)):
+                model = LoadingModel(wind_direction, closing_situation, ivids_west, rvids)
 
             # Sector east
             else:
-                model = LoadingModel(
-                    wind_direction, closing_situation, ivids_east, rvids
-                )
+                model = LoadingModel(wind_direction, closing_situation, ivids_east, rvids)
 
             # Init loading model
             model.initialise(deeltabel.copy())

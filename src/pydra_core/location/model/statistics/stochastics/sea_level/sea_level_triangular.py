@@ -36,26 +36,16 @@ class SeaLevelTriangular(SeaLevel):
 
         # Check whether the amount of wind directions for each point are equal
         if epm1.shape[1] != epm2.shape[1] or epm2.shape[1] != epm3.shape[1]:
-            raise ValueError(
-                "aantal windrichtingen per hoekpunt zijn niet aan elkaar gelijk"
-            )
+            raise ValueError("aantal windrichtingen per hoekpunt zijn niet aan elkaar gelijk")
 
         # Obtain the x and y positions of the three stations
-        x1, y1 = FileHydraNL.read_file_ncolumns_loc(
-            settings.sea_level_probability_point1
-        )
-        x2, y2 = FileHydraNL.read_file_ncolumns_loc(
-            settings.sea_level_probability_point2
-        )
-        x3, y3 = FileHydraNL.read_file_ncolumns_loc(
-            settings.sea_level_probability_point3
-        )
+        x1, y1 = FileHydraNL.read_file_ncolumns_loc(settings.sea_level_probability_point1)
+        x2, y2 = FileHydraNL.read_file_ncolumns_loc(settings.sea_level_probability_point2)
+        x3, y3 = FileHydraNL.read_file_ncolumns_loc(settings.sea_level_probability_point3)
 
         # Check if the exceedance probability of the lowest sea level are all equal to 1
         if any(epm1[0, :] != 1) or any(epm2[0, :] != 1) or any(epm3[0, :] != 1):
-            raise ValueError(
-                "[ERROR] Exceedance probability of the lowest sea level is not equal to 1"
-            )
+            raise ValueError("[ERROR] Exceedance probability of the lowest sea level is not equal to 1")
 
         # Calculate the lowest sea level for the hr location
         m_min = Interpolate.triangular_interpolation(
@@ -73,9 +63,7 @@ class SeaLevelTriangular(SeaLevel):
         )
 
         # Equidistant filling vector with seawater levels
-        self.m = ProbabilityFunctions.get_hnl_disc_array(
-            m_min, settings.m_max, settings.m_step
-        )
+        self.m = ProbabilityFunctions.get_hnl_disc_array(m_min, settings.m_max, settings.m_step)
         self.nm = len(self.m)
 
         # Number of wind directions
@@ -100,15 +88,9 @@ class SeaLevelTriangular(SeaLevel):
                 i += 1
 
             # Determine the sea level discretisation for the three stations
-            ir_m1 = Interpolate.inextrp1d_log_probability(
-                ir_epm, epm1[:, ir][::-1], m1[::-1]
-            )
-            ir_m2 = Interpolate.inextrp1d_log_probability(
-                ir_epm, epm2[:, ir][::-1], m2[::-1]
-            )
-            ir_m3 = Interpolate.inextrp1d_log_probability(
-                ir_epm, epm3[:, ir][::-1], m3[::-1]
-            )
+            ir_m1 = Interpolate.inextrp1d_log_probability(ir_epm, epm1[:, ir][::-1], m1[::-1])
+            ir_m2 = Interpolate.inextrp1d_log_probability(ir_epm, epm2[:, ir][::-1], m2[::-1])
+            ir_m3 = Interpolate.inextrp1d_log_probability(ir_epm, epm3[:, ir][::-1], m3[::-1])
 
             # Use triangular interpolation to calculate the sea level at the specified exceedance probability at the given location.
             ir_m = Interpolate.triangular_interpolation(

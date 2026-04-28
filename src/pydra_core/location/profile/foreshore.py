@@ -15,9 +15,9 @@ from pathlib import Path
 from typing import Tuple
 
 
-class Foreland:
+class Foreshore:
     """
-    This module will use the Dam and Foreland module (DaF) to transform wave conditions
+    This module will use the Dam and Foreshore module (DaF) to transform wave conditions
     based on the schematized foreshore. The DaF module can be used to transform wave conditions
     over a breakwater and/or foreshore.
     """
@@ -79,7 +79,7 @@ class Foreland:
         wave_direction: np.ndarray,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
-        Transform the wave conditions for the schematized foreland
+        Transform the wave conditions for the schematized foreshore
 
         Parameters
         ----------
@@ -110,21 +110,9 @@ class Foreland:
         refractedwaveangledike = np.zeros(N, order="F")
         message_buffer = create_string_buffer(self._message_buffer_size)
         message_length = c_int(self._message_buffer_size)
-        n_vl = (
-            len(self.profile.foreland_x_coordinates)
-            if self.profile.foreland_x_coordinates is not None
-            else 1
-        )
-        x_vl = (
-            np.asfortranarray(self.profile.foreland_x_coordinates, dtype=np.float64)
-            if self.profile.foreland_x_coordinates is not None
-            else np.asfortranarray([0.0], dtype=np.float64)
-        )
-        y_vl = (
-            np.asfortranarray(self.profile.foreland_y_coordinates, dtype=np.float64)
-            if self.profile.foreland_x_coordinates is not None
-            else np.asfortranarray([-999.0], dtype=np.float64)
-        )
+        n_vl = len(self.profile.foreshore_x) if self.profile.foreshore_x is not None else 1
+        x_vl = np.asfortranarray(self.profile.foreshore_x, dtype=np.float64) if self.profile.foreshore_x is not None else np.asfortranarray([0.0], dtype=np.float64)
+        y_vl = np.asfortranarray(self.profile.foreshore_y, dtype=np.float64) if self.profile.foreshore_y is not None else np.asfortranarray([-999.0], dtype=np.float64)
 
         hm0_input = np.asfortranarray(significant_wave_height[mask], dtype=np.float64)
         tp_input = np.asfortranarray(peak_wave_period[mask], dtype=np.float64)
@@ -177,8 +165,8 @@ class Foreland:
 
         if res != 0:
             print(message + " - Using uncorrected wave parameters.")
-            print(self.profile.foreland_x_coordinates)
-            print(self.profile.foreland_y_coordinates)
+            print(self.profile.foreshore_x)
+            print(self.profile.foreshore_y)
             hm0dike[:] = significant_wave_height[mask].ravel()[:]
             tpdike[:] = peak_wave_period[mask].ravel()[:]
             refractedwaveangledike[:] = wave_direction[mask].ravel()[:]

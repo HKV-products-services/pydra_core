@@ -52,9 +52,7 @@ class ProfileLoading:
             if all(k in list(self.MODEL_FACTORS.keys()) for k in list(settings.keys())):
                 self.MODEL_FACTORS.update(settings)
             else:
-                raise ValueError(
-                    "[ERROR] Settings dictionary contains unknown keys (check uppercase?)."
-                )
+                raise ValueError("[ERROR] Settings dictionary contains unknown keys (check uppercase?).")
 
         # Load RTO-libary (used for runup / overtopping when the water level is below crest level)
         # Load COO-library (used for overflow) (Note: DiKErnel does not include this .dll)
@@ -170,10 +168,7 @@ class ProfileLoading:
 
         # Catch errors
         if not self.succes:
-            raise ValueError(
-                self.message.value.decode().strip()
-                + f" (Load: h={water_level}, Hs={significant_wave_height}, Tm-1,0={spectral_wave_period}, wdir={wave_direction})"
-            )
+            raise ValueError(self.message.value.decode().strip() + f" (Load: h={water_level}, Hs={significant_wave_height}, Tm-1,0={spectral_wave_period}, wdir={wave_direction})")
 
         # Return the overtopping discharge
         return qov
@@ -222,10 +217,7 @@ class ProfileLoading:
 
         # Catch errors
         if not self.succes:
-            raise ValueError(
-                self.message.value.decode().strip()
-                + f" (Load: h={water_level}, Hs={significant_wave_height}, Tm-1,0={spectral_wave_period}, wdir={wave_direction})"
-            )
+            raise ValueError(self.message.value.decode().strip() + f" (Load: h={water_level}, Hs={significant_wave_height}, Tm-1,0={spectral_wave_period}, wdir={wave_direction})")
 
         # Return the runup discharge
         return ru2p
@@ -266,9 +258,7 @@ class ProfileLoading:
         if wave_direction > 360:
             if (wave_direction - 360) < 10e-4:
                 wave_direction = 0
-        load = self.load_rto(
-            water_level, significant_wave_height, spectral_wave_period, wave_direction
-        )
+        load = self.load_rto(water_level, significant_wave_height, spectral_wave_period, wave_direction)
         self.__calculate_crest_level_rto(load)
 
         # Catch errors
@@ -295,15 +285,15 @@ class ProfileLoading:
         """
         Function to communicate with the dllDikesOvertopping.dll
         """
-        self.arr_ctype = c_double * len(self.profile.dike_x_coordinates)
+        self.arr_ctype = c_double * len(self.profile.dike_x)
         self.__set_argtypes()
         self.rto_library.calculateQoJ(
             load,
-            byref(self.arr_ctype(*self.profile.dike_x_coordinates)),
-            byref(self.arr_ctype(*self.profile.dike_y_coordinates)),
+            byref(self.arr_ctype(*self.profile.dike_x)),
+            byref(self.arr_ctype(*self.profile.dike_y)),
             byref(self.arr_ctype(*self.profile.dike_roughness)),
             byref(c_double(self.profile.dike_orientation)),
-            byref(c_int(len(self.profile.dike_x_coordinates))),
+            byref(c_int(len(self.profile.dike_x))),
             byref(c_double(self.profile.dike_crest_level)),
             byref(self.modelfactors_rto),
             byref(self.output),
@@ -315,15 +305,15 @@ class ProfileLoading:
         """
         Function to communicate with the dllDikesOvertopping.dll
         """
-        self.arr_ctype = c_double * len(self.profile.dike_x_coordinates)
+        self.arr_ctype = c_double * len(self.profile.dike_x)
         self.__set_argtypes()
         self.rto_library.omkeerVariantJ(
             load,
-            byref(self.arr_ctype(*self.profile.dike_x_coordinates)),
-            byref(self.arr_ctype(*self.profile.dike_y_coordinates)),
+            byref(self.arr_ctype(*self.profile.dike_x)),
+            byref(self.arr_ctype(*self.profile.dike_y)),
             byref(self.arr_ctype(*self.profile.dike_roughness)),
             byref(c_double(self.profile.dike_orientation)),
-            byref(c_int(len(self.profile.dike_x_coordinates))),
+            byref(c_int(len(self.profile.dike_x))),
             byref(self.qcr),
             byref(self.niveau),
             byref(self.modelfactors_rto),
@@ -336,13 +326,13 @@ class ProfileLoading:
         """
         Function to communicate with the CombOverloopOverslag64.dll
         """
-        self.arr_ctype = c_double * len(self.profile.dike_x_coordinates)
+        self.arr_ctype = c_double * len(self.profile.dike_x)
         self.__set_argtypes()
         self.coo_library.CalculateDischarge(
             byref(c_double(self.profile.dike_orientation)),
-            byref(c_int(len(self.profile.dike_x_coordinates))),
-            byref(self.arr_ctype(*self.profile.dike_x_coordinates)),
-            byref(self.arr_ctype(*self.profile.dike_y_coordinates)),
+            byref(c_int(len(self.profile.dike_x))),
+            byref(self.arr_ctype(*self.profile.dike_x)),
+            byref(self.arr_ctype(*self.profile.dike_y)),
             byref(self.arr_ctype(*self.profile.dike_roughness)),
             load,
             byref(self.modelfactors_coo),
@@ -356,13 +346,13 @@ class ProfileLoading:
         """
         Function to communicate with the CombOverloopOverslag64.dll
         """
-        self.arr_ctype = c_double * len(self.profile.dike_x_coordinates)
+        self.arr_ctype = c_double * len(self.profile.dike_x)
         self.__set_argtypes()
         self.coo_library.CalculateHeight(
             byref(c_double(self.profile.dike_orientation)),
-            byref(c_int(len(self.profile.dike_x_coordinates))),
-            byref(self.arr_ctype(*self.profile.dike_x_coordinates)),
-            byref(self.arr_ctype(*self.profile.dike_y_coordinates)),
+            byref(c_int(len(self.profile.dike_x))),
+            byref(self.arr_ctype(*self.profile.dike_x)),
+            byref(self.arr_ctype(*self.profile.dike_y)),
             byref(self.arr_ctype(*self.profile.dike_roughness)),
             load,
             byref(self.modelfactors_coo),
