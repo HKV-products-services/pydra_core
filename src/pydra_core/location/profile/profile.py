@@ -1,5 +1,6 @@
 import ast
 import matplotlib.pyplot as plt
+import numbers
 import numpy as np
 
 from pathlib import Path
@@ -359,10 +360,10 @@ class Profile:
         )
 
         # Length of the list
-        n_q = 1 if isinstance(q_overtopping, (float, int)) else len(q_overtopping)
+        n_q = 1 if isinstance(q_overtopping, numbers.Real) else len(q_overtopping)
 
         # If q_overtopping is an int or float
-        if isinstance(q_overtopping, (float, int)):
+        if isinstance(q_overtopping, numbers.Real):
             q_overtopping = [q_overtopping] * len(water_level)
 
         # If q_overtopping is a list and water_level has length 1
@@ -433,29 +434,29 @@ class Profile:
             Water level and transformed wave conditions (h, hs, tp, dir)
         """
         # Length of the lists
-        n_h = 1 if isinstance(water_level, (float, int)) else len(water_level)
-        n_hs = 1 if isinstance(significant_wave_height, (float, int)) else len(significant_wave_height)
-        n_tspec = 1 if isinstance(spectral_wave_period, (float, int)) else len(spectral_wave_period)
-        n_dir = 1 if isinstance(wave_direction, (float, int)) else len(wave_direction)
+        n_h = 1 if isinstance(water_level, numbers.Real) else len(water_level)
+        n_hs = 1 if isinstance(significant_wave_height, numbers.Real) else len(significant_wave_height)
+        n_tspec = 1 if isinstance(spectral_wave_period, numbers.Real) else len(spectral_wave_period)
+        n_dir = 1 if isinstance(wave_direction, numbers.Real) else len(wave_direction)
         n_max = np.max([n_h, n_hs, n_tspec, n_dir])
 
         # Make lists
-        if isinstance(water_level, (float, int)):
+        if isinstance(water_level, numbers.Real):
             water_level = [water_level] * n_max
         elif len(water_level) != n_max:
             raise ValueError("[ERROR] Uneven length of arrays")
 
-        if isinstance(significant_wave_height, (float, int)):
+        if isinstance(significant_wave_height, numbers.Real):
             significant_wave_height = [significant_wave_height] * n_max
         elif len(significant_wave_height) != n_max:
             raise ValueError("[ERROR] Uneven length of arrays")
 
-        if isinstance(spectral_wave_period, (float, int)):
+        if isinstance(spectral_wave_period, numbers.Real):
             spectral_wave_period = [spectral_wave_period] * n_max
         elif len(spectral_wave_period) != n_max:
             raise ValueError("[ERROR] Uneven length of arrays")
 
-        if isinstance(wave_direction, (float, int)):
+        if isinstance(wave_direction, numbers.Real):
             wave_direction = [wave_direction] * n_max
         elif len(wave_direction) != n_max:
             raise ValueError("[ERROR] Uneven length of arrays")
