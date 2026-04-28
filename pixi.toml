@@ -1,6 +1,6 @@
 [workspace]
 name = "pydra_core"
-version = "0.0.12"
+version = "0.0.13"
 description = "Python package for calculating hydraulic loads"
 channels = ["conda-forge"]
 platforms = ["win-64", "linux-64"]

@@ -4424,8 +4424,8 @@ packages:
   timestamp: 1743201182361
 - pypi: src
   name: pydra-core
-  version: 0.0.12
-  sha256: 36d11ae7b96ab6c9181fac6db340528718a0adbc0a3e4224064770bc5ae163de
+  version: 0.0.13
+  sha256: cc90ab49dd36ffae09f578234b31f7b9e4ea7a60758bf7bc095f0cab9c9b6421
   requires_dist:
   - pandas
   - numpy
