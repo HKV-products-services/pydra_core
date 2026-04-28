@@ -1,3 +1,4 @@
+import numbers
 import numpy as np
 
 from abc import ABC, abstractmethod
@@ -248,7 +249,7 @@ class Loading(ABC):
             2.) The wind speed discretistation (1d-array)
         """
         # Convert the water level to a ndarray
-        if isinstance(waterlevel, (float, int)):
+        if isinstance(waterlevel, numbers.Real):
             waterlevel = np.array([waterlevel])
         elif isinstance(waterlevel, list):
             waterlevel = np.array(waterlevel)

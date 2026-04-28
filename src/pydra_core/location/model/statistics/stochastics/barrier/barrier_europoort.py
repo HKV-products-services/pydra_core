@@ -1,3 +1,4 @@
+import numbers
 import numpy as np
 
 from scipy.stats import norm
@@ -96,7 +97,7 @@ class BarrierEuropoort(Barrier):
         # Voor elke afvoer, interpoleer de kansen
         for iq in range(nqblok):
             # bepaal de sluitkansen voor de combinatie van afvoer, kering en zeewaterstand
-            if isinstance(ik, int):
+            if isinstance(ik, numbers.Integral):
                 sluitkans[:, :, iq] = InterpStruct(x=sluitpeil[:, iq], xp=self.cmsp).interp(self.kansen[:, :, ik], axis=0)
             else:
                 sluitkans[:, :, iq, :] = InterpStruct(x=sluitpeil[:, iq], xp=self.cmsp).interp(self.kansen[:, :, :], axis=0)
