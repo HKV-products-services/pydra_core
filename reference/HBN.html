@@ -156,9 +156,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#pydra_core.HBN.calculate" id="toc-pydra_core.HBN.calculate" class="nav-link" data-scroll-target="#pydra_core.HBN.calculate">calculate</a></li>
   <li><a href="#pydra_core.HBN.calculate_location" id="toc-pydra_core.HBN.calculate_location" class="nav-link" data-scroll-target="#pydra_core.HBN.calculate_location">calculate_location</a></li>
-  <li><a href="#pydra_core.HBN.set_critical_overtopping" id="toc-pydra_core.HBN.set_critical_overtopping" class="nav-link" data-scroll-target="#pydra_core.HBN.set_critical_overtopping">set_critical_overtopping</a></li>
-  <li><a href="#pydra_core.HBN.set_levels" id="toc-pydra_core.HBN.set_levels" class="nav-link" data-scroll-target="#pydra_core.HBN.set_levels">set_levels</a></li>
+  <li><a href="#pydra_core.HBN.set_overtopping_discharge" id="toc-pydra_core.HBN.set_overtopping_discharge" class="nav-link" data-scroll-target="#pydra_core.HBN.set_overtopping_discharge">set_overtopping_discharge</a></li>
+  <li><a href="#pydra_core.HBN.set_range" id="toc-pydra_core.HBN.set_range" class="nav-link" data-scroll-target="#pydra_core.HBN.set_range">set_range</a></li>
   <li><a href="#pydra_core.HBN.set_step_size" id="toc-pydra_core.HBN.set_step_size" class="nav-link" data-scroll-target="#pydra_core.HBN.set_step_size">set_step_size</a></li>
+  <li><a href="#pydra_core.HBN.set_verbose" id="toc-pydra_core.HBN.set_verbose" class="nav-link" data-scroll-target="#pydra_core.HBN.set_verbose">set_verbose</a></li>
   <li><a href="#pydra_core.HBN.use_model_uncertainty" id="toc-pydra_core.HBN.use_model_uncertainty" class="nav-link" data-scroll-target="#pydra_core.HBN.use_model_uncertainty">use_model_uncertainty</a></li>
   </ul></li>
   </ul></li>
@@ -173,13 +174,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="pydra_core.HBN" class="level1">
 <h1>HBN</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>HBN(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>,</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    q_overtopping<span class="op">=</span><span class="fl">0.01</span>,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    levels<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    step_size<span class="op">=</span><span class="fl">0.1</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    model_uncertainty<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>HBN(<span class="va">self</span>, q_overtopping, model_uncertainty<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Calculate the HBN for a location</p>
 <section id="methods" class="level2">
 <h2 class="anchored" data-anchor-id="methods">Methods</h2>
@@ -200,18 +195,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>Calculate the exceedance probability of the variable at a given set of levels.</td>
 </tr>
 <tr class="odd">
-<td><a href="#pydra_core.HBN.set_critical_overtopping">set_critical_overtopping</a></td>
-<td>Change the critical overtopping</td>
+<td><a href="#pydra_core.HBN.set_overtopping_discharge">set_overtopping_discharge</a></td>
+<td>Change the average overtopping discharge</td>
 </tr>
 <tr class="even">
-<td><a href="#pydra_core.HBN.set_levels">set_levels</a></td>
-<td>Change the levels.</td>
+<td><a href="#pydra_core.HBN.set_range">set_range</a></td>
+<td>Set the lower and upper bound of the fragility curve.</td>
 </tr>
 <tr class="odd">
 <td><a href="#pydra_core.HBN.set_step_size">set_step_size</a></td>
 <td>Change the step size of the frequency line.</td>
 </tr>
 <tr class="even">
+<td><a href="#pydra_core.HBN.set_verbose">set_verbose</a></td>
+<td>Show info during calculation.</td>
+</tr>
+<tr class="odd">
 <td><a href="#pydra_core.HBN.use_model_uncertainty">use_model_uncertainty</a></td>
 <td>Use model uncertainty when calculating a frequency line.</td>
 </tr>
@@ -246,7 +245,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="pydra_core.HBN.calculate_location" class="level3">
 <h3 class="anchored" data-anchor-id="pydra_core.HBN.calculate_location">calculate_location</h3>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>HBN.calculate_location(location)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Calculate the exceedance probability of the variable at a given set of levels. If the levels are not specified, they will be chosen at the 1st and 99th percentile of all values in the database.</p>
+<p>Calculate the exceedance probability of the variable at a given set of levels.</p>
 <section id="parameter" class="level4 doc-section doc-section-parameter">
 <h4 class="doc-section doc-section-parameter anchored" data-anchor-id="parameter">Parameter</h4>
 <p>location : Location The Location object</p>
@@ -271,18 +270,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 </section>
 </section>
-<section id="pydra_core.HBN.set_critical_overtopping" class="level3">
-<h3 class="anchored" data-anchor-id="pydra_core.HBN.set_critical_overtopping">set_critical_overtopping</h3>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>HBN.set_critical_overtopping(q_overtopping)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Change the critical overtopping</p>
+<section id="pydra_core.HBN.set_overtopping_discharge" class="level3">
+<h3 class="anchored" data-anchor-id="pydra_core.HBN.set_overtopping_discharge">set_overtopping_discharge</h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>HBN.set_overtopping_discharge(q_overtopping)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Change the average overtopping discharge</p>
 <section id="parameters-1" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 21%">
-<col style="width: 11%">
-<col style="width: 50%">
-<col style="width: 17%">
+<col style="width: 18%">
+<col style="width: 10%">
+<col style="width: 55%">
+<col style="width: 15%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -296,17 +295,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td>q_overtopping</td>
 <td>float</td>
-<td>The critical overtopping [m3/m/s]</td>
+<td>The average overtopping discharge [m3/m/s]</td>
 <td><em>required</em></td>
 </tr>
 </tbody>
 </table>
 </section>
 </section>
-<section id="pydra_core.HBN.set_levels" class="level3">
-<h3 class="anchored" data-anchor-id="pydra_core.HBN.set_levels">set_levels</h3>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>HBN.set_levels(levels<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Change the levels. If levels is not defined, the frequency line is calculated based upon the 1st and 99th percentile.</p>
+<section id="pydra_core.HBN.set_range" class="level3">
+<h3 class="anchored" data-anchor-id="pydra_core.HBN.set_range">set_range</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>HBN.set_range(lower_bound<span class="op">=</span><span class="va">None</span>, upper_bound<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Set the lower and upper bound of the fragility curve.</p>
 <section id="parameters-2" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
 <table class="caption-top table">
@@ -314,7 +313,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <col style="width: 8%">
 <col style="width: 8%">
 <col style="width: 71%">
-<col style="width: 11%">
+<col style="width: 12%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -329,7 +328,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>levels</td>
 <td>list</td>
 <td>The levels at which the exceedance probability has to be calculated</td>
-<td><code>None</code></td>
+<td><em>required</em></td>
 </tr>
 </tbody>
 </table>
@@ -367,12 +366,38 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 </section>
 </section>
-<section id="pydra_core.HBN.use_model_uncertainty" class="level3">
-<h3 class="anchored" data-anchor-id="pydra_core.HBN.use_model_uncertainty">use_model_uncertainty</h3>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>HBN.use_model_uncertainty(model_uncertainty)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Use model uncertainty when calculating a frequency line.</p>
+<section id="pydra_core.HBN.set_verbose" class="level3">
+<h3 class="anchored" data-anchor-id="pydra_core.HBN.set_verbose">set_verbose</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>HBN.set_verbose(verbose)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Show info during calculation.</p>
 <section id="parameters-4" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-4">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>verbose</td>
+<td>bool</td>
+<td>Show info during calculation.</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="pydra_core.HBN.use_model_uncertainty" class="level3">
+<h3 class="anchored" data-anchor-id="pydra_core.HBN.use_model_uncertainty">use_model_uncertainty</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>HBN.use_model_uncertainty(model_uncertainty)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Use model uncertainty when calculating a frequency line.</p>
+<section id="parameters-5" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-5">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 21%">

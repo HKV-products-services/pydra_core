@@ -288,11 +288,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="pydra_core.HRDatabase.create_location" class="level3">
 <h3 class="anchored" data-anchor-id="pydra_core.HRDatabase.create_location">create_location</h3>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>HRDatabase.create_location(settings)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>HRDatabase.create_location(settings_or_str)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Creates a location based upon the Settings object</p>
 <section id="parameters-1" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 71%">
+<col style="width: 10%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Name</th>
@@ -305,7 +311,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td>settings</td>
 <td>Settings</td>
-<td>The Settings object of a location</td>
+<td>The Settings object of a location or a string of the hrdlocation (uitvoerpunt)</td>
 <td><em>required</em></td>
 </tr>
 </tbody>

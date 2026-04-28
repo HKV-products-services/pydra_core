@@ -152,13 +152,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#pydra_core.ExceedanceFrequencyLine" id="toc-pydra_core.ExceedanceFrequencyLine" class="nav-link active" data-scroll-target="#pydra_core.ExceedanceFrequencyLine">ExceedanceFrequencyLine</a>
   <ul class="collapse">
-  <li><a href="#attributes" id="toc-attributes" class="nav-link" data-scroll-target="#attributes">Attributes</a></li>
   <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
   <ul class="collapse">
   <li><a href="#pydra_core.ExceedanceFrequencyLine.calculate" id="toc-pydra_core.ExceedanceFrequencyLine.calculate" class="nav-link" data-scroll-target="#pydra_core.ExceedanceFrequencyLine.calculate">calculate</a></li>
   <li><a href="#pydra_core.ExceedanceFrequencyLine.calculate_location" id="toc-pydra_core.ExceedanceFrequencyLine.calculate_location" class="nav-link" data-scroll-target="#pydra_core.ExceedanceFrequencyLine.calculate_location">calculate_location</a></li>
-  <li><a href="#pydra_core.ExceedanceFrequencyLine.set_levels" id="toc-pydra_core.ExceedanceFrequencyLine.set_levels" class="nav-link" data-scroll-target="#pydra_core.ExceedanceFrequencyLine.set_levels">set_levels</a></li>
-  <li><a href="#pydra_core.ExceedanceFrequencyLine.set_model_uncertainty_steps" id="toc-pydra_core.ExceedanceFrequencyLine.set_model_uncertainty_steps" class="nav-link" data-scroll-target="#pydra_core.ExceedanceFrequencyLine.set_model_uncertainty_steps">set_model_uncertainty_steps</a></li>
+  <li><a href="#pydra_core.ExceedanceFrequencyLine.set_range" id="toc-pydra_core.ExceedanceFrequencyLine.set_range" class="nav-link" data-scroll-target="#pydra_core.ExceedanceFrequencyLine.set_range">set_range</a></li>
   <li><a href="#pydra_core.ExceedanceFrequencyLine.set_result_variable" id="toc-pydra_core.ExceedanceFrequencyLine.set_result_variable" class="nav-link" data-scroll-target="#pydra_core.ExceedanceFrequencyLine.set_result_variable">set_result_variable</a></li>
   <li><a href="#pydra_core.ExceedanceFrequencyLine.set_step_size" id="toc-pydra_core.ExceedanceFrequencyLine.set_step_size" class="nav-link" data-scroll-target="#pydra_core.ExceedanceFrequencyLine.set_step_size">set_step_size</a></li>
   <li><a href="#pydra_core.ExceedanceFrequencyLine.use_model_uncertainty" id="toc-pydra_core.ExceedanceFrequencyLine.use_model_uncertainty" class="nav-link" data-scroll-target="#pydra_core.ExceedanceFrequencyLine.use_model_uncertainty">use_model_uncertainty</a></li>
@@ -175,31 +173,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="pydra_core.ExceedanceFrequencyLine" class="level1">
 <h1>ExceedanceFrequencyLine</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ExceedanceFrequencyLine(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>,</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    result_variable,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    model_uncertainty<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    levels<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    step_size<span class="op">=</span><span class="fl">0.1</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ExceedanceFrequencyLine(<span class="va">self</span>, result_variable, model_uncertainty<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Calculate a frequency line for a result variable (e.g.&nbsp;h (waterlevel), hs (significant wave height)) for a location</p>
-<section id="attributes" class="level2">
-<h2 class="anchored" data-anchor-id="attributes">Attributes</h2>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><a href="#pydra_core.core.exceedance_frequency_line.ExceedanceFrequencyLine.model_uncertainty_steps">model_uncertainty_steps</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-</section>
 <section id="methods" class="level2">
 <h2 class="anchored" data-anchor-id="methods">Methods</h2>
 <table class="caption-top table">
@@ -219,22 +194,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>Calculate the exceedance probability of the variable at a given set of levels.</td>
 </tr>
 <tr class="odd">
-<td><a href="#pydra_core.ExceedanceFrequencyLine.set_levels">set_levels</a></td>
-<td>Change the levels.</td>
+<td><a href="#pydra_core.ExceedanceFrequencyLine.set_range">set_range</a></td>
+<td>Set the lower and upper bound of the fragility curve.</td>
 </tr>
 <tr class="even">
-<td><a href="#pydra_core.ExceedanceFrequencyLine.set_model_uncertainty_steps">set_model_uncertainty_steps</a></td>
-<td>Set the number of model uncertainty steps</td>
-</tr>
-<tr class="odd">
 <td><a href="#pydra_core.ExceedanceFrequencyLine.set_result_variable">set_result_variable</a></td>
 <td>Change the result variable for which the frequency line will be calculated.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="#pydra_core.ExceedanceFrequencyLine.set_step_size">set_step_size</a></td>
 <td>Change the step size of the frequency line.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="#pydra_core.ExceedanceFrequencyLine.use_model_uncertainty">use_model_uncertainty</a></td>
 <td>Use model uncertainty when calculating a frequency line.</td>
 </tr>
@@ -294,10 +265,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 </section>
 </section>
-<section id="pydra_core.ExceedanceFrequencyLine.set_levels" class="level3">
-<h3 class="anchored" data-anchor-id="pydra_core.ExceedanceFrequencyLine.set_levels">set_levels</h3>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>ExceedanceFrequencyLine.set_levels(levels<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Change the levels. If levels is not defined, the frequency line is calculated based upon the 1st and 99th percentile.</p>
+<section id="pydra_core.ExceedanceFrequencyLine.set_range" class="level3">
+<h3 class="anchored" data-anchor-id="pydra_core.ExceedanceFrequencyLine.set_range">set_range</h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>ExceedanceFrequencyLine.set_range(lower_bound<span class="op">=</span><span class="va">None</span>, upper_bound<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Set the lower and upper bound of the fragility curve.</p>
 <section id="parameters-1" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
 <table class="caption-top table">
@@ -305,7 +276,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <col style="width: 8%">
 <col style="width: 8%">
 <col style="width: 71%">
-<col style="width: 11%">
+<col style="width: 12%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -320,38 +291,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>levels</td>
 <td>list</td>
 <td>The levels at which the exceedance probability has to be calculated</td>
-<td><code>None</code></td>
-</tr>
-</tbody>
-</table>
-</section>
-</section>
-<section id="pydra_core.ExceedanceFrequencyLine.set_model_uncertainty_steps" class="level3">
-<h3 class="anchored" data-anchor-id="pydra_core.ExceedanceFrequencyLine.set_model_uncertainty_steps">set_model_uncertainty_steps</h3>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>ExceedanceFrequencyLine.set_model_uncertainty_steps(model_uncertainty_steps)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Set the number of model uncertainty steps</p>
-<section id="parameters-2" class="level4 doc-section doc-section-parameters">
-<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 31%">
-<col style="width: 10%">
-<col style="width: 43%">
-<col style="width: 15%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>model_uncertainty_steps</td>
-<td>int</td>
-<td>Number of model uncertainty steps</td>
 <td><em>required</em></td>
 </tr>
 </tbody>
@@ -360,10 +299,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="pydra_core.ExceedanceFrequencyLine.set_result_variable" class="level3">
 <h3 class="anchored" data-anchor-id="pydra_core.ExceedanceFrequencyLine.set_result_variable">set_result_variable</h3>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>ExceedanceFrequencyLine.set_result_variable(result_variable)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>ExceedanceFrequencyLine.set_result_variable(result_variable)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Change the result variable for which the frequency line will be calculated.</p>
-<section id="parameters-3" class="level4 doc-section doc-section-parameters">
-<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-3">Parameters</h4>
+<section id="parameters-2" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 16%">
@@ -392,10 +331,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="pydra_core.ExceedanceFrequencyLine.set_step_size" class="level3">
 <h3 class="anchored" data-anchor-id="pydra_core.ExceedanceFrequencyLine.set_step_size">set_step_size</h3>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>ExceedanceFrequencyLine.set_step_size(step_size)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>ExceedanceFrequencyLine.set_step_size(step_size)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Change the step size of the frequency line.</p>
-<section id="parameters-4" class="level4 doc-section doc-section-parameters">
-<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-4">Parameters</h4>
+<section id="parameters-3" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-3">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 16%">
@@ -424,10 +363,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="pydra_core.ExceedanceFrequencyLine.use_model_uncertainty" class="level3">
 <h3 class="anchored" data-anchor-id="pydra_core.ExceedanceFrequencyLine.use_model_uncertainty">use_model_uncertainty</h3>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>ExceedanceFrequencyLine.use_model_uncertainty(model_uncertainty)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>ExceedanceFrequencyLine.use_model_uncertainty(model_uncertainty)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Use model uncertainty when calculating a frequency line.</p>
-<section id="parameters-5" class="level4 doc-section doc-section-parameters">
-<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-5">Parameters</h4>
+<section id="parameters-4" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-4">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 21%">
