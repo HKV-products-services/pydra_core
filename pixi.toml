@@ -32,7 +32,7 @@ docs = { depends-on = ["quarto-preview"] }
 pytest-cov = "pytest --cov --cov-report html:test/test_cov"
 
 [feature.common.dependencies]
-pandas =">2.0.0,<3.0.0"
+pandas =">2.0.0"
 numpy ="*"
 scipy ="*"
 fiona ="*"

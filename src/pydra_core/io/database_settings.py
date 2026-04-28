@@ -40,6 +40,7 @@ class DatabaseSettings:
         # Query
         sql = f"SELECT SettingName, SettingValue FROM CalculationSettings WHERE WaterSystem = {watersystem.value}"
         settings = pd.read_sql(sql, self.con)
+        settings["SettingValue"] = settings["SettingValue"].astype("object")
 
         # Parse to int and float if possible
         for n, row in settings.iterrows():
