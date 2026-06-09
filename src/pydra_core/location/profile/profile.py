@@ -126,12 +126,18 @@ class Profile:
         dike_roughness : list, optional
             A list with the roughness of the profile (default : all parts 1.0)
         """
+        # Convert to numpy
+        dike_x_coordinates = np.asarray(dike_x_coordinates, dtype=float)
+        dike_y_coordinates = np.asarray(dike_y_coordinates, dtype=float)
+
         # Make sure the dike geometry starts at (x = 0)
-        min_x = np.min(dike_x)
+        min_x = np.min(dike_x_coordinates)
 
         # If dike roughness is None, the roughness of every part is 1.0
         if dike_roughness is None:
-            dike_roughness = [1.0] * len(dike_x)
+            dike_roughness = np.ones(len(dike_x_coordinates), dtype=float)
+        else:
+            dike_roughness = np.asarray(dike_roughness, dtype=float)
 
         # Save the dike geometry coordinates
         self.dike_x = dike_x - min_x
