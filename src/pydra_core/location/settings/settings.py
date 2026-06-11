@@ -86,9 +86,9 @@ class Settings:
     failure_probability_ramspol = None  # FAALKANSKERING
 
     # Model uncertainty
-    model_uncertainty_water_level_steps = 7  # WS_ONZ_AANTAL
-    model_uncertainty_wave_height_steps = 5  # GH_ONZ_AANTAL
-    model_uncertainty_wave_period_steps = 5  # GP_ONZ_AANTAL
+    model_uncertainty_water_level_steps = None  # WS_ONZ_AANTAL
+    model_uncertainty_wave_height_steps = None  # GH_ONZ_AANTAL
+    model_uncertainty_wave_period_steps = None  # GP_ONZ_AANTAL
 
     # File paths
     # Database
@@ -147,6 +147,11 @@ class Settings:
         self.y_coordinate = int(con.execute(f"SELECT YCoordinate FROM HRDLocations WHERE Name = '{hrdlocation}'").fetchone()[0])
         self.watersystem = WaterSystem(con.execute("SELECT GeneralId FROM General").fetchone()[0])
         con.close()
+
+        if self.watersystem is not WaterSystem.COAST_DUNES:
+            self.model_uncertainty_water_level_steps = 7  # WS_ONZ_AANTAL
+            self.model_uncertainty_wave_height_steps = 5  # GH_ONZ_AANTAL
+            self.model_uncertainty_wave_period_steps = 5  # GP_ONZ_AANTAL
 
         # Watersystem specific settings
         if CommonFunctions.is_lower_rivier(self.watersystem):
@@ -296,6 +301,7 @@ class Settings:
             )
 
         # Not implemented
+
         else:
             raise NotImplementedError(f"[ERROR] Vertices for sea level statistics not implemented for {self.watersystem}.")
 
