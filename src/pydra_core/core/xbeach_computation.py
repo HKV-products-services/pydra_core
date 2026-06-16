@@ -3,8 +3,8 @@ import os
 import re
 import shutil
 import subprocess
-from typing import Optional
 from pathlib import Path
+from typing import Optional
 
 import netCDF4
 import numpy as np
@@ -332,10 +332,10 @@ class XbeachComputation:
     # ─────────────────────────────────────────────────────────────────────────
 
     def _plot(self, ds, hl, resthoogte: float, out_dir: str, stem: str, xb_path: str) -> None:
-        import matplotlib.pyplot as plt
-
         # ── Read boundary condition files ─────────────────────────────────────
         import math
+
+        import matplotlib.pyplot as plt
         tide_data  = np.loadtxt(os.path.join(xb_path, "tide.txt"))   # [t_s, wl, zs_min]
 
         tidal_amp  = float(hl.get("getij",     1.0))
@@ -353,7 +353,7 @@ class XbeachComputation:
 
         # Read FILELIST waves.lst + individual .bnd files (skip trailing 1-second entry)
         with open(os.path.join(xb_path, "waves.lst")) as wf:
-            wave_rows = [l.split() for l in wf if not l.startswith("FILELIST") and len(l.split()) >= 3]
+            wave_rows = [line.split() for line in wf if not line.startswith("FILELIST") and len(line.split()) >= 3]
         Hm0_series, Tp_series, dt_s_list = [], [], []
         for row in wave_rows:
             dur_s = int(row[0])
