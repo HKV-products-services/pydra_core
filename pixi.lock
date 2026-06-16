@@ -6037,6 +6037,64 @@ packages:
   - pkg:pypi/pydantic-core?source=hash-mapping
   size: 1915297
   timestamp: 1743201182361
+- pypi: src
+  name: pydra-core
+  version: 0.0.13
+  sha256: cc90ab49dd36ffae09f578234b31f7b9e4ea7a60758bf7bc095f0cab9c9b6421
+  requires_dist:
+  - pandas
+  - numpy
+  - scipy
+  - fiona
+  - shapely
+  - matplotlib>=3.9.3
+  editable: true
+- conda: https://conda.anaconda.org/conda-forge/noarch/pygments-2.19.1-pyhd8ed1ab_0.conda
+  sha256: 28a3e3161390a9d23bc02b4419448f8d27679d9e2c250e29849e37749c8de86b
+  md5: 232fb4577b6687b2d503ef8e254270c9
+  depends:
+  - python >=3.9
+  license: BSD-2-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/pygments?source=hash-mapping
+  size: 888600
+  timestamp: 1736243563082
+- conda: https://conda.anaconda.org/conda-forge/noarch/pyparsing-3.2.3-pyhd8ed1ab_1.conda
+  sha256: b92afb79b52fcf395fd220b29e0dd3297610f2059afac45298d44e00fcbf23b6
+  md5: 513d3c262ee49b54a8fec85c5bc99764
+  depends:
+  - python >=3.9
+  license: MIT
+  license_family: MIT
+  purls:
+  - pkg:pypi/pyparsing?source=compressed-mapping
+  size: 95988
+  timestamp: 1743089832359
+- conda: https://conda.anaconda.org/conda-forge/linux-64/pyside6-6.8.3-py312h91f0f75_0.conda
+  sha256: d1b10366fab77d4fbb0acbec3308731150db756e736151e9900fe55c0065aca7
+  md5: d0c9072dee9991b744bd1be149d6e89b
+  depends:
+  - __glibc >=2.17,<3.0.a0
+  - libclang13 >=20.1.1
+  - libegl >=1.7.0,<2.0a0
+  - libgcc >=13
+  - libgl >=1.7.0,<2.0a0
+  - libopengl >=1.7.0,<2.0a0
+  - libstdcxx >=13
+  - libxml2 >=2.13.7,<3.0a0
+  - libxslt >=1.1.39,<2.0a0
+  - python >=3.12,<3.13.0a0
+  - python_abi 3.12.* *_cp312
+  - qt6-main 6.8.3.*
+  - qt6-main >=6.8.3,<6.9.0a0
+  license: LGPL-3.0-only
+  license_family: LGPL
+  purls:
+  - pkg:pypi/pyside6?source=hash-mapping
+  - pkg:pypi/shiboken6?source=hash-mapping
+  size: 10603898
+  timestamp: 1743273736994
 - conda: https://conda.anaconda.org/conda-forge/win-64/pyside6-6.8.3-py313h3e3797f_0.conda
   sha256: 752202c03ba87a81a494faefc34be4cd4cf199f119a8b7d8aab5097decfbb6e0
   md5: 8c3c5152587a06cfd1e98f99dd2e098d
