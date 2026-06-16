@@ -46,6 +46,7 @@ class Settings:
     m_max = None  # MMAX
     m_step = None  # MSTAP
     sea_level_rise = None  # ZWS_STIJGING
+    water_level_correction = None  # WaterLevelCorrection uit HRDLocations
 
     # Lake level
     a_repair = None  # REPAREER_A
@@ -86,9 +87,9 @@ class Settings:
     failure_probability_ramspol = None  # FAALKANSKERING
 
     # Model uncertainty
-    model_uncertainty_water_level_steps = 7  # WS_ONZ_AANTAL
-    model_uncertainty_wave_height_steps = 5  # GH_ONZ_AANTAL
-    model_uncertainty_wave_period_steps = 5  # GP_ONZ_AANTAL
+    model_uncertainty_water_level_steps = None  # WS_ONZ_AANTAL
+    model_uncertainty_wave_height_steps = None  # GH_ONZ_AANTAL
+    model_uncertainty_wave_period_steps = None  # GP_ONZ_AANTAL
 
     # File paths
     # Database
@@ -141,12 +142,22 @@ class Settings:
         self.location = hrdlocation
         self.database_path = database_path
 
-        # Obtain the x, y coordinates and the water system
+        # Obtain the x, y coordinates, water level correction, and the water system
         con = sqlite3.connect(database_path)
         self.x_coordinate = int(con.execute(f"SELECT XCoordinate FROM HRDLocations WHERE Name = '{hrdlocation}'").fetchone()[0])
         self.y_coordinate = int(con.execute(f"SELECT YCoordinate FROM HRDLocations WHERE Name = '{hrdlocation}'").fetchone()[0])
+        try:
+            wlc = con.execute(f"SELECT WaterLevelCorrection FROM HRDLocations WHERE Name = '{hrdlocation}'").fetchone()
+            self.water_level_correction = float(wlc[0]) if wlc and wlc[0] is not None else 0.0
+        except Exception:
+            self.water_level_correction = 0.0
         self.watersystem = WaterSystem(con.execute("SELECT GeneralId FROM General").fetchone()[0])
         con.close()
+
+        if self.watersystem is not WaterSystem.COAST_DUNES:
+            self.model_uncertainty_water_level_steps = 7  # WS_ONZ_AANTAL
+            self.model_uncertainty_wave_height_steps = 5  # GH_ONZ_AANTAL
+            self.model_uncertainty_wave_period_steps = 5  # GP_ONZ_AANTAL
 
         # Watersystem specific settings
         if CommonFunctions.is_lower_rivier(self.watersystem):
@@ -296,6 +307,7 @@ class Settings:
             )
 
         # Not implemented
+
         else:
             raise NotImplementedError(f"[ERROR] Vertices for sea level statistics not implemented for {self.watersystem}.")
 

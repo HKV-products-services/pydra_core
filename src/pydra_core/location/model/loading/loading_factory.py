@@ -1,5 +1,6 @@
 from .loading import Loading
 from .water_systems.loading_coast import LoadingCoast
+from .water_systems.loading_coast_dunes import LoadingCoastDunes
 from .water_systems.loading_eastern_scheldt import LoadingEasternScheldt
 from .water_systems.loading_ijssel_vechtdelta import LoadingIJsselVechtdelta
 from .water_systems.loading_lake import LoadingLake
@@ -52,6 +53,7 @@ class LoadingFactory:
         # TODO: WaterSystem.HOLLANDSCHE_IJSSEL
         # Other
         # WaterSystem.COAST_DUNES
+        WaterSystem.COAST_DUNES: LoadingCoastDunes,
         # WaterSystem.DIEFDIJK
     }
 
