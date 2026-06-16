@@ -6,7 +6,9 @@ __version__ = "0.0.12"
 
 # Core
 from .core.exceedance_frequency_line import ExceedanceFrequencyLine
+from .core.hydraulic_loads_dunes import HydraulicLoadsDunes
 from .core.hbn import HBN
+from .core.xbeach_computation import XbeachComputation
 
 # Enums
 from .common.enum import Breakwater
@@ -25,4 +27,6 @@ __all__ = [
     "HRDatabase",
     "Location",
     "Profile",
+    "HydraulicLoadsDunes",
+    "XbeachComputation",
 ]
