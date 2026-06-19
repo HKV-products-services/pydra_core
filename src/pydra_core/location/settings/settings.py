@@ -86,9 +86,9 @@ class Settings:
     failure_probability_ramspol = None  # FAALKANSKERING
 
     # Model uncertainty
-    model_uncertainty_water_level_steps = 7  # WS_ONZ_AANTAL
-    model_uncertainty_wave_height_steps = 5  # GH_ONZ_AANTAL
-    model_uncertainty_wave_period_steps = 5  # GP_ONZ_AANTAL
+    model_uncertainty_water_level_steps = None  # WS_ONZ_AANTAL
+    model_uncertainty_wave_height_steps = None  # GH_ONZ_AANTAL
+    model_uncertainty_wave_period_steps = None  # GP_ONZ_AANTAL
 
     # File paths
     # Database
