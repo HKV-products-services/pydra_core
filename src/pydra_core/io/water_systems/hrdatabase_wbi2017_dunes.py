@@ -5,4 +5,5 @@ class HRDReaderWBI2017Dunes(HRDReaderWBI2017):
     """
     HR database reader for WBI2017 dune databases.
     """
+
     pass

@@ -49,7 +49,7 @@ class HRDReaderFactory:
         # Hollandsche IJssel
         # TODO: WaterSystem.HOLLANDSCHE_IJSSEL
         # Other
-        WaterSystem.COAST_DUNES: HRDReaderWBI2017Dunes
+        WaterSystem.COAST_DUNES: HRDReaderWBI2017Dunes,
         # WaterSystem.DIEFDIJK
     }
 
