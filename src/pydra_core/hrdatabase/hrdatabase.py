@@ -4,7 +4,7 @@ import warnings
 from typing import List, Union
 
 from ..common.enum import WaterSystem
-from ..io.database_hr import DatabaseHR
+from ..io.hrdatabase_reader import HRDReader
 from ..location.location import Location
 from ..location.settings.settings import Settings
 
@@ -30,7 +30,7 @@ class HRDatabase:
             raise FileNotFoundError()
 
         # Obtain water system and locations
-        with DatabaseHR(database_path) as database:
+        with HRDReader(database_path) as database:
             self.watersystem = database.get_water_system()
             self.locationnames = database.get_hrdlocations_names()
 

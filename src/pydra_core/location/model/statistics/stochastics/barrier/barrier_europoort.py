@@ -11,7 +11,7 @@ from ..wind_speed import WindSpeed
 from ....loading.loading_model.loading_model import LoadingModel
 from .....settings.settings import Settings
 from ......common.interpolate import InterpStruct
-from ......io.database_hr import DatabaseHR
+from ......io.hrdatabase_reader import HRDReader
 
 
 class BarrierEuropoort(Barrier):
@@ -40,7 +40,7 @@ class BarrierEuropoort(Barrier):
         self.nk = len(self.k)
 
         # Database connection
-        with DatabaseHR(settings.database_path) as database:
+        with HRDReader.from_settings(settings) as database:
             # Closing levels
             self.closing_levels = LoadingModel(None, None, ["u", "q", "r"], ["m"])
             self.closing_levels.initialise(database.get_closing_levels_table_europoort())

@@ -1,7 +1,7 @@
 from ..loading import Loading
 from ..loading_model.loading_model import LoadingModel
 from ....settings.settings import Settings
-from .....io.database_hr import DatabaseHR
+from .....io.hrdatabase_reader import HRDReader
 
 
 class LoadingCoast(Loading):
@@ -30,7 +30,7 @@ class LoadingCoast(Loading):
         Read the HR result table and create LoadingModels
         """
         # Read table
-        with DatabaseHR(self.settings.database_path) as database:
+        with HRDReader.from_settings(self.settings) as database:
             table = database.get_result_table(self.settings)
             ivids = database.get_input_variables()
             rvids = database.get_result_variables()
