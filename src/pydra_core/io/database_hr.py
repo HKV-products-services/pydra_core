@@ -4,7 +4,7 @@ import sqlite3
 from pathlib import Path
 from typing import List, Union
 
-from .database_settings import DatabaseSettings
+from .calculation_settings_reader import CalculationSettingsReader
 from ..common.enum import WaterSystem
 from ..location.settings.settings import Settings
 
@@ -127,7 +127,7 @@ class DatabaseHR:
         data = self.con.execute(sql).fetchall()
 
         # Settings database
-        with DatabaseSettings() as database:
+        with CalculationSettingsReader() as database:
             ivids = database.get_input_variable_ids()
         data = [ivids[i[0]] for i in data]
 
@@ -153,7 +153,7 @@ class DatabaseHR:
         data = self.con.execute(sql).fetchall()
 
         # Settings database
-        with DatabaseSettings() as database:
+        with CalculationSettingsReader() as database:
             rvids = database.get_result_variable_ids()
         data = [rvids[i[0]] for i in data]
 
@@ -201,7 +201,7 @@ class DatabaseHR:
         data = pd.read_sql(sql, self.con, index_col="HRDLocationId")
 
         # Adjust dataframe
-        with DatabaseSettings() as database:
+        with CalculationSettingsReader() as database:
             rvids = database.get_result_variable_ids()
         data.rename(
             columns={
@@ -240,7 +240,7 @@ class DatabaseHR:
             hrdlocation = self.get_hrdlocation_id(hrdlocation)
 
         # ResultVariableIds
-        with DatabaseSettings() as database:
+        with CalculationSettingsReader() as database:
             rvids = database.get_result_variable_ids()
 
         # Data uit correlatie tabel
@@ -324,7 +324,7 @@ class DatabaseHR:
         """
         # Obtain HRDLocationId
         hrdlocationid = self.get_hrdlocation_id(hrdlocation)
-        with DatabaseSettings() as database:
+        with CalculationSettingsReader() as database:
             ivids = database.get_input_variable_ids()
             rvids = database.get_result_variable_ids()
 
@@ -487,7 +487,7 @@ class DatabaseHR:
         """
         # Obtain HRDLocationId
         hrdlocationid = self.get_hrdlocation_id(hrdlocation)
-        with DatabaseSettings() as database:
+        with CalculationSettingsReader() as database:
             ivids = database.get_input_variable_ids()
             rvids = database.get_result_variable_ids()
 

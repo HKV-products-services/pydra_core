@@ -7,7 +7,7 @@ from shapely.geometry import Point, shape
 
 from ...common.common import CommonFunctions
 from ...common.enum import WaterSystem
-from ...io.database_settings import DatabaseSettings
+from ...io.calculation_settings_reader import CalculationSettingsReader
 
 
 class Settings:
@@ -157,7 +157,7 @@ class Settings:
             self.__determine_sea_level_statistics_points()
 
         # Obtain and set settings
-        with DatabaseSettings() as database:
+        with CalculationSettingsReader() as database:
             settings = database.get_settings(self.watersystem)
 
         # Loop through settings
@@ -208,7 +208,7 @@ class Settings:
             WaterSystem.COAST_NORTH,
         ]:
             # Obtain table
-            with DatabaseSettings() as database:
+            with CalculationSettingsReader() as database:
                 refpoints = database.get_sea_level_statistic_points(self.watersystem)
                 subsystems = database.get_sea_level_sub_systems(self.watersystem)
 
@@ -235,7 +235,7 @@ class Settings:
             WaterSystem.WADDEN_SEA_EAST,
         ]:
             # Obtain table
-            with DatabaseSettings() as database:
+            with CalculationSettingsReader() as database:
                 refpoints = database.get_sea_level_statistic_points(self.watersystem)
                 subsystems = database.get_sea_level_sub_systems(self.watersystem)
 
