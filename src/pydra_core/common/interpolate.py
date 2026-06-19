@@ -143,7 +143,6 @@ class Interpolate:
         """
         # Check if the input locations are invalid
         if (x1 == x2 and y1 == y2) or (x1 == x3 and y1 == y3) or (x2 == x3 and y2 == y3):
-            return h1
             raise ValueError("[ERROR] Two input locations in triangle interpolation are exactly the same. This is not allowed.")
         if (x1 == x2 == x3) or (y1 == y2 == y3):
             raise ValueError("[ERROR] The three input locations in triangle interpolation are collinear. This is not allowed.")
