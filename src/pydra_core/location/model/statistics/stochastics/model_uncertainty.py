@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from scipy.stats import multivariate_normal, norm
 
 from ....settings.settings import Settings
-from .....io.database_hr import DatabaseHR
+from .....io.hrdatabase_reader import HRDReader
 
 
 class ModelUncertainty:
@@ -39,7 +39,7 @@ class ModelUncertainty:
         }
 
         # Obtain the model uncertainties and correlation between model uncertainties
-        with DatabaseHR(settings.database_path) as database:
+        with HRDReader.from_settings(settings) as database:
             mu = database.get_model_uncertainties(settings)
             cu = database.get_correlation_uncertainties(settings)
 

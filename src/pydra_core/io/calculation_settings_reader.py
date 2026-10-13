@@ -6,7 +6,7 @@ from pathlib import Path
 from ..common.enum import WaterSystem
 
 
-class DatabaseSettings:
+class CalculationSettingsReader:
     """
     Settings database
     """
@@ -14,7 +14,7 @@ class DatabaseSettings:
     def __init__(self) -> None:
         self.con = None
 
-    def __enter__(self) -> "DatabaseSettings":
+    def __enter__(self) -> "CalculationSettingsReader":
         # Init the connection
         self.con = sqlite3.connect(Path(__file__).resolve().parent.parent / "data" / "settings" / "calculation_settings.sqlite")
         return self

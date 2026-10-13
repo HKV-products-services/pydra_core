@@ -7,7 +7,7 @@ from ..wind_speed import WindSpeed
 from ....loading.loading_model.loading_model import LoadingModel
 from .....settings.settings import Settings
 from ......common.interpolate import InterpStruct, Interpolate
-from ......io.database_hr import DatabaseHR
+from ......io.hrdatabase_reader import HRDReader
 from ......io.file_hydranl import FileHydraNL
 
 
@@ -39,13 +39,13 @@ class BarrierEasternScheldt(Barrier):
         self.m_closing, self.p_closing_k = FileHydraNL.read_file_ncolumns(settings.barrier_closing_probability)
 
         # Database connection
-        with DatabaseHR(settings.database_path) as database:
+        with HRDReader.from_settings(settings) as database:
             # Read closing situations
-            self.closing_situations = database.get_closing_situations_eastern_scheldt()
+            self.closing_situations = database.get_closing_situations()
 
             # Maak sluitpeilen structure (u, m, r, d, p)
             self.closing_levels = LoadingModel(None, None, ["u", "m", "r", "d", "p"], ["h_rpb"])
-            self.closing_levels.initialise(database.get_closing_levels_table_eastern_scheldt())
+            self.closing_levels.initialise(database.get_closing_levels())
 
         # h_roompot_buiten bevat de waterstand bij RPBU. Het sluitpeil van de oosterscheldekering is 3.0 m+NAP
         # bij hogere waterstanden zal de kering dus (pogen) te sluiten. Nu is de kans op al dan niet sluiten

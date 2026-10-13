@@ -1,7 +1,7 @@
 from ..loading import Loading
 from ..loading_model.loading_model import LoadingModel
 from ....settings.settings import Settings
-from .....io.database_hr import DatabaseHR
+from .....io.hrdatabase_reader import HRDReader
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -33,10 +33,10 @@ class LoadingCoastDunes(Loading):
         Read the HR result table and create LoadingModels
         """
         # Read table
-        with DatabaseHR(self.settings.database_path) as database:
-            table = database.get_result_table_dunes(self.settings)
-            ivids = database.get_input_variables_dunes()
-            rvids = database.get_result_variables_dunes()
+        with HRDReader.from_settings(self.settings) as database:
+            table = database.get_result_table(self.settings)
+            ivids = database.get_input_variables()
+            rvids = database.get_result_variables()
 
         # Init LoadingModels for each combination of wind direction (r) and closing situation (k)
         for comb, deeltabel in table.groupby(["HRDWindDirectionId", "ClosingSituationId"]):
@@ -65,7 +65,7 @@ class LoadingCoastDunes(Loading):
         Parameters
         ----------
         table : pd.DataFrame
-            Output van get_result_table_dunes()
+            Output van get_result_table()
         wave_height_u_fixed : float
             Vaste waarde voor 'Wave height (u)', standaard 0.0
         wave_period_u_fixed : float

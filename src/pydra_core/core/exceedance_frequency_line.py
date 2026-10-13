@@ -57,7 +57,7 @@ class ExceedanceFrequencyLine(Calculation):
         monz = stats.get_model_uncertainties()
 
         # Levels bepalen
-        lower, upper = loading.get_quantile_range(self.result_variable, 0.0, 1.0, 3)
+        lower, upper = loading.get_quantile_range(self.result_variable, 0.01, 0.99, 3)
         lower = np.floor(lower * 10) / 10 if self.lower_bound is None else self.lower_bound
         upper = upper if self.upper_bound is None else self.upper_bound
         levels = np.arange(lower, upper + 0.5 * self.step_size, self.step_size)

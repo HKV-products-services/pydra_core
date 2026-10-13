@@ -8,7 +8,7 @@ from ..loading import Loading
 from ..loading_model.loading_model import LoadingModel
 from ....settings.settings import Settings
 from .....common.interpolate import InterpStruct
-from .....io.database_hr import DatabaseHR
+from .....io.hrdatabase_reader import HRDReader
 
 
 class LoadingEasternScheldt(Loading):
@@ -37,8 +37,8 @@ class LoadingEasternScheldt(Loading):
         Read the HR result table and create LoadingModels
         """
         # Read table
-        with DatabaseHR(self.settings.database_path) as database:
-            waterlevels, waveconditions = database.get_result_table_eastern_scheldt(self.settings)
+        with HRDReader.from_settings(self.settings) as database:
+            waterlevels, waveconditions = database.get_result_table(self.settings)
             ivids = database.get_input_variables()
             rvids = database.get_result_variables()
 
