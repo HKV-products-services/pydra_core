@@ -1,5 +1,6 @@
 from .statistics import Statistics
 from .water_systems.statistics_coast import StatisticsCoast
+from .water_systems.statistics_coast_dunes import StatisticsCoastDunes
 from .water_systems.statistics_eastern_scheldt import StatisticsEasternScheldt
 from .water_systems.statistics_ijssel_vechtdelta import StatisticsIJsselVechtdelta
 from .water_systems.statistics_lake import StatisticsLake
@@ -52,6 +53,7 @@ class StatisticsFactory:
         # TODO: WaterSystem.HOLLANDSCHE_IJSSEL
         # Other
         # WaterSystem.COAST_DUNES
+        WaterSystem.COAST_DUNES: StatisticsCoastDunes,
         # WaterSystem.DIEFDIJK
     }
 

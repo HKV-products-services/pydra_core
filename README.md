@@ -17,7 +17,7 @@ For the following water systems:
 * Lakes (07 IJsselmeer; 08 Markermeer; 19 Grevelingen; 20 Veluwe randmeren)
 * Vecht-IJssel Delta (05 IJssel Delta; 06 Vecht Delta)
 
-Pydra Core is published under de GNU GPL-3 license. Certain submodules have their own licensing.
+Pydra Core is published under de GNU GPL-3 license. Certain submodules have their own licensing. 
 
 ## Getting started
 

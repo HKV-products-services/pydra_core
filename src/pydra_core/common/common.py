@@ -25,7 +25,7 @@ class CommonFunctions:
             WaterSystem.COAST_SOUTH,
             WaterSystem.COAST_CENTRAL,
             WaterSystem.COAST_NORTH,
-            WaterSystem.COAST_DUNES,
+            # WaterSystem.COAST_DUNES,
             WaterSystem.WADDEN_SEA_WEST,
             WaterSystem.WADDEN_SEA_EAST,
             WaterSystem.WESTERN_SCHELDT,
