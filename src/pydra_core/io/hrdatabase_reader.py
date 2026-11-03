@@ -87,6 +87,35 @@ class HRDReader:
         # Return HRDLocationId
         return hrdlocationid
 
+    def get_water_level_correction(self, hrdlocation: Union[int, str, Settings]) -> float:
+        """
+        Returns the water level correction of the HRDLocation (0.0 if not defined in the database)
+
+        Parameters
+        ----------
+        hrdlocation : Union[int, str, Settings]
+            HRDLocation in form of HRDLocationId, HRDLocationName or Settings object
+
+        Returns
+        -------
+        float
+            Water level correction
+        """
+        # Obtain the HRDLocationId
+        if isinstance(hrdlocation, (str, Settings)):
+            hrdlocation = self.get_hrdlocation_id(hrdlocation)
+
+        # Check if the column is present
+        columns = [row[1] for row in self.con.execute("PRAGMA table_info(HRDLocations)").fetchall()]
+        if "WaterLevelCorrection" not in columns:
+            return 0.0
+
+        # Obtain the water level correction
+        correction = self.con.execute(f"SELECT WaterLevelCorrection FROM HRDLocations WHERE HRDLocationId = {hrdlocation}").fetchone()[0]
+
+        # Return the correction
+        return 0.0 if correction is None else float(correction)
+
     def get_hrdlocation_xy(self, hrdlocation: Union[str, Settings]) -> Union[float, float]:
         """
         Returns the X and Y coordinate of the HRDLocation

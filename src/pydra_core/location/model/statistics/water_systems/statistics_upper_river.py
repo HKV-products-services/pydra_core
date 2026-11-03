@@ -74,7 +74,7 @@ class StatisticsUpperRiver(Statistics):
             # If not given, use the instantaneous probability
             p_discharge = ProbabilityFunctions.probability_density(
                 self.discharge.get_discretisation(),
-                1 - self.discharge.get_exceedance_probability(),
+                self.discharge.get_exceedance_probability(),
             ).probability
 
         # Probability of wind direction

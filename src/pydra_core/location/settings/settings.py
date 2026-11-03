@@ -37,7 +37,7 @@ class Settings:
     q_repair = None  # REPAREER_Q
     q_min = None  # QMIN
     q_max = None  # QMAX
-    q_step = None  # QSTAP (UNUSED IN PYDRA)
+    q_step = None  # QSTAP
     q_limit = None  # QAFTOP
 
     # Sea level

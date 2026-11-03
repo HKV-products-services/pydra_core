@@ -34,9 +34,10 @@ class LoadingCoast(Loading):
             table = database.get_result_table(self.settings)
             ivids = database.get_input_variables()
             rvids = database.get_result_variables()
+            correction = database.get_water_level_correction(self.settings)
 
-        # For the coast, the sea level (m) is equal to the local water level (h)
-        table["h"] = table["m"]
+        # For the coast, the sea level (m) plus the water level correction is equal to the local water level (h)
+        table["h"] = table["m"] + correction
 
         # Init LoadingModels for each combination of wind direction (r) and closing situation (k)
         for comb, deeltabel in table.groupby(["r", "k"]):

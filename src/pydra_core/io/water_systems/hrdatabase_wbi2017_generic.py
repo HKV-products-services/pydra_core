@@ -256,5 +256,9 @@ class HRDReaderWBI2017(HRDReader):
         results.insert(0, "r", results.pop("r"))
         results.sort_values(by=["k", "r"] + ivcols, inplace=True)
 
+        # Add the water level correction of the location to the local water level (as in Hydra-NL)
+        if "h" in results.columns:
+            results["h"] += self.get_water_level_correction(hrdlocationid)
+
         # Return results
         return results

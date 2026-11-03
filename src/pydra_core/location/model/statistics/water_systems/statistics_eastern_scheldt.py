@@ -92,7 +92,7 @@ class StatisticsEasternScheldt(Statistics):
         p_k = 1.0 if "k" in given else self.barrier.calculate_closing_probability(wind_direction, closing_situation)
 
         # Probability of a sea level and wind speed given a wind direction
-        p_um_r = self.p_mur[:, :, ir]
+        p_um_r = self.p_mur[:, :, ir].copy()
 
         # If given, calculate the conditional probabilities
         if "u" in given:

@@ -32,8 +32,9 @@ class ExceedanceFrequencyLine(Calculation):
         self.use_model_uncertainty(model_uncertainty)
 
         # Optional settings, can be adjusted by user outside of __init__
+        # Without a step size, the step size is 0.1 or smaller (at least 100 levels)
         self.set_range(None, None)
-        self.set_step_size(0.1)
+        self.step_size = None
 
     def calculate_location(self, location: Location) -> FrequencyLine:
         """
@@ -60,7 +61,10 @@ class ExceedanceFrequencyLine(Calculation):
         lower, upper = loading.get_quantile_range(self.result_variable, 0.01, 0.99, 3)
         lower = np.floor(lower * 10) / 10 if self.lower_bound is None else self.lower_bound
         upper = upper if self.upper_bound is None else self.upper_bound
-        step_size = min(self.step_size, (upper - lower) / 100) if upper > lower else self.step_size
+        if self.step_size is None:
+            step_size = min(0.1, (upper - lower) / 100) if upper > lower else 0.1
+        else:
+            step_size = self.step_size
         levels = np.arange(lower, upper + 0.5 * step_size, step_size)
 
         # Model uncertainty setup

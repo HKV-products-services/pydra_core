@@ -82,7 +82,7 @@ class StatisticsCoast(Statistics):
         kanswr = 1.0 if "r" in given else self.wind_direction.get_probability()[ir]
 
         # Probability of a sea level and wind speed given a wind direction
-        kans_um_r = self.p_mur[:, :, ir]
+        kans_um_r = self.p_mur[:, :, ir].copy()
 
         # If given, calculate the conditional probabilities
         if "u" in given:

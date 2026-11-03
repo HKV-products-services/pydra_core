@@ -87,7 +87,7 @@ class StatisticsIJsselVechtdelta(Statistics):
             kans_aq = np.ones((len(self.lake_level), len(self.discharge)))
         else:
             # If one of two is not conditional, use the momentary probability
-            kans_aq = self.density_aq
+            kans_aq = self.density_aq.copy()
             if "a" not in given:
                 kans_aq[...] = ProbabilityFunctions.conditional_probability(kans_aq, axis=0)
             if "q" not in given:
