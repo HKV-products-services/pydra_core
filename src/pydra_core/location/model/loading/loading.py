@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from typing import Tuple, Union
 
 from ...settings.settings import Settings
+from ....common.enum import WaterSystem
 from ....common.interpolate import InterpStruct
 # from ....io.database_hr import DatabaseHR
 
@@ -107,6 +108,11 @@ class Loading(ABC):
         # A list is the repair of all result variables while reading the loading; a string is the explicitly
         # requested repair of one result variable (a frequency line or the HBN)
         while_reading = not isinstance(result_variables, str)
+
+        # In the IJssel and Vecht delta, Hydra-NL repairs only the water level while reading (Randgegevens_VIJ.f90);
+        # the raw waves enter the overtopping calculation and only the crest level is repaired
+        if while_reading and self.settings.watersystem in [WaterSystem.IJSSEL_DELTA, WaterSystem.VECHT_DELTA]:
+            result_variables = [rv for rv in result_variables if rv not in ["hs", "tspec"]]
 
         # For each LoadingModel (wind direction and closing situation)
         for _, model in self.iter_models():
