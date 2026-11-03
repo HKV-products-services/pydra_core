@@ -60,7 +60,8 @@ class ExceedanceFrequencyLine(Calculation):
         lower, upper = loading.get_quantile_range(self.result_variable, 0.01, 0.99, 3)
         lower = np.floor(lower * 10) / 10 if self.lower_bound is None else self.lower_bound
         upper = upper if self.upper_bound is None else self.upper_bound
-        levels = np.arange(lower, upper + 0.5 * self.step_size, self.step_size)
+        step_size = min(self.step_size, (upper - lower) / 100) if upper > lower else self.step_size
+        levels = np.arange(lower, upper + 0.5 * step_size, step_size)
 
         # Model uncertainty setup
         if self.model_uncertainty:

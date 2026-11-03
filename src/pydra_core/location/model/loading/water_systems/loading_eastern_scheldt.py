@@ -109,9 +109,10 @@ class LoadingEasternScheldt(Loading):
             # Maak een interpolatiestructuur voor de windrichting en windsnelheid
             intstr = InterpStruct(x=waterlevels.loc[idx, "h"].to_numpy(), xp=wavecond_ur["h"].to_numpy())
 
-            # Interpoleer voor elk van de golfparameters
+            # Interpoleer voor elk van de golfparameters (geen extrapolatie buiten het golfmodel grid)
             for param in ["hs", "tp", "tspec", "dir"]:
-                waterlevels.loc[idx, param] = intstr.interp(fp=wavecond_ur[param].to_numpy())
+                fp = wavecond_ur[param].to_numpy()
+                waterlevels.loc[idx, param] = intstr.interp(fp=fp, extrapolate=False, left=fp[0], right=fp[-1])
 
         # Init LoadingModels for each combination of wind direction (r) and closing situation (k)
         for comb, deeltabel in waterlevels.groupby(["r", "k"]):
