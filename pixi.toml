@@ -48,6 +48,7 @@ ipykernel = ">=6.29.5,<7"
 nbformat = ">=5.10.4,<6"
 nbclient = ">=0.10.1,<0.11"
 ruff = ">=0.8.1,<0.9"
+netcdf4 = ">=1.7.4,<2"
 
 [feature.common.pypi-dependencies]
 pydra_core = { path = "src", editable = true }

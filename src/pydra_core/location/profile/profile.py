@@ -37,6 +37,11 @@ class Profile:
     dike_y: None | list = None
     dike_roughness: None | list = None
 
+    # Dune schematisation
+    dune_orientation: None | float = None
+    dune_x: None | list = None
+    dune_y: None | list = None
+
     def __init__(self, profile_name: str = "Profile", crest_level: float = None, orientation: float = None, cota_slope: float = None):
         """
         Create a new profile
@@ -143,6 +148,41 @@ class Profile:
         self.dike_x = dike_x - min_x
         self.dike_y = dike_y
         self.dike_roughness = dike_roughness
+
+    def set_dune_orientation(self, dune_orientation: float):
+        """
+        Set the dune orientation (direction the dune face is exposed to waves).
+
+        Parameters
+        ----------
+        dune_orientation : float
+            Orientation in degrees (North = 0, clockwise)
+        """
+        self.dune_orientation = dune_orientation
+
+    def set_dune_geometry(self, dune_x: list, dune_y: list):
+        """
+        Set the cross-shore dune profile geometry.
+
+        Parameters
+        ----------
+        dune_x : list
+            Cross-shore x-coordinates [m], seaward to landward.
+            Normalised internally so the seaward toe starts at x = 0.
+        dune_y : list
+            Corresponding bed levels [m+NAP].
+        """
+        dune_x = np.asarray(dune_x, dtype=float)
+        dune_y = np.asarray(dune_y, dtype=float)
+
+        # Extend seaward with 1:3 slope if the first point is shallower than -20 m
+        if dune_y[0] > -20.0:
+            extension = (dune_y[0] - (-20.0)) * 3.0  # horizontal distance for 1:3 slope
+            dune_x = np.concatenate([[dune_x[0] - extension], dune_x])
+            dune_y = np.concatenate([[-20.0], dune_y])
+
+        self.dune_x = dune_x
+        self.dune_y = dune_y
 
     def has_foreshore(self) -> bool:
         """
@@ -587,15 +627,16 @@ class Profile:
             )
 
         # Geometry
-        for i in range(len(self.dike_x) - 1):
-            r = self.dike_roughness[i]
-            plt.plot(
-                self.dike_x[i : i + 2],
-                self.dike_y[i : i + 2],
-                color="black" if r != 1.0 else "green",
-                label=f"Roughness: {r}",
-                zorder=1,
-            )
+        if self.dike_x is not None:
+            for i in range(len(self.dike_x) - 1):
+                r = self.dike_roughness[i]
+                plt.plot(
+                    self.dike_x[i : i + 2],
+                    self.dike_y[i : i + 2],
+                    color="black" if r != 1.0 else "green",
+                    label=f"Roughness: {r}",
+                    zorder=1,
+                )
 
         # Breakwater
         if isinstance(self.breakwater_type, Breakwater):
@@ -604,6 +645,11 @@ class Profile:
                 x_orig, y_orig = (
                     self.foreshore_x[0],
                     self.foreshore_y[0],
+                )
+            if self.dune_x is not None:
+                x_orig, y_orig = (
+                    self.dune_x[0],
+                    self.dune_y[0],
                 )
             else:
                 x_orig, y_orig = self.dike_x[0], self.dike_y[0]
@@ -645,19 +691,30 @@ class Profile:
                 )
 
         # Crest height
-        plt.axhline(
-            self.dike_crest_level,
-            linestyle=":",
-            color="grey",
-            label="Crest height",
-            zorder=1,
-        )
+        if self.dike_crest_level is not None:
+            plt.axhline(
+                self.dike_crest_level,
+                linestyle=":",
+                color="grey",
+                label="Crest height",
+                zorder=1,
+            )
+
+        # Dune profile
+        if self.dune_x is not None and self.dune_y is not None:
+            dune_x = np.asarray(self.dune_x)
+            dune_y = np.asarray(self.dune_y)
+            plt.plot(dune_x, dune_y, color="#C2A96E", lw=1.5, label="Dune profile", zorder=1)
+            plt.fill_between(dune_x, dune_y, np.min(dune_y), color="#C2A96E", alpha=0.3, zorder=0)
+            crest_idx = int(np.argmax(dune_y))
+            plt.axhline(dune_y[crest_idx], linestyle=":", color="sandybrown", label=f"Dune crest  {dune_y[crest_idx]:.2f} m+NAP", zorder=1)
 
         # Legend, labels, etc
         handles, labels = plt.gca().get_legend_handles_labels()
         by_label = dict(zip(labels, handles))
         plt.legend(by_label.values(), by_label.keys(), loc="upper left")
-        plt.title(f"{self.profile_name} ({self.dike_orientation}°)", fontweight="bold")
+        orientation = self.dune_orientation if self.dike_orientation is None else self.dike_orientation
+        plt.title(f"{self.profile_name} ({orientation}°)", fontweight="bold")
         plt.xlabel("Distance [m]")
         plt.ylabel("Level [NAP+m]")
         plt.show()

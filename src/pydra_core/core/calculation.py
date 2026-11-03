@@ -17,7 +17,7 @@ class Calculation(ABC):
         """
         pass
 
-    def calculate(self, input: Union[Location, HRDatabase]):
+    def calculate(self, input: Union[Location, HRDatabase], **kwargs):
         """
         Execute a calculation
 
@@ -25,13 +25,15 @@ class Calculation(ABC):
         ----------
         input : Union[Location, HRDatabase]
             The input
+        **kwargs
+            Forwarded to calculate_location (e.g. save, make_plot).
         """
         # Depending on the type of input, call CalculateLocation
         if isinstance(input, Location):
-            return self.calculate_location(input)
+            return self.calculate_location(input, **kwargs)
 
         elif isinstance(input, HRDatabase):
-            return {loc: self.calculate_location(input.create_location(loc)) for loc in input}
+            return {loc: self.calculate_location(input.create_location(loc), **kwargs) for loc in input}
 
         else:
             raise NotImplementedError("[ERROR] Input type not implemented")

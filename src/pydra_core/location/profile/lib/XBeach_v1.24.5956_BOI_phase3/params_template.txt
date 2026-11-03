@@ -1,0 +1,116 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% XBeach parameter settings input file                                     %%%
+%%%                                                                          %%%
+%%% date:     12-Jun-2026 11:31:58                                           %%%
+%%% Delta-Shell XBeach plugin                                                %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+ 
+%%% Physical processes %%%
+ 
+morphology   = 1
+wavemodel   = surfbeat
+sedtrans   = 1
+snells   = 0
+ 
+%%% Grid parameters %%%
+ 
+thetanaut   = 0
+thetamin   = -90
+thetamax   = 90
+dtheta   = 180
+alfa   = $alfa$
+xfile   = x.grd
+yfile   = y.grd
+vardx   = 1
+nx   = $nx$
+ny   = $ny$
+depfile   = bed.dep
+posdwn   = -1
+ 
+%%% Morphology parameters %%%
+ 
+morfac   = 4
+morstart   = 0
+wetslp   = 0.15
+struct   = 0
+ 
+%%% Sediment transport parameters %%%
+ 
+turbadv   = none
+facSk   = 0.15
+facAs   = 0.2
+ 
+%%% Flow boundary condition parameters %%%
+ 
+front   = abs_1d
+left   = wall
+right   = wall
+back   = abs_1d
+epsi   = -1
+ 
+%%% Bed composition parameters %%%
+ 
+D50   = $d50$
+D90   = $d90$
+rhos   = 2650
+ 
+%%% Physical constants %%%
+ 
+rho   = 1025
+ 
+%%% Output variables %%%
+ 
+rugdepth   = 0.01
+tstart   = 0
+tintg   = 3600
+tintp   = 3600
+tintm   = 3600
+ 
+%%% Model time %%%
+ 
+CFL   = 0.95
+tstop   = $tstop$
+ 
+%%% Wave breaking parameters %%%
+ 
+fw   = 0
+gammax   = 2
+alpha   = 1.38
+gamma   = 0.46
+ 
+%%% Roller parameters %%%
+ 
+beta   = 0.08
+wbctype    = parametric
+bcfile     = waves.lst
+ 
+%%% Randvoorwaarden verticaal getij %%%
+ 
+tideloc    = 2
+zs0file    = tide.txt
+ 
+%%% Uitvoerwaarden %%%
+
+tint         = $tint$
+tstart       = $tstart$ 
+outputformat = netcdf
+ 
+% Globale uitvoer %
+ 
+nglobalvar   = 5
+zb
+zs
+sedero
+H
+zswet
+ 
+% Mean output %
+ 
+nmeanvar   = 5
+zb
+zs
+sedero
+H
+zswet
+ 
