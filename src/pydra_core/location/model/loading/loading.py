@@ -104,6 +104,10 @@ class Loading(ABC):
         epsilon : float
             The minimum increase when repairing (default : 0.0, a running maximum as in Hydra-NL)
         """
+        # A list is the repair of all result variables while reading the loading; a string is the explicitly
+        # requested repair of one result variable (a frequency line or the HBN)
+        while_reading = not isinstance(result_variables, str)
+
         # For each LoadingModel (wind direction and closing situation)
         for _, model in self.iter_models():
             # Loop over the inputvariables
@@ -120,6 +124,11 @@ class Loading(ABC):
                 for rv in np.atleast_1d(result_variables):
                     # If the result variable from the argument is not in the LoadingModel or if it the wave direction, skip
                     if (rv not in model.result_variables) or (rv == "dir"):
+                        continue
+
+                    # Like Hydra-NL, the raw wave period enters the overtopping calculation and only the crest
+                    # level is repaired. At sheltered locations the wave period decreases with the wind speed.
+                    if while_reading and inpvar == "u" and rv == "tspec":
                         continue
 
                     # Repair the LoadingModel
