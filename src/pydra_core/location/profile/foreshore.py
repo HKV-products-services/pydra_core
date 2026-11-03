@@ -164,6 +164,12 @@ class Foreshore:
         message = message_buffer.value.decode("utf-8", errors="ignore")
         message = message.rstrip()
 
+        # A rejected foreshore or breakwater stops the calculation, as in Hydra-NL (Dam_Voorland.f90). Without
+        # waves (N = 0) the DLL also returns an error code, but there is nothing to transform.
+        if res != 0 and N > 0:
+            points = ", ".join(f"({float(x):.2f}; {float(z):.2f})" for x, z in zip(self.profile.foreshore_x, self.profile.foreshore_y)) if self.profile.foreshore_x is not None else "none"
+            raise ValueError(f"[ERROR] The Dam and Foreshore module rejects the foreshore: '{message}'. Foreshore (x; z) = {points}, breakwater type {self.profile.breakwater_type.value}.")
+
         if res != 0:
             print(message + " - Using uncorrected wave parameters.")
             print(self.profile.foreshore_x)
