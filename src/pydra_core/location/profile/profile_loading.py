@@ -87,7 +87,7 @@ class ProfileLoading:
         self.message = create_string_buffer(b"", 512)
 
         # Set profile
-        self.profile = profile
+        self.set_profile(profile)
 
     def set_profile(self, profile):
         """
@@ -99,6 +99,11 @@ class ProfileLoading:
             A Profile object
         """
         self.profile = profile
+
+        # The DLL arguments are prepared again for the new profile
+        self._prepared_profile = None
+        self._prepared_x = self._prepared_y = self._prepared_roughness = None
+        self._prepared_crest_level = self._prepared_orientation = None
 
     def calculate_discharge(
         self,
@@ -281,85 +286,125 @@ class ProfileLoading:
 
         return self.niveau.value
 
+    def __prepare_arguments(self):
+        """
+        Build the array type, the argtypes, the geometry arrays and the references to every argument that does not
+        change per loading point, once per profile. The DLL is called per loading point, millions of times for
+        one HBN line, so the check is kept to bare comparisons.
+
+        The arrays are compared by identity: set_dike_geometry always replaces them with new objects. The crest
+        level and the dike orientation are numbers and are compared by value. Keeping the references, instead
+        of an id(), prevents a recycled id from matching. A byref object keeps its buffer alive.
+        """
+        p = self.profile
+        if (
+            self._prepared_profile is p
+            and self._prepared_x is p.dike_x
+            and self._prepared_y is p.dike_y
+            and self._prepared_roughness is p.dike_roughness
+            and self._prepared_crest_level == p.dike_crest_level
+            and self._prepared_orientation == p.dike_orientation
+        ):
+            return
+
+        # Depending on the profile
+        self.arr_ctype = c_double * len(p.dike_x)
+        self.__set_argtypes()
+        self._ref_x = byref(self.arr_ctype(*p.dike_x))
+        self._ref_y = byref(self.arr_ctype(*p.dike_y))
+        self._ref_roughness = byref(self.arr_ctype(*p.dike_roughness))
+        self._ref_orientation = byref(c_double(p.dike_orientation))
+        self._ref_npoints = byref(c_int(len(p.dike_x)))
+        self._ref_crest_level = byref(c_double(p.dike_crest_level))
+
+        # Depending on the instance: these buffers are created in __init__ and never replaced
+        self._ref_modelfactors_rto = byref(self.modelfactors_rto)
+        self._ref_modelfactors_coo = byref(self.modelfactors_coo)
+        self._ref_output = byref(self.output)
+        self._ref_qo = byref(self.qo)
+        self._ref_niveau = byref(self.niveau)
+        self._ref_succes = byref(self.succes)
+        self._ref_message = byref(self.message)
+
+        self._prepared_profile, self._prepared_x = p, p.dike_x
+        self._prepared_y, self._prepared_roughness = p.dike_y, p.dike_roughness
+        self._prepared_crest_level, self._prepared_orientation = p.dike_crest_level, p.dike_orientation
+
     def __calculate_discharge_rto(self, load):
         """
         Function to communicate with the dllDikesOvertopping.dll
         """
-        self.arr_ctype = c_double * len(self.profile.dike_x)
-        self.__set_argtypes()
+        self.__prepare_arguments()
         self.rto_library.calculateQoJ(
             load,
-            byref(self.arr_ctype(*self.profile.dike_x)),
-            byref(self.arr_ctype(*self.profile.dike_y)),
-            byref(self.arr_ctype(*self.profile.dike_roughness)),
-            byref(c_double(self.profile.dike_orientation)),
-            byref(c_int(len(self.profile.dike_x))),
-            byref(c_double(self.profile.dike_crest_level)),
-            byref(self.modelfactors_rto),
-            byref(self.output),
-            byref(self.succes),
-            byref(self.message),
+            self._ref_x,
+            self._ref_y,
+            self._ref_roughness,
+            self._ref_orientation,
+            self._ref_npoints,
+            self._ref_crest_level,
+            self._ref_modelfactors_rto,
+            self._ref_output,
+            self._ref_succes,
+            self._ref_message,
         )
 
     def __calculate_crest_level_rto(self, load):
         """
         Function to communicate with the dllDikesOvertopping.dll
         """
-        self.arr_ctype = c_double * len(self.profile.dike_x)
-        self.__set_argtypes()
+        self.__prepare_arguments()
         self.rto_library.omkeerVariantJ(
             load,
-            byref(self.arr_ctype(*self.profile.dike_x)),
-            byref(self.arr_ctype(*self.profile.dike_y)),
-            byref(self.arr_ctype(*self.profile.dike_roughness)),
-            byref(c_double(self.profile.dike_orientation)),
-            byref(c_int(len(self.profile.dike_x))),
+            self._ref_x,
+            self._ref_y,
+            self._ref_roughness,
+            self._ref_orientation,
+            self._ref_npoints,
             byref(self.qcr),
-            byref(self.niveau),
-            byref(self.modelfactors_rto),
-            byref(self.output),
-            byref(self.succes),
-            byref(self.message),
+            self._ref_niveau,
+            self._ref_modelfactors_rto,
+            self._ref_output,
+            self._ref_succes,
+            self._ref_message,
         )
 
     def __calculate_discharge_coo(self, load):
         """
         Function to communicate with the CombOverloopOverslag64.dll
         """
-        self.arr_ctype = c_double * len(self.profile.dike_x)
-        self.__set_argtypes()
+        self.__prepare_arguments()
         self.coo_library.CalculateDischarge(
-            byref(c_double(self.profile.dike_orientation)),
-            byref(c_int(len(self.profile.dike_x))),
-            byref(self.arr_ctype(*self.profile.dike_x)),
-            byref(self.arr_ctype(*self.profile.dike_y)),
-            byref(self.arr_ctype(*self.profile.dike_roughness)),
+            self._ref_orientation,
+            self._ref_npoints,
+            self._ref_x,
+            self._ref_y,
+            self._ref_roughness,
             load,
-            byref(self.modelfactors_coo),
-            byref(c_double(self.profile.dike_crest_level)),
-            byref(self.qo),
-            byref(self.succes),
-            byref(self.message),
+            self._ref_modelfactors_coo,
+            self._ref_crest_level,
+            self._ref_qo,
+            self._ref_succes,
+            self._ref_message,
         )
 
     def __calculate_crest_level_coo(self, load):
         """
         Function to communicate with the CombOverloopOverslag64.dll
         """
-        self.arr_ctype = c_double * len(self.profile.dike_x)
-        self.__set_argtypes()
+        self.__prepare_arguments()
         self.coo_library.CalculateHeight(
-            byref(c_double(self.profile.dike_orientation)),
-            byref(c_int(len(self.profile.dike_x))),
-            byref(self.arr_ctype(*self.profile.dike_x)),
-            byref(self.arr_ctype(*self.profile.dike_y)),
-            byref(self.arr_ctype(*self.profile.dike_roughness)),
+            self._ref_orientation,
+            self._ref_npoints,
+            self._ref_x,
+            self._ref_y,
+            self._ref_roughness,
             load,
-            byref(self.modelfactors_coo),
+            self._ref_modelfactors_coo,
             byref(self.qcr),
-            byref(self.niveau),
-            byref(self.succes),
-            byref(self.message),
+            self._ref_niveau,
+            self._ref_succes,
+            self._ref_message,
         )
 
     def __set_argtypes(self):
