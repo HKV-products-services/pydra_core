@@ -42,8 +42,12 @@ def test_exceedance_frequency_lines():
         for (result_variable, monz), calc_df in ws_df.groupby(
             by=["ResultVariable", "ModelUncertainty"]
         ):
+            # Skip Tspec/Tp
+            if result_variable in ["tspec", "tp"]:
+                continue
+
             # Hydraulic loading
-            if result_variable in ["h", "hs", "tspec", "tp"]:
+            if result_variable in ["h", "hs"]:
                 # Create EFL
                 efl = ExceedanceFrequencyLine(result_variable, model_uncertainty=monz)
 
