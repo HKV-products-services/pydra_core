@@ -107,20 +107,15 @@ class ModelBase(ABC):
                     haxis=0,
                 )
 
-            # Find nonzero positions in probability_loading
-            nz = np.nonzero(probability_loading)
-
             # Create an index to accumulate the probabilities.
             # If the discrete variables are included in the splitting, assign a specific position here.
             # Otherwise, they are added to the rest of the probabilities.
-            if nz[0].size > 0:
-                idx = [slice(None)] * len(shp)
-                if "r" in split_input_variables:
-                    idx[split_input_variables.index("r") + 1] = ir
-                if "k" in split_input_variables:
-                    idx[split_input_variables.index("k") + 1] = ik
-                # probability[tuple(idx)] += probability_loading
-                probability[tuple(idx)][nz] += probability_loading[nz]
+            idx = [slice(None)] * len(shp)
+            if "r" in split_input_variables:
+                idx[split_input_variables.index("r") + 1] = ir
+            if "k" in split_input_variables:
+                idx[split_input_variables.index("k") + 1] = ik
+            probability[tuple(idx)] += probability_loading
 
         return probability
 
@@ -238,7 +233,9 @@ class ModelBase(ABC):
             for i, idx in enumerate(zip(*idxs)):
                 probability[idx] += loading_probability[i]
         else:
-            np.add.at(probability, tuple(idxs), loading_probability)
+            # Sum with bincount on the flat index (much faster than np.add.at)
+            flat = np.ravel_multi_index(tuple(idxs), probability.shape)
+            probability = np.bincount(flat, weights=loading_probability, minlength=probability.size).reshape(probability.shape)
 
         # Return the probabilities
         return probability

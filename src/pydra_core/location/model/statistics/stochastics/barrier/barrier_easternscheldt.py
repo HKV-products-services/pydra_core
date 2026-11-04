@@ -69,7 +69,20 @@ class BarrierEasternScheldt(Barrier):
         # afrondingsfouten bevat (bijv. 2.9000000000000012), waardoor een -9 op een roosterpunt net groter wordt dan -9
         self.not_closing = self.h_rpb <= -9.0 + 1e-6
 
+        # Opgeslagen sluitkansen per windrichting en sluitsituatie
+        self.closing_probability = {}
+
     def calculate_closing_probability(self, wind_direction: float, closing_situation: int) -> np.ndarray:
+        """
+        Geef de kans op het al dan niet falen van N sluizen in de Oosterscheldekering en het type sluiting.
+        De kansen worden per windrichting en sluitsituatie eenmalig berekend en daarna opgeslagen.
+        """
+        key = (wind_direction, closing_situation)
+        if key not in self.closing_probability:
+            self.closing_probability[key] = self.__calculate_closing_probability(wind_direction, closing_situation)
+        return self.closing_probability[key].copy()
+
+    def __calculate_closing_probability(self, wind_direction: float, closing_situation: int) -> np.ndarray:
         """
         Bereken de kans op het al dan niet falen van N sluizen
         in de Oosterscheldekering en het type sluiting (nood of strategie)

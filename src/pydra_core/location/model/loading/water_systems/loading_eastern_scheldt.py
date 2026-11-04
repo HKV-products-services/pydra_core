@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 
 from itertools import product
-from scipy.interpolate import interp1d
 
 from ..loading import Loading
 from ..loading_model.loading_model import LoadingModel
@@ -46,26 +45,29 @@ class LoadingEasternScheldt(Loading):
         ivids.remove("m_os")
 
         # The water level and wave conditions are based on different grids
-        # Repair water level
+        # Repair water level: add the missing combinations of wind direction and wind speed (filled below)
+        existing = set(zip(waterlevels["r"], waterlevels["u"]))
+        missing = []
         for richting, snelheid in product(np.unique(waveconditions["r"]), np.unique(waveconditions["u"])):
-            # Kijk of deze combi bestaat
-            if (waterlevels["r"].eq(richting) & waterlevels["u"].eq(snelheid)).sum() == 0:
-                _format = waterlevels[waterlevels["r"].eq(richting) & waterlevels["u"].eq(0)].copy()
-                _format.loc[:, "u"] = snelheid
-                _format.loc[:, "h"] = np.nan
-                waterlevels = pd.concat([waterlevels, _format], ignore_index=True)
+            if (richting, snelheid) not in existing:
+                _format = waterlevels[(waterlevels["r"] == richting) & (waterlevels["u"] == 0)].copy()
+                _format["u"] = snelheid
+                _format["h"] = np.nan
+                missing.append(_format)
+        if missing:
+            waterlevels = pd.concat([waterlevels] + missing, ignore_index=True)
 
-        # Repareer Hs
+        # Repareer Hs: add the missing combinations of wind direction and wind speed (filled below)
+        existing = set(zip(waveconditions["r"], waveconditions["u"]))
+        missing = []
         for richting, snelheid in product(np.unique(waterlevels["r"]), np.unique(waterlevels["u"])):
-            # Kijk of deze combi bestaat
-            if (waveconditions["r"].eq(richting) & waveconditions["u"].eq(snelheid)).sum() == 0:
-                _format = waveconditions[waveconditions["r"].eq(richting) & waveconditions["u"].eq(0)].copy()
-                _format.loc[:, "u"] = snelheid
-                _format.loc[:, "hs"] = np.nan
-                _format.loc[:, "tp"] = np.nan
-                _format.loc[:, "tspec"] = np.nan
-                _format.loc[:, "dir"] = np.nan
-                waveconditions = pd.concat([waveconditions, _format], ignore_index=True)
+            if (richting, snelheid) not in existing:
+                _format = waveconditions[(waveconditions["r"] == richting) & (waveconditions["u"] == 0)].copy()
+                _format["u"] = snelheid
+                _format[["hs", "tp", "tspec", "dir"]] = np.nan
+                missing.append(_format)
+        if missing:
+            waveconditions = pd.concat([waveconditions] + missing, ignore_index=True)
 
         # Sorteer
         waterlevels = waterlevels.sort_values(by=["k", "r", "m", "d", "p", "u"])
@@ -80,39 +82,48 @@ class LoadingEasternScheldt(Loading):
             4,
         )
 
-        # Vul de NaNs golfcondities
-        for n, row in waveconditions[waveconditions["hs"].isna()].iterrows():
-            wd = row["r"]
-            wl = row["h"]
-            ws = row["u"]
-            grid = waveconditions[waveconditions["r"].eq(wd) & waveconditions["h"].eq(wl)].dropna()
-            waveconditions.loc[n, "hs"] = round(float(interp1d(grid["u"], grid["hs"], fill_value="extrapolate")(ws)), 4)
-            waveconditions.loc[n, "tp"] = round(float(interp1d(grid["u"], grid["tp"], fill_value="extrapolate")(ws)), 4)
-            waveconditions.loc[n, "tspec"] = round(
-                float(interp1d(grid["u"], grid["tspec"], fill_value="extrapolate")(ws)),
-                4,
-            )
+        # Vul de NaNs golfcondities, per windrichting en waterstand in oplopende windsnelheid (eerder gevulde rijen tellen mee)
+        columns = list(waveconditions.columns)
+        icol = {c: columns.index(c) for c in columns}
+        data = waveconditions.to_numpy(dtype=float)
+        for rows in waveconditions.groupby(["r", "h"], sort=False).indices.values():
+            sub = data[rows]
+            for j in np.where(np.isnan(sub[:, icol["hs"]]))[0]:
+                known = ~np.isnan(sub).any(axis=1)
+                u = sub[known, icol["u"]]
+                ws = sub[j, icol["u"]]
+                for param in ["hs", "tp", "tspec"]:
+                    sub[j, icol[param]] = round(self.__interp_extrapolate(ws, u, sub[known, icol[param]]), 4)
 
-            # Niet de wave direction extrapoleren
-            if np.min(grid["u"]) <= ws and ws <= np.max(grid["u"]):
-                waveconditions.loc[n, "dir"] = round(float(interp1d(grid["u"], grid["dir"])(ws)), 4)
-            elif ws > np.max(grid["u"]):
-                waveconditions.loc[n, "dir"] = grid["dir"].to_numpy()[-1]
-            elif ws < np.min(grid["u"]):
-                waveconditions.loc[n, "dir"] = grid["dir"].to_numpy()[0]
+                # Niet de wave direction extrapoleren
+                if u.min() <= ws <= u.max():
+                    sub[j, icol["dir"]] = round(float(np.interp(ws, u, sub[known, icol["dir"]])), 4)
+                elif ws > u.max():
+                    sub[j, icol["dir"]] = sub[known, icol["dir"]][-1]
+                else:
+                    sub[j, icol["dir"]] = sub[known, icol["dir"]][0]
+            data[rows] = sub
+        for param in ["hs", "tp", "tspec", "dir"]:
+            waveconditions[param] = data[:, icol[param]]
 
         # Interpoleer de golfcondities op de waterstanden, alvorens ze aan de belastingmodellen toe te voegen
-        for (richting, snelheid), wavecond_ur in waveconditions.groupby(["r", "u"]):
-            # Maak een index voor de selectie van windrichting en windsnelheid
-            idx = waterlevels["r"].eq(richting) & waterlevels["u"].eq(snelheid)
+        waterlevel_rows = waterlevels.groupby(["r", "u"]).indices
+        h = waterlevels["h"].to_numpy()
+        results = {param: np.full(len(waterlevels), np.nan) for param in ["hs", "tp", "tspec", "dir"]}
+        for comb, rows in waveconditions.groupby(["r", "u"]).indices.items():
+            idx = waterlevel_rows.get(comb)
+            if idx is None:
+                continue
 
             # Maak een interpolatiestructuur voor de windrichting en windsnelheid
-            intstr = InterpStruct(x=waterlevels.loc[idx, "h"].to_numpy(), xp=wavecond_ur["h"].to_numpy())
+            intstr = InterpStruct(x=h[idx], xp=data[rows, icol["h"]])
 
             # Interpoleer voor elk van de golfparameters (geen extrapolatie buiten het golfmodel grid)
             for param in ["hs", "tp", "tspec", "dir"]:
-                fp = wavecond_ur[param].to_numpy()
-                waterlevels.loc[idx, param] = intstr.interp(fp=fp, extrapolate=False, left=fp[0], right=fp[-1])
+                fp = data[rows, icol[param]]
+                results[param][idx] = intstr.interp(fp=fp, extrapolate=False, left=fp[0], right=fp[-1])
+        for param in ["hs", "tp", "tspec", "dir"]:
+            waterlevels[param] = results[param]
 
         # Init LoadingModels for each combination of wind direction (r) and closing situation (k)
         for comb, deeltabel in waterlevels.groupby(["r", "k"]):
@@ -128,3 +139,16 @@ class LoadingEasternScheldt(Loading):
         # Breidt het belastingmodel uit op basis van de invoergegevens
         self._extend_loadingmodels()
         self.repair_loadingmodels(rvids)
+
+    @staticmethod
+    def __interp_extrapolate(x: float, xp: np.ndarray, fp: np.ndarray) -> float:
+        """
+        Linear interpolation, with linear extrapolation of the first or last segment (as scipy interp1d with fill_value='extrapolate').
+        """
+        if x < xp[0]:
+            i = 0
+        elif x > xp[-1]:
+            i = len(xp) - 2
+        else:
+            return float(np.interp(x, xp, fp))
+        return float(fp[i] + (x - xp[i]) * (fp[i + 1] - fp[i]) / (xp[i + 1] - xp[i]))

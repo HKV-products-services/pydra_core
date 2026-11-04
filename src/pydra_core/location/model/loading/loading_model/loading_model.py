@@ -66,11 +66,8 @@ class LoadingModel:
         for var in self.result_variables:
             setattr(self, var, np.full(shape, np.nan))
 
-        # Determine per input variabele where to put it into the results array
-        idxs = []
-        for key in self.input_variables:
-            idxlist = getattr(self, key).tolist()
-            idxs.append([idxlist.index(i) for i in table[key].array])
+        # Determine per input variabele where to put it into the results array (the discretisation is sorted and unique)
+        idxs = [np.searchsorted(getattr(self, key), table[key].to_numpy()) for key in self.input_variables]
 
         # Add the results to the result arrays
         for rvid in self.result_variables:

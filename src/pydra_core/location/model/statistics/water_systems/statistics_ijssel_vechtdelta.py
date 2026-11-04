@@ -40,7 +40,7 @@ class StatisticsIJsselVechtdelta(Statistics):
         self.discharge = Discharge(settings)
 
         # Combined probability(density) of lake level and discharge
-        self.density_aq_peak, self.density_aq, self.ovduration_aq = self.__prob_combined()
+        self.density_aq_peak, self.density_aq = self.__prob_combined()
 
         # Ramspol
         self.barrier = BarrierRamspol(settings, self.wind_direction)
@@ -166,19 +166,22 @@ class StatisticsIJsselVechtdelta(Statistics):
             dichtheid_mqpiek[:, iq] *= kansafvoer.density[iq]
 
         # En de blokstat
-        # Overschrijdingsduren van afvoer- en meerpeilgolf bepalen
-        overschrijdingsduren_mq = self.discharge.wave_shape.bepaal_gezamenlijke_overschrijding(
-            golfvormen_st1=self.lake_level.wave_shape,
-            niveaus_st1=self.lake_level.ablok,
-            golfvormen_st2=self.discharge.wave_shape,
-            niveaus_st2=self.discharge.qblok,
-        )
-
         # Momentane kansen bepalen
         dq = ProbabilityFunctions.probability_density(self.discharge.qpeak, self.discharge.epqpeak).delta
         dm = ProbabilityFunctions.probability_density(self.lake_level.apeak, self.lake_level.epapeak).delta
         kans_mqpiek = dichtheid_mqpiek * dm[:, None] * dq[None, :]
-        ovkansmq = (kans_mqpiek[:, :, None, None] * overschrijdingsduren_mq).sum((0, 1)) / (self.settings.base_duration)
+
+        # Gezamenlijke overschrijdingsduren van afvoer- en meerpeilgolf, gewogen met de kans op de piekwaarden
+        ovkansmq = (
+            self.discharge.wave_shape.bepaal_gezamenlijke_overschrijding(
+                golfvormen_st1=self.lake_level.wave_shape,
+                niveaus_st1=self.lake_level.ablok,
+                golfvormen_st2=self.discharge.wave_shape,
+                niveaus_st2=self.discharge.qblok,
+                gewichten=kans_mqpiek,
+            )
+            / self.settings.base_duration
+        )
 
         # Corrigeer kleine onvolkomenheden
         ovkansmq = np.maximum.accumulate(ovkansmq[::-1])[::-1]
@@ -196,4 +199,4 @@ class StatisticsIJsselVechtdelta(Statistics):
 
         dichtheid_mqblok /= dichtheid_mqblok.sum()
 
-        return dichtheid_mqpiek, dichtheid_mqblok, overschrijdingsduren_mq
+        return dichtheid_mqpiek, dichtheid_mqblok
