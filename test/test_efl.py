@@ -136,7 +136,7 @@ def test_exceedance_frequency_lines():
     # Vanwege de ruwere numerieke integratie is 1-op-1 vergelijking voor nu
     # lastig. Toch komt het goed in de buurt, we laten de test erin om een
     # indruk te krijgen van de performance.
-    assert len(error) >= 0
+    assert len(error) == 0
 
 
 if __name__ == "__main__":
