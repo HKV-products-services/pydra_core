@@ -17,9 +17,6 @@ class StatisticsOvertopping(Statistics):
         # Inherit initialisation method from parent
         super().__init__(location.get_settings())
 
-        # Init [wlev, u, xtr1, xtr2, ..., r]
-        self.probability = probability
-
         #  Discrete, slow, fast stochatics
         self.stochastics_discrete = {"r": location.get_model().get_statistics().stochastics_discrete["r"]}
         self.stochastics_fast = {
@@ -42,6 +39,22 @@ class StatisticsOvertopping(Statistics):
                 raise ValueError(f"kansen.shape[i] {probability.shape[i]} != len(discretisatie[{dim}]) ({len(discretisation[dim])}).")
             setattr(self, f"n{dim}", len(discretisation[dim]))
 
+        # Init [wlev, u, xtr1, xtr2, ..., r]
+        self.set_probability(probability)
+
+    def set_probability(self, probability: np.ndarray):
+        """
+        Set the probability of wlev, u, xtr1, xtr2, ..., r.
+        A contiguous copy with the wind direction as first axis is saved once, so calculate_probability returns a view.
+
+        Parameters
+        ----------
+        probability : np.ndarray
+            The probability [wlev, u, xtr1, xtr2, ..., r]
+        """
+        self.probability = probability
+        self.probability_r = np.ascontiguousarray(np.moveaxis(probability, self.dimensions.index("r"), 0))
+
     def calculate_probability(self, wind_direction: float, closing_situation: int = 1, given: list = []) -> np.ndarray:
         """
         Return the probability of wlev, u, xtr1, xtr2 given the wind direction.
@@ -58,5 +71,5 @@ class StatisticsOvertopping(Statistics):
         # Obtain the wind direction id
         ir = list(self.stochastics_discrete["r"]).index(wind_direction)
 
-        # Return the probability for this wind direction
-        return np.take(self.probability, indices=ir, axis=self.dimensions.index("r"))
+        # Return the probability for this wind direction (a view, no copy)
+        return self.probability_r[ir]

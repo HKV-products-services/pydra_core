@@ -1,6 +1,7 @@
 import numpy as np
 
 from abc import ABC
+from scipy.sparse import csr_matrix
 
 from .loading.loading import Loading
 from .statistics.statistics import Statistics
@@ -230,8 +231,10 @@ class ModelBase(ABC):
 
         # Sum all probabilities into the relevant bin (based on the levels)
         if len(extra_kansvar) > 0:
-            for i, idx in enumerate(zip(*idxs)):
-                probability[idx] += loading_probability[i]
+            # Sum the rows (with the extra dimensions) with a sparse matrix (much faster than a loop over all cells)
+            flat = np.ravel_multi_index(tuple(idxs), probability.shape[: len(idxs)])
+            matrix = csr_matrix((np.ones(len(flat)), (flat, np.arange(len(flat)))), shape=(int(np.prod(probability.shape[: len(idxs)])), len(flat)))
+            probability = (matrix @ loading_probability.reshape(len(flat), -1)).reshape(probability.shape)
         else:
             # Sum with bincount on the flat index (much faster than np.add.at)
             flat = np.ravel_multi_index(tuple(idxs), probability.shape)

@@ -180,7 +180,11 @@ class ModelUncertainty:
         rv = result_variable.lower()
 
         # Try to return the model uncertainty, otherwise return None
-        return self.model_uncertainties.get((closing_situation, rv))
+        # With only one of the wave periods in the database, the uncertainty of tspec and tp are equal (Hydra-NL, KIES_ONZ_ZOET)
+        dis = self.model_uncertainties.get((closing_situation, rv))
+        if (dis is None) and (rv in ["tspec", "tp"]):
+            dis = self.model_uncertainties.get((closing_situation, "tp" if rv == "tspec" else "tspec"))
+        return dis
 
     def get_correlation(self, result_variable1: str, result_variable2: str, closing_situation: int = 1):
         """
