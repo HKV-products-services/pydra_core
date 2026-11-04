@@ -42,7 +42,6 @@ def test_exceedance_frequency_lines():
         for (result_variable, monz), calc_df in ws_df.groupby(
             by=["ResultVariable", "ModelUncertainty"]
         ):
-
             # Hydraulic loading
             if result_variable in ["h", "hs", "tspec", "tp"]:
                 # Create EFL
