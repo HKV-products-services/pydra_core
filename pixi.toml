@@ -5,7 +5,7 @@ description = "Python package for calculating hydraulic loads"
 channels = ["conda-forge"]
 platforms = ["win-64", "linux-64"]
 readme = "README.md"
-license = "GPL-3.0"
+license = "GPL-3.0-or-later"
 license-file = "LICENSE"
 
 [tasks]
