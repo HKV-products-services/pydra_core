@@ -8,6 +8,7 @@ from .datamodels.frequency_line import FrequencyLine
 from ..common.enum import Breakwater
 from ..common.probability import ProbabilityFunctions
 from ..location.location import Location
+from ..location.model.loading.other_systems.loading_overtopping import LoadingOvertopping
 from ..location.model.model_overtopping import ModelOvertopping
 from ..location.model.statistics.water_systems.statistics_coast import StatisticsCoast
 from ..location.model.statistics.water_systems.statistics_eastern_scheldt import StatisticsEasternScheldt
@@ -73,6 +74,10 @@ class HBN(Calculation):
         statistics = model.get_statistics()
         loading = model.get_loading()
         slow_stochastics = list(statistics.stochastics_slow.keys())
+
+        # Coast: the crest level on the statistics grid (u, m), as in Hydra-NL Zout
+        if isinstance(statistics, StatisticsCoast):
+            return self.__calculate_coast(location)
 
         # If no levels are defined, derive them based on the water level in the database
         lower_h, upper_h = loading.get_quantile_range("h", 0.0, 1.0, 3)
@@ -181,6 +186,91 @@ class HBN(Calculation):
 
         # Return the exceedance frequency line of the HBN
         return FrequencyLine(levels, exceedance_probability)
+
+    def __calculate_coast(self, location: Location) -> FrequencyLine:
+        """
+        Calculate the frequency line of the crest level for the coast, as in Hydra-NL Zout (Berekenbelasting_Zout.f90):
+        - The crest level on the wave table (u, h) per wind direction (DIJKBELASTING_ZOUT).
+        - Bilinear inter- and extrapolation to the statistics grid (u, m) at the water level h(u, m) (PLAATS_BELASTINGEN).
+        - Repair along u and m (REPAREREN_ZOUT), depending on the '{input_variable}_repair' flags.
+        - The probability of each grid point (u, m) is assigned to its crest level, without classes for the water level.
+        - The levels run up to the highest crest level.
+        """
+        # Obtain location objects
+        settings = location.get_settings()
+        profile = location.get_profile()
+        model = location.get_model()
+        statistics = model.get_statistics()
+        loading = model.get_loading()
+        monz = statistics.get_model_uncertainties()
+        grid = {"u": statistics.stochastics_fast["u"], "m": statistics.stochastics_fast["m"]}
+
+        # Wave table (u, h) per wind direction, with all water levels from the database
+        table = LoadingOvertopping(location)
+
+        # Water level and probability on the statistics grid (u, m) per loading model
+        grids = []
+        for (direction, closing_situation), loading_model in loading.iter_models():
+            axes = [loading_model.input_variables.index("u"), loading_model.input_variables.index("m")]
+            h = np.moveaxis(loading_model.refine("h", {key: grid[key] for key in loading_model.input_variables}), axes, [0, 1])
+            probability = np.moveaxis(statistics.calculate_probability(direction, closing_situation), axes, [0, 1])
+            repair_axes = [["u", "m"].index(var) for var in loading_model.repair_after_refine if var in ["u", "m"]]
+
+            # Interpolation along h at h(u, m) (the same for every wave conditions model uncertainty)
+            wlev = table.model[(direction, None)].wlev
+            ih = np.clip(np.searchsorted(wlev, h) - 1, 0, len(wlev) - 2)
+            wh = (h - wlev[ih]) / (wlev[ih + 1] - wlev[ih])
+            grids.append((direction, ih, wh, probability.ravel(), repair_axes))
+
+        # Iterate over the wave conditions model uncertainty
+        iterator = np.array(list(monz.iterate_model_uncertainty_wave_conditions(wave_period="tspec")))
+        iterator = iterator if self.model_uncertainty else np.array([[1.0, 1.0, 1.0]])
+        results = []
+        for factor_hs, factor_tspec, p_occ in iterator:
+            # Crest levels on the wave table
+            table.calculate_hbn(profile, self.q_overtopping, factor_hs, factor_tspec)
+
+            hbn_all, p_all = [], []
+            for direction, ih, wh, probability, repair_axes in grids:
+                # Crest level on the wave table as (u, h)
+                table_model = table.model[(direction, None)]
+                hbn_table = np.moveaxis(table_model.hbn, [table_model.input_variables.index("u"), table_model.input_variables.index("wlev")], [0, 1])
+
+                # Bilinear: first along u to the statistics grid, then along h at h(u, m)
+                hbn_u = self.__inextrp(grid["u"], table_model.u, hbn_table)
+                hbn = np.take_along_axis(hbn_u, ih, axis=1) * (1 - wh) + np.take_along_axis(hbn_u, ih + 1, axis=1) * wh
+
+                # Repair
+                for ax in repair_axes:
+                    hbn = np.maximum.accumulate(hbn, axis=ax)
+                hbn_all.append(hbn.ravel())
+                p_all.append(probability)
+            results.append((np.concatenate(hbn_all), np.concatenate(p_all), p_occ))
+
+        # Levels up to the highest crest level (with a probability)
+        lower = min(np.min(hbn[p > 0]) for hbn, p, _ in results)
+        upper = max(np.max(hbn[p > 0]) for hbn, p, _ in results)
+        lower = np.floor(lower * 10) / 10 if self.lower_bound is None else self.lower_bound
+        upper = upper if self.upper_bound is None else self.upper_bound
+        levels = np.arange(lower, upper + self.step_size, self.step_size)
+
+        # P(HBN >= level): a crest level contributes to all levels lower than or equal to it
+        exceedance_probability = np.zeros(len(levels))
+        for hbn, p, p_occ in results:
+            counts = np.bincount(np.searchsorted(levels, hbn, side="right"), weights=p, minlength=len(levels) + 1)
+            exceedance_probability += p_occ * np.cumsum(counts[::-1])[::-1][1:]
+
+        # Return the exceedance frequency line of the HBN
+        return FrequencyLine(levels, exceedance_probability * settings.periods_block_duration)
+
+    @staticmethod
+    def __inextrp(x: np.ndarray, xp: np.ndarray, fp: np.ndarray) -> np.ndarray:
+        """
+        Linear inter- and extrapolation of fp along the first axis (xp increasing) at x.
+        """
+        i = np.clip(np.searchsorted(xp, x) - 1, 0, len(xp) - 2)
+        w = ((x - xp[i]) / (xp[i + 1] - xp[i]))[:, None]
+        return fp[i] * (1 - w) + fp[i + 1] * w
 
     @staticmethod
     def __water_level_uncertainty(loading, monz, model_uncertainty: bool):
