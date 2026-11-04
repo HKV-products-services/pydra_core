@@ -335,6 +335,11 @@ class DistributionUncertainty:
             - self.mu
         ) / self.sigma
 
+        # Multiplicative uncertainty (hs, tspec, tp) as in Hydra-NL (modelonzekerheden.f90): discretised around 1 with
+        # sigma, then multiplied by the bias mu. The factors are mu * (1 + k * sigma) instead of mu + k * sigma
+        if self.rvid in ["hs", "tspec", "tp"]:
+            probabilities = self.mu * (1.0 + (probabilities - self.mu))
+
         # Return probabilities and edges
         return probabilities, edges
 
