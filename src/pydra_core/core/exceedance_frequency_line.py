@@ -88,7 +88,7 @@ class ExceedanceFrequencyLine(Calculation):
                 break
             lower = new_lower
 
-        return FrequencyLine(levels, exp)
+        return FrequencyLine(levels, exp, self.result_variable)
 
     def __get_levels(self, lower: float, upper: float) -> np.ndarray:
         """

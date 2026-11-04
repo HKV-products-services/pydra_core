@@ -18,11 +18,14 @@ class FrequencyLine:
         An array of levels.
     exceedance_frequency : np.ndarray
         An array of corresponding exceedance frequencies.
+    result_variable : str, optional
+        The result variable (e.g. h, hs). Wave parameters (hs, tspec, tp) are not extrapolated below the frequency line.
     """
 
     # Init variables
     level: np.ndarray
     exceedance_frequency: np.ndarray
+    result_variable: str = None
 
     def __post_init__(self):
         self.drop_zeros()
@@ -45,7 +48,12 @@ class FrequencyLine:
             xp=np.log(self.exceedance_frequency)[order_xp],
             fp=self.level[order_xp],
         )
-        return f[np.argsort(order_x)]
+        f = f[np.argsort(order_x)]
+
+        # Wave parameters are not extrapolated below the frequency line, as in Hydra-NL (the value is then 0)
+        if self.result_variable in ("hs", "tspec", "tp"):
+            f[exceedance_probability > self.exceedance_frequency.max()] = 0.0
+        return f
 
     def interpolate_level(self, level: np.ndarray):
         return np.exp(Interpolate.inextrp1d(x=level, xp=self.level, fp=np.log(self.exceedance_frequency)))

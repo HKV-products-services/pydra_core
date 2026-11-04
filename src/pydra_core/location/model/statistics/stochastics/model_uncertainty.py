@@ -17,10 +17,6 @@ class ModelUncertainty:
         A dictionary with
     """
 
-    # Init attributes
-    model_uncertainties = {}
-    correlations = {}
-
     def __init__(self, settings: Settings):
         """
         Read the model uncertainties from the database and add them to this class
@@ -30,6 +26,10 @@ class ModelUncertainty:
         settings : Settings
             The Settings object
         """
+        # Per instance, so locations do not share their model uncertainties
+        self.model_uncertainties = {}
+        self.correlations = {}
+
         # Save the discretisation step size
         self.step_size = {
             "h": settings.model_uncertainty_water_level_steps,
