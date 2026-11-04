@@ -68,10 +68,14 @@ class ModelUncertainty:
         iterator
             (dh, fhs, ftspec, probability of (dh, fhs, ftspec))
         """
+        # Water level (without model uncertainty, e.g. at sea, no shift)
         mu_h = self.get_model_uncertainty("h", closing_situation)
-        h, hedges = mu_h.discretise(self.step_size["h"])
-        tmp = norm.cdf(hedges)
-        p_h = tmp[1:] - tmp[:-1]
+        if mu_h is not None:
+            h, hedges = mu_h.discretise(self.step_size["h"])
+            tmp = norm.cdf(hedges)
+            p_h = tmp[1:] - tmp[:-1]
+        else:
+            h, p_h = [0.0], np.array([1.0])
 
         assert abs(p_h.sum() - 1) < 1e-6
 

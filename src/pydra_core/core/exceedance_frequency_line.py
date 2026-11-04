@@ -62,10 +62,14 @@ class ExceedanceFrequencyLine(Calculation):
         lower = np.floor(lower * 10) / 10 if self.lower_bound is None else self.lower_bound
         upper = upper if self.upper_bound is None else self.upper_bound
 
-        # Model uncertainty setup
-        if self.model_uncertainty:
+        # Model uncertainty setup. Without a model uncertainty for the result variable (e.g. the water level at sea),
+        # the frequency line is calculated without model uncertainty
+        uncs = [unc for (_, rv), unc in monz.model_uncertainties.items() if rv == self.result_variable]
+        use_monz = self.model_uncertainty and len(uncs) > 0
+        if use_monz:
+            # The edges are standardised, so equal for each closing situation
             steps = monz.step_size[self.result_variable]
-            _, edges = monz.model_uncertainties[1, self.result_variable].discretise(steps)
+            _, edges = uncs[0].discretise(steps)
             weights = np.diff(norm.cdf(edges))
         else:
             steps = 1
@@ -76,7 +80,7 @@ class ExceedanceFrequencyLine(Calculation):
         # the lower bound is lowered and the frequency line is calculated again
         for _ in range(5):
             levels = self.__get_levels(lower, upper)
-            exp = self.__calculate_exceedance_frequency(location, levels, weights, steps)
+            exp = self.__calculate_exceedance_frequency(location, levels, weights, steps, use_monz)
             if (self.lower_bound is not None) or (exp[0] >= 0.1):
                 break
 
@@ -100,7 +104,7 @@ class ExceedanceFrequencyLine(Calculation):
             step_size = self.step_size
         return np.arange(lower, upper + 0.5 * step_size, step_size)
 
-    def __calculate_exceedance_frequency(self, location: Location, levels: np.ndarray, weights: np.ndarray, steps) -> np.ndarray:
+    def __calculate_exceedance_frequency(self, location: Location, levels: np.ndarray, weights: np.ndarray, steps, use_monz: bool) -> np.ndarray:
         """
         Calculate the exceedance frequency at the levels, integrating the (discretised) model uncertainty.
         """
@@ -116,9 +120,12 @@ class ExceedanceFrequencyLine(Calculation):
             _loading.repair_loadingmodels(self.result_variable)
 
             # Model uncertainty toepassen
-            if self.model_uncertainty:
+            if use_monz:
                 for deelmodel, result in _loading.model.items():
-                    unc = monz.model_uncertainties[deelmodel[1], self.result_variable]
+                    # Skip closing situations without model uncertainty
+                    unc = monz.get_model_uncertainty(self.result_variable, deelmodel[1])
+                    if unc is None:
+                        continue
                     disc, _ = unc.discretise(steps)
                     data = getattr(result, self.result_variable)
 
