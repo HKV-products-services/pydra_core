@@ -689,18 +689,22 @@ class Profile:
         # Create a new profile
         profile = cls(profile_name)
 
-        # Version
-        version = float([entry for entry in prfl if "versie" in entry][0].split(" ")[1])
+        # Get version
+        version_lines = [line for line in prfl if "versie" in line]
+        if version_lines.__len__() != 1:
+            raise ValueError(f"[ERROR] PRFL-file should only contain 1 VERSIE-line. Counted {version_lines.__len__()}.")
+        version_line: str = version_lines[0].split(" ")[-1]
+        version = float(version_line)
         if version != 4.0:
             raise NotImplementedError(f"[ERROR] Prfl version {version} is not supported.")
 
         # Sheet pile
-        sheetpile = True if float([entry for entry in prfl if "damwand" in entry][0].split(" ")[1]) == 1.0 else False
+        sheetpile = True if float([entry for entry in prfl if "damwand" in entry][0].split(" ")[-1]) == 1.0 else False
         if sheetpile:
             raise NotImplementedError("[ERROR] Sheet piles are not implemented.")
 
         # Breakwater
-        breakwater = Breakwater(int([entry for entry in prfl if "dam" in entry][0].split(" ")[1]))
+        breakwater = Breakwater(int([entry for entry in prfl if "dam" in entry][0].split(" ")[-1]))
         breakwater_level = float([entry for entry in prfl if "damhoogte" in entry][0].split(" ")[1])
         profile.set_breakwater(breakwater, breakwater_level)
 
