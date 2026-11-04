@@ -4,6 +4,7 @@ from abc import ABC
 
 from .loading.loading import Loading
 from .statistics.statistics import Statistics
+from .statistics.water_systems.statistics_coast import StatisticsCoast
 from ..settings.settings import Settings
 from ...common.probability import ProbabilityFunctions
 
@@ -165,6 +166,17 @@ class ModelBase(ABC):
 
         # Make a copy of the loading model for (r, k) to prevent overwriting the one assigned to this object
         loading_model = loading.model[(direction, closing_situation)]
+
+        # For the coast the water level is equal to the sea level plus a correction. As in Hydra-NL, the probability is then
+        # derived directly from the sea level statistics instead of splitting the load into classes on the sea level grid
+        if (result_variable == "h") and isinstance(statistics, StatisticsCoast) and (len(split_input_variables) == 0) and ("u" not in given) and ("m" not in given):
+            shape = [1] * loading_model.h.ndim
+            shape[loading_model.input_variables.index("m")] = -1
+            correction = loading_model.h - loading_model.m.reshape(shape)
+            if np.ptp(correction) < 1e-6:
+                levels_m = np.concatenate([[-np.inf], levels - np.mean(correction)])
+                exceedance_probability = statistics.calculate_exceedance_probability_sea_level(direction, levels_m, given=given)
+                return -np.diff(np.concatenate([exceedance_probability, [0.0]]))
 
         # Refine the loading onto the (finer) grid used in the statistics
         comb_fast_slow = {**statistics.stochastics_fast, **statistics.stochastics_slow}

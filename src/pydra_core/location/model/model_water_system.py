@@ -2,6 +2,7 @@ import numpy as np
 
 from .model_base import ModelBase
 from .loading.loading_factory import LoadingFactory
+from .loading.water_systems.loading_coast import LoadingCoast
 from .statistics.statistics_factory import StatisticsFactory
 from ..settings.settings import Settings
 from ...common.probability import ProbabilityFunctions
@@ -20,6 +21,10 @@ class ModelWaterSystem(ModelBase):
 
         # Loading
         self.loading = LoadingFactory.get_loading(self.settings)
+
+        # For the coast, extend the loading to the lowest sea level of the statistics (as in Hydra-NL)
+        if isinstance(self.loading, LoadingCoast):
+            self.loading.extend_lowest_sea_level(self.statistics.sea_level.get_discretisation()[0])
 
     def process_slow_stochastics(self, exceedance_probability: np.ndarray, axis: int = None) -> np.ndarray:
         """

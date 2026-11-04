@@ -65,8 +65,9 @@ class BarrierEasternScheldt(Barrier):
         intstr = InterpStruct(x=sea_level.get_discretisation(), xp=self.closing_levels.m)
         self.h_rpb = intstr.interp(fp=levels_u, axis=self.closing_levels.input_variables.index("m"))
 
-        # Controleer op waarden van -9 en kleiner.
-        self.not_closing = self.h_rpb <= -9.0
+        # Controleer op waarden van -9 en kleiner. Met een kleine marge, omdat het rooster van de zeewaterstand
+        # afrondingsfouten bevat (bijv. 2.9000000000000012), waardoor een -9 op een roosterpunt net groter wordt dan -9
+        self.not_closing = self.h_rpb <= -9.0 + 1e-6
 
     def calculate_closing_probability(self, wind_direction: float, closing_situation: int) -> np.ndarray:
         """

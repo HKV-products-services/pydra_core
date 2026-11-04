@@ -41,6 +41,9 @@ class LoadingModel:
         self.input_variables = input_variables
         self.result_variables = result_variables
 
+        # Input variables along which the result is repaired after refining (e.g. Coast, as in Hydra-NL)
+        self.repair_after_refine = []
+
     def initialise(self, table: pd.DataFrame) -> None:
         """
         Create a LoadingModel from a pandas DataFrame.
@@ -223,6 +226,11 @@ class LoadingModel:
             # Interpolate other values
             else:
                 belasting_int = intstr.interp(fp=belasting_int, axis=axis)
+
+        # Repair the refined result (monotonically increasing) along the given input variables (not the wave direction)
+        if result_variable != "dir":
+            for inpvar in self.repair_after_refine:
+                belasting_int = np.maximum.accumulate(belasting_int, axis=self.input_variables.index(inpvar))
 
         # Return the interpolated array for the result variable
         return belasting_int

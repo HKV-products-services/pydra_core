@@ -76,15 +76,16 @@ class SeaLevelTriangular(SeaLevel):
         for ir in range(0, nr):
             # For high sea water levels, the exceedance probability may be 0
             # Find the location where the highest sea level has the greatest exceedance probability no equal to 0.
+            # The sea levels up to and including this sea level are used (as in Hydra-NL)
             largest_ep = 0.0
-            i = 1
+            i = 0
             while largest_ep <= 0.0:
                 corners = [(m1, epm1), (m2, epm2), (m3, epm3)]
                 for _m, _epm in corners:
-                    nlm = len(_m) - i
+                    nlm = len(_m) - 1 - i
                     if _epm[nlm, ir] > largest_ep:
                         largest_ep = _epm[nlm, ir]
-                        ir_epm = _epm[:nlm, ir]
+                        ir_epm = _epm[: nlm + 1, ir]
                 i += 1
 
             # Determine the sea level discretisation for the three stations
@@ -109,13 +110,14 @@ class SeaLevelTriangular(SeaLevel):
 
             # Als de triangulaire interpolatie wordt toegepast in het geval van extrapolatie
             # kan de vector _m een verloop hebben dat niet langer monotoon is. Dit wordt
-            # gecorrigeerd door die stukjes van de vector _m weg te gooien.
-            idx = np.diff(ir_m) > 0.0
-            if not idx.all():
-                pos = np.where(idx)[0]
-                pos = np.unique(np.concatenate([pos, pos + 1]))
-                ir_m = ir_m[pos]
-                ir_epm = ir_epm[pos]
+            # gecorrigeerd door die stukjes van de vector _m weg te gooien. Net als in Hydra-NL vervalt een punt
+            # als het niet hoger ligt dan het laatst behouden punt.
+            pos = [0]
+            for j in range(1, len(ir_m)):
+                if ir_m[j] > ir_m[pos[-1]]:
+                    pos.append(j)
+            ir_m = ir_m[pos]
+            ir_epm = ir_epm[pos]
 
             # Interpoleer logaritmisch de conditionele overschrijdingskansen van de zeewaterstand gegeven de windrichting naar het gewenste rooster
             ir_epm_int = np.exp(Interpolate.inextrp1d(self.m, ir_m, np.log(ir_epm)))

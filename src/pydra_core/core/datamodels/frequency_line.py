@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -28,6 +29,15 @@ class FrequencyLine:
 
     def interpolate_exceedance_probability(self, exceedance_probability: np.ndarray):
         exceedance_probability = np.atleast_1d(exceedance_probability)
+
+        # Warn when the exceedance frequency is outside the frequency line (the level is then extrapolated)
+        outside = (exceedance_probability > self.exceedance_frequency.max()) | (exceedance_probability < self.exceedance_frequency.min())
+        if outside.any():
+            warnings.warn(
+                f"Exceedance frequencies {exceedance_probability[outside].tolist()} are outside the frequency line ({self.exceedance_frequency.min():.2e} - {self.exceedance_frequency.max():.2e}), the levels are extrapolated.",
+                stacklevel=2,
+            )
+
         order_x = np.argsort(exceedance_probability)
         order_xp = np.argsort(self.exceedance_frequency)
         f = Interpolate.inextrp1d(

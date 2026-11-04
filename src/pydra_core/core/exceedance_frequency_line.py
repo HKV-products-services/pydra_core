@@ -61,11 +61,6 @@ class ExceedanceFrequencyLine(Calculation):
         lower, upper = loading.get_quantile_range(self.result_variable, 0.01, 0.99, 3)
         lower = np.floor(lower * 10) / 10 if self.lower_bound is None else self.lower_bound
         upper = upper if self.upper_bound is None else self.upper_bound
-        if self.step_size is None:
-            step_size = min(0.1, (upper - lower) / 100) if upper > lower else 0.1
-        else:
-            step_size = self.step_size
-        levels = np.arange(lower, upper + 0.5 * step_size, step_size)
 
         # Model uncertainty setup
         if self.model_uncertainty:
@@ -75,6 +70,43 @@ class ExceedanceFrequencyLine(Calculation):
         else:
             steps = 1
             weights = np.array([1.0])
+
+        # Calculate the frequency line. If the lower bound is not given and the exceedance frequency at the lowest level
+        # is smaller than 1/10 per year (e.g. coast, where the database starts at a higher sea level than the statistics),
+        # the lower bound is lowered and the frequency line is calculated again
+        for _ in range(5):
+            levels = self.__get_levels(lower, upper)
+            exp = self.__calculate_exceedance_frequency(location, levels, weights, steps)
+            if (self.lower_bound is not None) or (exp[0] >= 0.1):
+                break
+
+            # Lower the lower bound (not below 0 for other result variables than the water level)
+            new_lower = np.floor((lower - 0.5 * (upper - lower)) * 10) / 10
+            if self.result_variable != "h":
+                new_lower = max(new_lower, 0.0)
+            if new_lower >= lower:
+                break
+            lower = new_lower
+
+        return FrequencyLine(levels, exp)
+
+    def __get_levels(self, lower: float, upper: float) -> np.ndarray:
+        """
+        Levels between the lower and upper bound. Without a step size, the step size is 0.1 or smaller (at least 100 levels).
+        """
+        if self.step_size is None:
+            step_size = min(0.1, (upper - lower) / 100) if upper > lower else 0.1
+        else:
+            step_size = self.step_size
+        return np.arange(lower, upper + 0.5 * step_size, step_size)
+
+    def __calculate_exceedance_frequency(self, location: Location, levels: np.ndarray, weights: np.ndarray, steps) -> np.ndarray:
+        """
+        Calculate the exceedance frequency at the levels, integrating the (discretised) model uncertainty.
+        """
+        model = location.get_model()
+        stats = model.get_statistics()
+        monz = stats.get_model_uncertainties()
 
         slow_keys = list(stats.stochastics_slow.keys())
         exp = np.zeros(len(levels))
@@ -117,7 +149,7 @@ class ExceedanceFrequencyLine(Calculation):
             # Accumuleren
             exp += w * ep
 
-        return FrequencyLine(levels, exp)
+        return exp
 
     def set_result_variable(self, result_variable: str):
         """

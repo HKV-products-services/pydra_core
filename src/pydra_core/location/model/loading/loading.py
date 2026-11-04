@@ -76,12 +76,12 @@ class Loading(ABC):
                         [val for val in [self.settings.q_min, self.settings.q_max] if val is not None],
                     )
 
-            # Extend for sea level
+            # Extend for sea level (only to the highest sea level, as in Hydra-NL the lowest sea level is not considered)
             if "m" in model.input_variables:
                 if len(model.m) > 1:
                     model.extend(
                         "m",
-                        [val for val in [self.settings.m_min, self.settings.m_max] if val is not None],
+                        [val for val in [self.settings.m_max] if val is not None],
                     )
 
             # Extend for lake level
