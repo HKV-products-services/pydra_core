@@ -71,26 +71,43 @@ class ExceedanceFrequencyLine(Calculation):
             steps = monz.step_size[self.result_variable]
             _, edges = uncs[0].discretise(steps)
             weights = np.diff(norm.cdf(edges))
+
+            # The upper bound includes the largest model uncertainty (added to h, multiplied with hs, tspec and tp)
+            if self.upper_bound is None:
+                largest = max(np.max(unc.discretise(steps)[0]) for unc in uncs)
+                upper = upper + largest if self.result_variable == "h" else upper * largest
         else:
             steps = 1
             weights = np.array([1.0])
 
-        # Calculate the frequency line. If the lower bound is not given and the exceedance frequency at the lowest level
-        # is smaller than 1/10 per year (e.g. coast, where the database starts at a higher sea level than the statistics),
-        # the lower bound is lowered and the frequency line is calculated again
-        for _ in range(5):
+        # Calculate the frequency line. If the bounds are not given, they are extended (at most 5 times each) and the
+        # frequency line is calculated again:
+        # - Lower bound: if the exceedance frequency at the lowest level is smaller than 1/10 per year (e.g. coast, where
+        #   the database starts at a higher sea level than the statistics).
+        # - Upper bound: if the exceedance frequency at the highest level is larger than 1e-6 per year (e.g. the wave
+        #   height with model uncertainty, where the factors exceed the 99% quantile of the database)
+        n_lower, n_upper = 0, 0
+        while True:
             levels = self.__get_levels(lower, upper)
             exp = self.__calculate_exceedance_frequency(location, levels, weights, steps, use_monz)
-            if (self.lower_bound is not None) or (exp[0] >= 0.1):
-                break
 
             # Lower the lower bound (not below 0 for other result variables than the water level)
+            extend_lower = (self.lower_bound is None) and (exp[0] < 0.1) and (n_lower < 5)
             new_lower = np.floor((lower - 0.5 * (upper - lower)) * 10) / 10
             if self.result_variable != "h":
                 new_lower = max(new_lower, 0.0)
-            if new_lower >= lower:
+            extend_lower = extend_lower and (new_lower < lower)
+
+            # Raise the upper bound
+            extend_upper = (self.upper_bound is None) and (exp[-1] > 1e-6) and (n_upper < 5)
+            new_upper = np.ceil((upper + 0.5 * (upper - lower)) * 10) / 10
+
+            if not (extend_lower or extend_upper):
                 break
-            lower = new_lower
+            if extend_lower:
+                lower, n_lower = new_lower, n_lower + 1
+            if extend_upper:
+                upper, n_upper = new_upper, n_upper + 1
 
         return FrequencyLine(levels, exp, self.result_variable)
 
