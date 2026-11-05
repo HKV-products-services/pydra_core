@@ -82,7 +82,7 @@ class StatisticsCoast(Statistics):
         kanswr = 1.0 if "r" in given else self.wind_direction.get_probability()[ir]
 
         # Probability of a sea level and wind speed given a wind direction
-        kans_um_r = self.p_mur[:, :, ir]
+        kans_um_r = self.p_mur[:, :, ir].copy()
 
         # If given, calculate the conditional probabilities
         if "u" in given:
@@ -95,6 +95,35 @@ class StatisticsCoast(Statistics):
 
         # Return probability
         return probability
+
+    def calculate_exceedance_probability_sea_level(self, wind_direction: float, levels: np.ndarray, given: list = []) -> np.ndarray:
+        """
+        Calculate the exceedance probability of the sea level given the wind direction, as in Hydra-NL (watersysteem_zee.f90).
+        The exceedance probability is linearly interpolated between the sea levels, and the (scaled) exceedance probability
+        of the highest sea level is subtracted.
+
+        Parameters
+        ----------
+        wind_direction : float
+            Wind direction
+        levels : np.ndarray
+            Sea levels
+        given : list
+            Given stochasts
+        """
+        # Probability of wind direction
+        ir = self.wind_direction.get_discretisation().tolist().index(wind_direction)
+        kanswr = 1.0 if "r" in given else self.wind_direction.get_probability()[ir]
+
+        # Exceedance probability of the sea level given the wind direction
+        m = self.sea_level.get_discretisation()
+        epm = self.sea_level.get_exceedance_probability()[:, ir]
+
+        # Hydra-NL subtracts the scaled exceedance probability of the highest sea level (for consistency with the contour integration)
+        scaling = epm[-1] / epm[-2] if epm[-2] > 0.0 else 1.0
+
+        # Return the exceedance probability
+        return (np.interp(levels, m, epm) - scaling * epm[-1]) * kanswr
 
     def __calculate_combined_probabilities(self):
         # Statistics

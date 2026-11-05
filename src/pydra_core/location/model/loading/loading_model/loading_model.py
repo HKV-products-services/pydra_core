@@ -41,6 +41,9 @@ class LoadingModel:
         self.input_variables = input_variables
         self.result_variables = result_variables
 
+        # Input variables along which the result is repaired after refining (e.g. Coast, as in Hydra-NL)
+        self.repair_after_refine = []
+
     def initialise(self, table: pd.DataFrame) -> None:
         """
         Create a LoadingModel from a pandas DataFrame.
@@ -63,11 +66,8 @@ class LoadingModel:
         for var in self.result_variables:
             setattr(self, var, np.full(shape, np.nan))
 
-        # Determine per input variabele where to put it into the results array
-        idxs = []
-        for key in self.input_variables:
-            idxlist = getattr(self, key).tolist()
-            idxs.append([idxlist.index(i) for i in table[key].array])
+        # Determine per input variabele where to put it into the results array (the discretisation is sorted and unique)
+        idxs = [np.searchsorted(getattr(self, key), table[key].to_numpy()) for key in self.input_variables]
 
         # Add the results to the result arrays
         for rvid in self.result_variables:
@@ -90,7 +90,7 @@ class LoadingModel:
         self,
         input_variable: str,
         grid: Union[list, np.ndarray],
-        include_bounds: bool = False,
+        include_bounds: bool = True,
         merge_grid: bool = True,
     ) -> None:
         """
@@ -103,7 +103,7 @@ class LoadingModel:
         grid : Union[list, np.ndarray]
             The 1D grid values to which the input variable should be extended.
         include_bounds : bool, optional
-            Whether or not to include values within the upper and lower bound of the input variable (default is False).
+            Whether or not to include values within the upper and lower bound of the input variable (default is True).
         merge_grid : bool, optional
             Whether or not to merge the new grid with the existing grid of the input variable (default is True).
         """
@@ -111,16 +111,19 @@ class LoadingModel:
         xp = getattr(self, input_variable)
         axis = self.input_variables.index(input_variable)
 
-        # If include_bounds = True, add values between the min and max, otherwise add all
+        # If include_bounds = False, only add the values outside the min and max
+        grid = np.atleast_1d(grid)
         if not include_bounds:
-            x = np.array([val for val in np.atleast_1d(grid) if not (xp.min() <= val <= xp.max())])
+            grid = grid[(grid < xp.min()) | (grid > xp.max())]
 
         # If merge_grid, add the grid to the existing values
         if merge_grid:
-            x = np.array(sorted(set(np.atleast_1d(grid)).union(xp)))
+            x = np.array(sorted(set(grid).union(xp)))
+        else:
+            x = np.array(sorted(set(grid)))
 
         # If x is empty or the requested values are equal to those already present, continue
-        if not any(x) or np.array_equal(x, xp):
+        if (len(x) == 0) or np.array_equal(x, xp):
             return None
 
         # Extend all result variables
@@ -197,9 +200,9 @@ class LoadingModel:
                 belasting_int = np.take(belasting_int, indices=np.where(idx)[0], axis=axis)
                 continue
 
-            # If xp is just one value, duplicate
+            # If xp is just one value, duplicate along the axis of the input variable
             if len(xp) == 1:
-                belasting_int = np.tile(belasting_int, (1, 1, len(x)))
+                belasting_int = np.repeat(belasting_int, len(x), axis=axis)
                 continue
 
             # Interpolate
@@ -221,6 +224,11 @@ class LoadingModel:
             else:
                 belasting_int = intstr.interp(fp=belasting_int, axis=axis)
 
+        # Repair the refined result (monotonically increasing) along the given input variables (not the wave direction)
+        if result_variable != "dir":
+            for inpvar in self.repair_after_refine:
+                belasting_int = np.maximum.accumulate(belasting_int, axis=self.input_variables.index(inpvar))
+
         # Return the interpolated array for the result variable
         return belasting_int
 
@@ -228,7 +236,7 @@ class LoadingModel:
         self,
         input_variable: str,
         result_variables: Union[str, list] = None,
-        epsilon: float = 1e-6,
+        epsilon: float = 0.0,
     ) -> None:
         """
         Make the result values of the given output variable monotonically increasing along the axis of a given input variable.
@@ -240,7 +248,7 @@ class LoadingModel:
         result_variables : Union[str, list]
             The name of the output variable to be made monotonically increasing.
         epsilon : float, optional
-            The minimum difference between the values of the repaired output variable (default is 1e-6).
+            The minimum difference between the values of the repaired output variable (default is 0.0, a running maximum as in Hydra-NL).
         """
         # Obtain the relevant axis
         axis = self.input_variables.index(input_variable)

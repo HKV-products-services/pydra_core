@@ -84,7 +84,7 @@ class StatisticsLowerRiver(Statistics):
                 # Note: use the momentary probability of the discharge
                 kansafvoer = ProbabilityFunctions.probability_density(
                     self.discharge.get_discretisation(),
-                    1 - self.discharge.get_exceedance_probability(),
+                    self.discharge.get_exceedance_probability(),
                 ).probability
 
             # Kans op windrichting
@@ -132,14 +132,17 @@ class StatisticsLowerRiver(Statistics):
                 # Let op! gebruikt de MOMENTANE kans van een afvoer
                 kansafvoer = ProbabilityFunctions.probability_density(
                     self.discharge.get_discretisation(),
-                    1 - self.discharge.get_exceedance_probability(),
+                    self.discharge.get_exceedance_probability(),
                 ).probability
 
             # Kans op windrichting
             kanswr = 1.0 if "r" in given else self.wind_direction.get_probability()[ir]
 
+            # In sector oost is de kering altijd open (zoals in Hydra-NL), de situatie 'dicht' telt niet mee
+            sluitkans = 1.0 if ("k" in given) or (closing_situation == 1) else 0.0
+
             # Combineer alle kansen
-            return kanswind * kansafvoer[None, :] * kanswr
+            return kanswind * kansafvoer[None, :] * kanswr * sluitkans
 
     def ovkansu_m(self, wind_direction: float):
         """

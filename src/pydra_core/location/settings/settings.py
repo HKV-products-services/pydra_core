@@ -7,7 +7,7 @@ from shapely.geometry import Point, shape
 
 from ...common.common import CommonFunctions
 from ...common.enum import WaterSystem
-from ...io.database_settings import DatabaseSettings
+from ...io.calculation_settings_reader import CalculationSettingsReader
 
 
 class Settings:
@@ -37,7 +37,7 @@ class Settings:
     q_repair = None  # REPAREER_Q
     q_min = None  # QMIN
     q_max = None  # QMAX
-    q_step = None  # QSTAP (UNUSED IN PYDRA)
+    q_step = None  # QSTAP
     q_limit = None  # QAFTOP
 
     # Sea level
@@ -86,9 +86,9 @@ class Settings:
     failure_probability_ramspol = None  # FAALKANSKERING
 
     # Model uncertainty
-    model_uncertainty_water_level_steps = 7  # WS_ONZ_AANTAL
-    model_uncertainty_wave_height_steps = 5  # GH_ONZ_AANTAL
-    model_uncertainty_wave_period_steps = 5  # GP_ONZ_AANTAL
+    model_uncertainty_water_level_steps = None  # WS_ONZ_AANTAL
+    model_uncertainty_wave_height_steps = None  # GH_ONZ_AANTAL
+    model_uncertainty_wave_period_steps = None  # GP_ONZ_AANTAL
 
     # File paths
     # Database
@@ -157,7 +157,7 @@ class Settings:
             self.__determine_sea_level_statistics_points()
 
         # Obtain and set settings
-        with DatabaseSettings() as database:
+        with CalculationSettingsReader() as database:
             settings = database.get_settings(self.watersystem)
 
         # Loop through settings
@@ -208,7 +208,7 @@ class Settings:
             WaterSystem.COAST_NORTH,
         ]:
             # Obtain table
-            with DatabaseSettings() as database:
+            with CalculationSettingsReader() as database:
                 refpoints = database.get_sea_level_statistic_points(self.watersystem)
                 subsystems = database.get_sea_level_sub_systems(self.watersystem)
 
@@ -235,7 +235,7 @@ class Settings:
             WaterSystem.WADDEN_SEA_EAST,
         ]:
             # Obtain table
-            with DatabaseSettings() as database:
+            with CalculationSettingsReader() as database:
                 refpoints = database.get_sea_level_statistic_points(self.watersystem)
                 subsystems = database.get_sea_level_sub_systems(self.watersystem)
 

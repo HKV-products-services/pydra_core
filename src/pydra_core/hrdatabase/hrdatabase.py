@@ -4,7 +4,7 @@ import warnings
 from typing import List, Union
 
 from ..common.enum import WaterSystem
-from ..io.database_hr import DatabaseHR
+from ..io.hrdatabase_reader import HRDReader
 from ..location.location import Location
 from ..location.settings.settings import Settings
 
@@ -17,8 +17,8 @@ class HRDatabase:
     ----------
     watersystem, WaterSystem
         Water system of the dike trajectory
-    locations, list
-        List with all locations in the database
+    locationnames, list
+        List with all location names in the database
     """
 
     def __init__(self, database_path: str) -> None:
@@ -30,12 +30,9 @@ class HRDatabase:
             raise FileNotFoundError()
 
         # Obtain water system and locations
-        with DatabaseHR(database_path) as database:
+        with HRDReader(database_path) as database:
             self.watersystem = database.get_water_system()
             self.locationnames = database.get_hrdlocations_names()
-
-        # Empty locations
-        self.locations = {}
 
     def __len__(self) -> int:
         """
@@ -105,26 +102,17 @@ class HRDatabase:
             The Location object for the given settings
         """
         # If the object is Settings
+        # Always create a new location: a cached location would share its (mutable) model with earlier calls,
+        # and a location with adjusted settings would be returned for a later call with only the name
         if isinstance(settings_or_str, Settings):
-            # Create the location and save it in the cache
-            self.locations[settings_or_str.location] = Location(settings_or_str)
-
-            # Return location
-            return self.locations[settings_or_str.location]
+            return Location(settings_or_str)
 
         # If the object is a string
         elif isinstance(settings_or_str, str):
             # Check if the hrdlocation exists
             if self.check_location(settings_or_str):
-                # If the location is not cached, create the location
-                if settings_or_str not in self.locations:
-                    # Default settings and create location
-                    settings = self.get_settings(settings_or_str)
-                    return self.create_location(settings)
-
-                # Return the cached location
-                else:
-                    return self.locations[settings_or_str]
+                # Default settings and create location
+                return Location(self.get_settings(settings_or_str))
 
             # Otherwise, raise an exception
             else:

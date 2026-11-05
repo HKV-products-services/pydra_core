@@ -42,7 +42,7 @@ class Discharge:
         # Create grid with blok discharges
         if settings.q_min < np.min(self.qpeak):
             step = self.qpeak[1] - self.qpeak[0]
-            self.qblok = np.r_[np.arange(settings.q_min, np.min(self.qpeak), step), self.qpiek]
+            self.qblok = np.r_[np.arange(settings.q_min, np.min(self.qpeak), step), self.qpeak]
         elif settings.q_min > np.min(self.qpeak):
             raise ValueError("[ERROR] Q_min is larger than the lowest Q_peak.")
         else:
@@ -53,7 +53,8 @@ class Discharge:
         inst_epq = self.wave_shape.instantaneous_exceedance_probability(self.epqpeak, self.qblok)
 
         # Make sure the exceedance probability is not larger than 1 or smaller than 0
-        self.upqblok = np.clip(1.0 - inst_epq, 0.0, 1.0)
+        self.epqblok = np.clip(inst_epq, 0.0, 1.0)
+        self.upqblok = 1.0 - self.epqblok
 
     def __len__(self):
         """
@@ -79,14 +80,14 @@ class Discharge:
 
     def get_exceedance_probability(self) -> np.ndarray:
         """
-        Return exceedance probility of the discharge
+        Return the instantaneous exceedance probability of the discharge
 
         Returns
         -------
         np.ndarray
             A 1D array with the discharge exceedance probability
         """
-        return self.upqblok
+        return self.epqblok
 
     def get_wave_shape(self) -> WaveShape:
         """

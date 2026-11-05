@@ -469,71 +469,62 @@ class WaveShape:
         return wave_shapes
 
     @staticmethod
-    def bepaal_gezamenlijke_overschrijding(golfvormen_st1, niveaus_st1, golfvormen_st2, niveaus_st2) -> np.ndarray:
-        # Bepaal overschrijdingstijdstippen van beide stochasten in de golfvorm
-        kruisng = np.zeros((len(niveaus_st1), len(niveaus_st2), 4))
-        helling = np.zeros((len(niveaus_st1), len(niveaus_st2), 4), dtype=int)
-        duren = np.zeros(
-            (
-                golfvormen_st1.npeak,
-                golfvormen_st2.npeak,
-                len(niveaus_st1),
-                len(niveaus_st2),
-            ),
-            dtype=float,
-        )
+    def bepaal_gezamenlijke_overschrijding(golfvormen_st1, niveaus_st1, golfvormen_st2, niveaus_st2, gewichten: np.ndarray = None) -> np.ndarray:
+        """
+        Determine the duration that both stochasts exceed their levels at the same time (as Hydra-NL, OVERSCHRIJDINGSDUREN).
+        For each peak and level, the exceedance of a stochast consists of at most two intervals: [t1, t2] if the wave
+        crosses the level upwards first, otherwise [tmin, t1] and [t2, tmax]. The joint duration is the overlap.
 
-        # Bepaal eerst alle tijdstippen voor stochast 1
-        kruisingen_st1 = np.zeros((golfvormen_st1.npeak, len(niveaus_st1), 2), dtype=float)
-        helling_st1 = np.zeros((golfvormen_st1.npeak, len(niveaus_st1), 2), dtype=int)
-        for ip1 in range(golfvormen_st1.npeak):
-            # Bepaal voor elk blokniveau de overschrijdingsduren
-            kruisingen_st1[ip1, :, :], helling_st1[ip1, :, :] = golfvormen_st1._overschrijdingstijdstip_op_af_v2(golfvormen_st1.wave_shapes[:, ip1], golfvormen_st1.time, niveaus_st1)
+        Parameters
+        ----------
+        golfvormen_st1, golfvormen_st2 : WaveShape
+            Wave shapes of the two stochasts
+        niveaus_st1, niveaus_st2 : np.ndarray
+            Levels of the two stochasts
+        gewichten : np.ndarray, optional
+            Weights per combination of peaks [npeak_st1, npeak_st2]. If given, the weighted sum over the peaks is returned
+            [nlevels_st1, nlevels_st2], otherwise the durations per combination of peaks and levels.
+        """
 
-        arange = np.arange(max(len(niveaus_st1), len(niveaus_st2)))
+        def bepaal_intervallen(golfvormen, niveaus):
+            # Begin- en eindtijden van (hooguit) twee overschrijdingsintervallen per piek en niveau (lege intervallen: 0, 0)
+            begin = np.zeros((2, golfvormen.npeak, len(niveaus)))
+            eind = np.zeros((2, golfvormen.npeak, len(niveaus)))
+            for ip in range(golfvormen.npeak):
+                t1t2, helling = golfvormen._overschrijdingstijdstip_op_af_v2(golfvormen.wave_shapes[:, ip], golfvormen.time, niveaus)
+                # Niveaus boven de piek (-1) worden niet overschreden
+                valid = t1t2[:, 0] != -1.0
+                # Eerst opgaand (helling -1): overschrijding tussen de kruisingen
+                op = valid & (helling[:, 0] < 0)
+                begin[0, ip, op], eind[0, ip, op] = t1t2[op, 0], t1t2[op, 1]
+                # Eerst neergaand (helling +1): overschrijding voor de eerste en na de tweede kruising
+                neer = valid & (helling[:, 0] > 0)
+                begin[0, ip, neer], eind[0, ip, neer] = golfvormen.time.min(), t1t2[neer, 0]
+                begin[1, ip, neer], eind[1, ip, neer] = t1t2[neer, 1], golfvormen.time.max()
+            return begin, eind
 
-        # loop vervolgens over stochast 2
-        kruisingen_st2 = np.zeros((len(niveaus_st2), 2))
-        helling_st2 = np.zeros((len(niveaus_st2), 2))
+        # Bepaal de overschrijdingsintervallen van beide stochasten
+        begin1, eind1 = bepaal_intervallen(golfvormen_st1, niveaus_st1)
+        begin2, eind2 = bepaal_intervallen(golfvormen_st2, niveaus_st2)
+
+        # Gezamenlijke overschrijdingsduur (overlap van de intervallen) per piek van stochast 2
+        if gewichten is None:
+            duren = np.zeros((golfvormen_st1.npeak, golfvormen_st2.npeak, len(niveaus_st1), len(niveaus_st2)))
+        else:
+            duren = np.zeros((len(niveaus_st1), len(niveaus_st2)))
         for ip2 in range(golfvormen_st2.npeak):
-            # Bepaal voor elk blokniveau de overschrijdingsduren
-            kruisingen_st2[:, :], helling_st2[:, :] = golfvormen_st2._overschrijdingstijdstip_op_af_v2(golfvormen_st2.wave_shapes[:, ip2], golfvormen_st2.time, niveaus_st2)
-
-            # Bepaal voor elk piekniveau van stochast 2 de gezamenlijke overschrijdingen
-            # Doe dit door de tijdstippen voor elke combinatie samen te voegen, te sorteren
-            # op absolute waarde, en de overgang van laatste opgaand naar eerste neergaand
-            # te bepalen
-            for ip1 in range(golfvormen_st1.npeak):
-                idx1 = kruisingen_st1[ip1, :, 0] != -1.0
-                idx2 = kruisingen_st2[:, 0] != -1.0
-
-                len1 = idx1.sum()
-                len2 = idx2.sum()
-                kruisng = np.zeros((len1, len2, 4))
-                helling = np.zeros((len1, len2, 4), dtype=np.int8)
-
-                # Vul arrays
-                kruisng[:, :, :2] = kruisingen_st1[ip1, idx1, None, :]
-                kruisng[:, :, 2:] = kruisingen_st2[None, idx2, :]
-
-                helling[:, :, :2] = helling_st1[ip1, idx1, None, :]
-                helling[:, :, 2:] = helling_st2[None, idx2, :]
-
-                # Sorteer
-                order = np.argsort(np.absolute(kruisng), axis=2)
-                i1, i2 = arange[:len1, None, None], arange[None, :len2, None]
-                kruisng[...] = kruisng[i1, i2, order]
-                helling[...] = helling[i1, i2, order]
-
-                # Bepaal alle plekken waar een tekenwisseling (kruising tussen golf en niveau) plaatsvindt
-                wh = np.where((helling[:, :, 1:] ^ helling[:, :, :-1]))
-
-                # Bereken het tijdsverschil bij tekenwisseling
-                diff = kruisng[wh[0], wh[1], wh[2] + 1] - kruisng[wh[0], wh[1], wh[2]]
-                # Zet tijdverschil bij neergaand naar opgaand op 0
-                diff[(helling[wh[0], wh[1], wh[2] + 1] < helling[wh[0], wh[1], wh[2]])] = 0.0
-                # print(diff.max(), diff.min())
-                duren[ip1, ip2, wh[0], wh[1]] += diff
+            # Sla combinaties zonder gewicht over
+            if (gewichten is not None) and not gewichten[:, ip2].any():
+                continue
+            duur = np.zeros((golfvormen_st1.npeak, len(niveaus_st1), len(niveaus_st2)))
+            for i in range(2):
+                for j in range(2):
+                    overlap = np.minimum(eind1[i][:, :, None], eind2[j, ip2][None, None, :]) - np.maximum(begin1[i][:, :, None], begin2[j, ip2][None, None, :])
+                    duur += np.maximum(overlap, 0.0)
+            if gewichten is None:
+                duren[:, ip2] = duur
+            else:
+                duren += np.tensordot(gewichten[:, ip2], duur, axes=(0, 0))
 
         return duren
 

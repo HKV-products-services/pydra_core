@@ -7,7 +7,7 @@ from ..wind_speed import WindSpeed
 from ....loading.loading_model.loading_model import LoadingModel
 from .....settings.settings import Settings
 from ......common.interpolate import InterpStruct, Interpolate
-from ......io.database_hr import DatabaseHR
+from ......io.hrdatabase_reader import HRDReader
 from ......io.file_hydranl import FileHydraNL
 
 
@@ -39,13 +39,13 @@ class BarrierEasternScheldt(Barrier):
         self.m_closing, self.p_closing_k = FileHydraNL.read_file_ncolumns(settings.barrier_closing_probability)
 
         # Database connection
-        with DatabaseHR(settings.database_path) as database:
+        with HRDReader.from_settings(settings) as database:
             # Read closing situations
-            self.closing_situations = database.get_closing_situations_eastern_scheldt()
+            self.closing_situations = database.get_closing_situations()
 
             # Maak sluitpeilen structure (u, m, r, d, p)
             self.closing_levels = LoadingModel(None, None, ["u", "m", "r", "d", "p"], ["h_rpb"])
-            self.closing_levels.initialise(database.get_closing_levels_table_eastern_scheldt())
+            self.closing_levels.initialise(database.get_closing_levels())
 
         # h_roompot_buiten bevat de waterstand bij RPBU. Het sluitpeil van de oosterscheldekering is 3.0 m+NAP
         # bij hogere waterstanden zal de kering dus (pogen) te sluiten. Nu is de kans op al dan niet sluiten
@@ -65,10 +65,24 @@ class BarrierEasternScheldt(Barrier):
         intstr = InterpStruct(x=sea_level.get_discretisation(), xp=self.closing_levels.m)
         self.h_rpb = intstr.interp(fp=levels_u, axis=self.closing_levels.input_variables.index("m"))
 
-        # Controleer op waarden van -9 en kleiner.
-        self.not_closing = self.h_rpb <= -9.0
+        # Controleer op waarden van -9 en kleiner. Met een kleine marge, omdat het rooster van de zeewaterstand
+        # afrondingsfouten bevat (bijv. 2.9000000000000012), waardoor een -9 op een roosterpunt net groter wordt dan -9
+        self.not_closing = self.h_rpb <= -9.0 + 1e-6
+
+        # Opgeslagen sluitkansen per windrichting en sluitsituatie
+        self.closing_probability = {}
 
     def calculate_closing_probability(self, wind_direction: float, closing_situation: int) -> np.ndarray:
+        """
+        Geef de kans op het al dan niet falen van N sluizen in de Oosterscheldekering en het type sluiting.
+        De kansen worden per windrichting en sluitsituatie eenmalig berekend en daarna opgeslagen.
+        """
+        key = (wind_direction, closing_situation)
+        if key not in self.closing_probability:
+            self.closing_probability[key] = self.__calculate_closing_probability(wind_direction, closing_situation)
+        return self.closing_probability[key].copy()
+
+    def __calculate_closing_probability(self, wind_direction: float, closing_situation: int) -> np.ndarray:
         """
         Bereken de kans op het al dan niet falen van N sluizen
         in de Oosterscheldekering en het type sluiting (nood of strategie)

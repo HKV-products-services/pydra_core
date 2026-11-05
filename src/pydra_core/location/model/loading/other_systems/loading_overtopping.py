@@ -14,7 +14,7 @@ class LoadingOvertopping(Loading):
     This Loading is used to calculate overtopping
     """
 
-    def __init__(self, location: Location, ws_range: np.ndarray):
+    def __init__(self, location: Location, ws_range: np.ndarray = None):
         """
         Init the Loading object for the Waves Overtopping
 
@@ -130,7 +130,8 @@ class LoadingOvertopping(Loading):
             h_all = np.array(waterstanden)[np.unique(np.round(waterstanden, 3), return_index=True)[1]]
             # Als er minder waterstanden voorkomen bij deze richting, dan de voorgenomen
             # range, kies dan deze waterstanden
-            if len(h_all) <= len(ws_range):
+            # Without a range (None), always the water levels from the database
+            if (ws_range is None) or (len(h_all) <= len(ws_range)):
                 ws_per_r[richting] = h_all
             else:
                 ws_per_r[richting] = ws_range

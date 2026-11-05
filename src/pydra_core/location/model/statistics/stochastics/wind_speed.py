@@ -5,7 +5,7 @@ from scipy.stats import norm
 from .discrete_probability import DiscreteProbability
 from .sigma_function import SigmaFunction
 from ....settings.settings import Settings
-from .....common.interpolate import Interpolate
+from .....common.interpolate import Interpolate, InterpStruct
 from .....io.file_hydranl import FileHydraNL
 
 
@@ -69,8 +69,9 @@ class WindSpeed:
 
             # Add exceedance probabilities (extrapolate)
             for i, col in enumerate(eplu.T):
-                # If the last value is 0 or less, add zeroes
+                # If the last value is 0 or less, copy the values and add zeroes
                 if col[-1] <= 0.0:
+                    self.epu[: len(lu), i] = col
                     self.epu[len(lu) :, i] = 0.0
 
                 # Otherwise, extrapolate logarithmically
@@ -88,11 +89,15 @@ class WindSpeed:
             ugrid = np.concatenate([np.arange(0, settings.u_max, settings.u_step), [settings.u_max]])
 
             # Interpolate the exceedance probabilities for this grid
+            # Logarithmic if both surrounding values are positive, otherwise linear (LOGPOS_INEXTRP1 in Hydra-NL)
+            intstr = InterpStruct(x=ugrid, xp=u)
             epu = []
             for col in self.epu.T:
-                logep = col
-                logep[logep > 0.0] = np.log(logep[logep > 0.0])
-                epu.append(np.exp(Interpolate.inextrp1d(x=ugrid, xp=u, fp=logep)))
+                ep = np.maximum(0.0, intstr.interp(fp=col))
+                pos = (col[intstr.intidx] > 0.0) & (col[intstr.intidx + 1] > 0.0)
+                logep = np.log(np.where(col > 0.0, col, 1.0))
+                ep[pos] = np.exp(intstr.interp(fp=logep)[pos])
+                epu.append(ep)
 
             # Vervang overschrijdingskansen en u
             self.epu = np.c_[epu].T

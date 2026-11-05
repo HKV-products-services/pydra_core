@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from scipy.stats import multivariate_normal, norm
 
 from ....settings.settings import Settings
-from .....io.database_hr import DatabaseHR
+from .....io.hrdatabase_reader import HRDReader
 
 
 class ModelUncertainty:
@@ -17,10 +17,6 @@ class ModelUncertainty:
         A dictionary with
     """
 
-    # Init attributes
-    model_uncertainties = {}
-    correlations = {}
-
     def __init__(self, settings: Settings):
         """
         Read the model uncertainties from the database and add them to this class
@@ -30,6 +26,10 @@ class ModelUncertainty:
         settings : Settings
             The Settings object
         """
+        # Per instance, so locations do not share their model uncertainties
+        self.model_uncertainties = {}
+        self.correlations = {}
+
         # Save the discretisation step size
         self.step_size = {
             "h": settings.model_uncertainty_water_level_steps,
@@ -39,7 +39,7 @@ class ModelUncertainty:
         }
 
         # Obtain the model uncertainties and correlation between model uncertainties
-        with DatabaseHR(settings.database_path) as database:
+        with HRDReader.from_settings(settings) as database:
             mu = database.get_model_uncertainties(settings)
             cu = database.get_correlation_uncertainties(settings)
 
@@ -68,10 +68,14 @@ class ModelUncertainty:
         iterator
             (dh, fhs, ftspec, probability of (dh, fhs, ftspec))
         """
+        # Water level (without model uncertainty, e.g. at sea, no shift)
         mu_h = self.get_model_uncertainty("h", closing_situation)
-        h, hedges = mu_h.discretise(self.step_size["h"])
-        tmp = norm.cdf(hedges)
-        p_h = tmp[1:] - tmp[:-1]
+        if mu_h is not None:
+            h, hedges = mu_h.discretise(self.step_size["h"])
+            tmp = norm.cdf(hedges)
+            p_h = tmp[1:] - tmp[:-1]
+        else:
+            h, p_h = [0.0], np.array([1.0])
 
         assert abs(p_h.sum() - 1) < 1e-6
 
@@ -176,7 +180,11 @@ class ModelUncertainty:
         rv = result_variable.lower()
 
         # Try to return the model uncertainty, otherwise return None
-        return self.model_uncertainties.get((closing_situation, rv))
+        # With only one of the wave periods in the database, the uncertainty of tspec and tp are equal (Hydra-NL, KIES_ONZ_ZOET)
+        dis = self.model_uncertainties.get((closing_situation, rv))
+        if (dis is None) and (rv in ["tspec", "tp"]):
+            dis = self.model_uncertainties.get((closing_situation, "tp" if rv == "tspec" else "tspec"))
+        return dis
 
     def get_correlation(self, result_variable1: str, result_variable2: str, closing_situation: int = 1):
         """
@@ -334,6 +342,11 @@ class DistributionUncertainty:
             )
             - self.mu
         ) / self.sigma
+
+        # Multiplicative uncertainty (hs, tspec, tp) as in Hydra-NL (modelonzekerheden.f90): discretised around 1 with
+        # sigma, then multiplied by the bias mu. The factors are mu * (1 + k * sigma) instead of mu + k * sigma
+        if self.rvid in ["hs", "tspec", "tp"]:
+            probabilities = self.mu * (1.0 + (probabilities - self.mu))
 
         # Return probabilities and edges
         return probabilities, edges

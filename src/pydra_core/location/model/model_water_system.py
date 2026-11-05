@@ -2,6 +2,7 @@ import numpy as np
 
 from .model_base import ModelBase
 from .loading.loading_factory import LoadingFactory
+from .loading.water_systems.loading_coast import LoadingCoast
 from .statistics.statistics_factory import StatisticsFactory
 from ..settings.settings import Settings
 from ...common.probability import ProbabilityFunctions
@@ -20,6 +21,10 @@ class ModelWaterSystem(ModelBase):
 
         # Loading
         self.loading = LoadingFactory.get_loading(self.settings)
+
+        # For the coast, extend the loading to the lowest sea level of the statistics (as in Hydra-NL)
+        if isinstance(self.loading, LoadingCoast):
+            self.loading.extend_lowest_sea_level(self.statistics.sea_level.get_discretisation()[0])
 
     def process_slow_stochastics(self, exceedance_probability: np.ndarray, axis: int = None) -> np.ndarray:
         """
@@ -144,7 +149,11 @@ class ModelWaterSystem(ModelBase):
 
         nt = len(tijden)
 
-        for it in range(nt - 1):
+        for it in range(nt):
+            # Als de eindduur kleiner is dan een halve block_duration, wordt het laatste tijdstip niet gebruikt
+            if (it == (nt - 1)) and (eindduur < (0.5 * block_duration)):
+                continue
+
             # Interpoleer de overschrijdingskansen
             if len(slow_stochastics) == 1:
                 # Bepaal de index van de interpolatiewaarden (afvoeren / meerpeil) voor de betreffende tijdstap
@@ -202,18 +211,17 @@ class ModelWaterSystem(ModelBase):
             if it == 0:
                 blokondkans[:] **= 0.5
 
-            # Neem het voorlaatste en laatste blok samen
-            if it == (nt - 1):
+            # Het voorlaatste en laatste blok worden samen behandeld (zie verwerkgolf.f90 in Hydra-NL)
+            elif it == (nt - 2):
                 # Als de eindduur kleiner is dan een halve block_duration, dan is de factor kleiner dan 1
                 if eindduur < (0.5 * block_duration):
                     factor = ((0.5 * block_duration) + eindduur) / block_duration
                     blokondkans[:] **= factor
 
-                # Als de eindduur groter of even lang is als een halve block_duration
-                else:
-                    # Vermenig de block_duration ook nog met het laatste blokje
-                    factor = (eindduur - (block_duration / 2.0)) / block_duration
-                    blokondkans[:] *= (1.0 - ovkansen[:, :]) ** factor
+            # Laatste blok, alleen als de eindduur groter of even lang is als een halve block_duration
+            elif it == (nt - 1):
+                factor = (eindduur - (block_duration / 2.0)) / block_duration
+                blokondkans[:] **= factor
 
             ondkanstot *= blokondkans
 

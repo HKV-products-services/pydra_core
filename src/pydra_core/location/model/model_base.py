@@ -1,9 +1,11 @@
 import numpy as np
 
 from abc import ABC
+from scipy.sparse import csr_matrix
 
 from .loading.loading import Loading
 from .statistics.statistics import Statistics
+from .statistics.water_systems.statistics_coast import StatisticsCoast
 from ..settings.settings import Settings
 from ...common.probability import ProbabilityFunctions
 
@@ -106,20 +108,15 @@ class ModelBase(ABC):
                     haxis=0,
                 )
 
-            # Find nonzero positions in probability_loading
-            nz = np.nonzero(probability_loading)
-
             # Create an index to accumulate the probabilities.
             # If the discrete variables are included in the splitting, assign a specific position here.
             # Otherwise, they are added to the rest of the probabilities.
-            if nz[0].size > 0:
-                idx = [slice(None)] * len(shp)
-                if "r" in split_input_variables:
-                    idx[split_input_variables.index("r") + 1] = ir
-                if "k" in split_input_variables:
-                    idx[split_input_variables.index("k") + 1] = ik
-                # probability[tuple(idx)] += probability_loading
-                probability[tuple(idx)][nz] += probability_loading[nz]
+            idx = [slice(None)] * len(shp)
+            if "r" in split_input_variables:
+                idx[split_input_variables.index("r") + 1] = ir
+            if "k" in split_input_variables:
+                idx[split_input_variables.index("k") + 1] = ik
+            probability[tuple(idx)] += probability_loading
 
         return probability
 
@@ -165,6 +162,17 @@ class ModelBase(ABC):
 
         # Make a copy of the loading model for (r, k) to prevent overwriting the one assigned to this object
         loading_model = loading.model[(direction, closing_situation)]
+
+        # For the coast the water level is equal to the sea level plus a correction. As in Hydra-NL, the probability is then
+        # derived directly from the sea level statistics instead of splitting the load into classes on the sea level grid
+        if (result_variable == "h") and isinstance(statistics, StatisticsCoast) and (len(split_input_variables) == 0) and ("u" not in given) and ("m" not in given):
+            shape = [1] * loading_model.h.ndim
+            shape[loading_model.input_variables.index("m")] = -1
+            correction = loading_model.h - loading_model.m.reshape(shape)
+            if np.ptp(correction) < 1e-6:
+                levels_m = np.concatenate([[-np.inf], levels - np.mean(correction)])
+                exceedance_probability = statistics.calculate_exceedance_probability_sea_level(direction, levels_m, given=given)
+                return -np.diff(np.concatenate([exceedance_probability, [0.0]]))
 
         # Refine the loading onto the (finer) grid used in the statistics
         comb_fast_slow = {**statistics.stochastics_fast, **statistics.stochastics_slow}
@@ -223,10 +231,14 @@ class ModelBase(ABC):
 
         # Sum all probabilities into the relevant bin (based on the levels)
         if len(extra_kansvar) > 0:
-            for i, idx in enumerate(zip(*idxs)):
-                probability[idx] += loading_probability[i]
+            # Sum the rows (with the extra dimensions) with a sparse matrix (much faster than a loop over all cells)
+            flat = np.ravel_multi_index(tuple(idxs), probability.shape[: len(idxs)])
+            matrix = csr_matrix((np.ones(len(flat)), (flat, np.arange(len(flat)))), shape=(int(np.prod(probability.shape[: len(idxs)])), len(flat)))
+            probability = (matrix @ loading_probability.reshape(len(flat), -1)).reshape(probability.shape)
         else:
-            np.add.at(probability, tuple(idxs), loading_probability)
+            # Sum with bincount on the flat index (much faster than np.add.at)
+            flat = np.ravel_multi_index(tuple(idxs), probability.shape)
+            probability = np.bincount(flat, weights=loading_probability, minlength=probability.size).reshape(probability.shape)
 
         # Return the probabilities
         return probability

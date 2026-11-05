@@ -73,15 +73,15 @@ class Loading(ABC):
                 if len(model.q) > 1:
                     model.extend(
                         "q",
-                        list(filter(None, [self.settings.q_min, self.settings.q_max])),
+                        [val for val in [self.settings.q_min, self.settings.q_max] if val is not None],
                     )
 
-            # Extend for sea level
+            # Extend for sea level (only to the highest sea level, as in Hydra-NL the lowest sea level is not considered)
             if "m" in model.input_variables:
                 if len(model.m) > 1:
                     model.extend(
                         "m",
-                        list(filter(None, [self.settings.m_min, self.settings.m_max])),
+                        [val for val in [self.settings.m_max] if val is not None],
                     )
 
             # Extend for lake level
@@ -89,10 +89,10 @@ class Loading(ABC):
                 if len(model.a) > 1:
                     model.extend(
                         "a",
-                        list(filter(None, [self.settings.a_min, self.settings.a_max])),
+                        [val for val in [self.settings.a_min, self.settings.a_max] if val is not None],
                     )
 
-    def repair_loadingmodels(self, result_variables: Union[list, str], epsilon: float = 1e-6) -> None:
+    def repair_loadingmodels(self, result_variables: Union[list, str], epsilon: float = 0.0) -> None:
         """
         Repair the result variables for all LoadingModels
         Repairs depending on the '{input_variable}_repair' flag in the Settings
@@ -102,7 +102,7 @@ class Loading(ABC):
         result_variables : Union[list, str]
             Result variables
         epsilon : float
-            The minimum increase when repairing (default : 1e-6)
+            The minimum increase when repairing (default : 0.0, a running maximum as in Hydra-NL)
         """
         # For each LoadingModel (wind direction and closing situation)
         for _, model in self.iter_models():
