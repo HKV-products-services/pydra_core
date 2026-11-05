@@ -253,10 +253,11 @@ Opzet profiel en uitvoerpunt
 <pre><code>database_path                  = data/WBI2017_Westerschelde_30-4_v03.sqlite
 location                       = WS_1_30-4_dk_00002
 m_max                          = 9.0
+m_repair                       = True
 m_step                         = 0.01
-model_uncertainty_water_level_steps = 7
-model_uncertainty_wave_height_steps = 5
-model_uncertainty_wave_period_steps = 5
+model_uncertainty_water_level_steps = 7.0
+model_uncertainty_wave_height_steps = 5.0
+model_uncertainty_wave_period_steps = 5.0
 periods_block_duration         = 360.0
 region                         = 5.0
 sea                            = 11.0
@@ -290,7 +291,7 @@ y_coordinate                   = 383394</code></pre>
 <div id="f30a0495" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>location.get_profile()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
-<pre><code>&lt;pydra_core.location.profile.profile.Profile at 0x2c599363a10&gt;</code></pre>
+<pre><code>&lt;pydra_core.location.profile.profile.Profile at 0x249f73f3a10&gt;</code></pre>
 </div>
 </div>
 <p>Je kan een profiel overschrijven door de <i>set_profile(Profile)</i> opnieuw te gebruiken. Je kan een profiel verwijderen door <i>remove_profile()</i> aan te roepen.</p>
@@ -313,41 +314,12 @@ q_overtopping (standaard 0.01 m3/m/s): Het kritische overslagdebiet.
 <p>Vervolgens kunnen we met het rekenobject <i>hbn</i> een overschrijdingsfrequentielijn bepalen voor HR uitvoerpunt ‘WS_1_30-4_dk_00002’ door de <i>calculate()</i> functie aan te roepen van het rekenobject en het <i>location</i> object als argument mee te geven.</p>
 <div id="5622f190" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>hbn_borselle <span class="op">=</span> hbn.calculate(location)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[09:20:03]: Model uncertainties 1/25 (fhs = 0.558; ftspec = 0.71; p = 0.002)
-[09:20:03]: Model uncertainties 2/25 (fhs = 0.558; ftspec = 0.835; p = 0.011)
-[09:20:03]: Model uncertainties 3/25 (fhs = 0.558; ftspec = 0.96; p = 0.019)
-[09:20:03]: Model uncertainties 4/25 (fhs = 0.558; ftspec = 1.085; p = 0.011)
-[09:20:03]: Model uncertainties 5/25 (fhs = 0.558; ftspec = 1.21; p = 0.002)
-[09:20:03]: Model uncertainties 6/25 (fhs = 0.774; ftspec = 0.71; p = 0.011)
-[09:20:03]: Model uncertainties 7/25 (fhs = 0.774; ftspec = 0.835; p = 0.058)
-[09:20:03]: Model uncertainties 8/25 (fhs = 0.774; ftspec = 0.96; p = 0.104)
-[09:20:03]: Model uncertainties 9/25 (fhs = 0.774; ftspec = 1.085; p = 0.058)
-[09:20:03]: Model uncertainties 10/25 (fhs = 0.774; ftspec = 1.21; p = 0.011)
-[09:20:03]: Model uncertainties 11/25 (fhs = 0.99; ftspec = 0.71; p = 0.019)
-[09:20:03]: Model uncertainties 12/25 (fhs = 0.99; ftspec = 0.835; p = 0.104)
-[09:20:03]: Model uncertainties 13/25 (fhs = 0.99; ftspec = 0.96; p = 0.185)
-[09:20:03]: Model uncertainties 14/25 (fhs = 0.99; ftspec = 1.085; p = 0.104)
-[09:20:03]: Model uncertainties 15/25 (fhs = 0.99; ftspec = 1.21; p = 0.019)
-[09:20:03]: Model uncertainties 16/25 (fhs = 1.206; ftspec = 0.71; p = 0.011)
-[09:20:03]: Model uncertainties 17/25 (fhs = 1.206; ftspec = 0.835; p = 0.058)
-[09:20:03]: Model uncertainties 18/25 (fhs = 1.206; ftspec = 0.96; p = 0.104)
-[09:20:03]: Model uncertainties 19/25 (fhs = 1.206; ftspec = 1.085; p = 0.058)
-[09:20:03]: Model uncertainties 20/25 (fhs = 1.206; ftspec = 1.21; p = 0.011)
-[09:20:03]: Model uncertainties 21/25 (fhs = 1.422; ftspec = 0.71; p = 0.002)
-[09:20:03]: Model uncertainties 22/25 (fhs = 1.422; ftspec = 0.835; p = 0.011)
-[09:20:04]: Model uncertainties 23/25 (fhs = 1.422; ftspec = 0.96; p = 0.019)
-[09:20:04]: Model uncertainties 24/25 (fhs = 1.422; ftspec = 1.085; p = 0.011)
-[09:20:04]: Model uncertainties 25/25 (fhs = 1.422; ftspec = 1.21; p = 0.002)</code></pre>
-</div>
 </div>
 <p>Dit geeft een overschrijdingsfrequentielijn <i>hbn_borselle</i>. Het is een object waarin de berekende gegevens (HBN en overschrijdingsfrequenties) worden opgeslagen. Als je het object print, zie je wat er allemaal in zit.</p>
 <div id="ce4bd197" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(hbn_borselle)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(hbn_borselle)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>FrequencyLine(level=array([ 0. ,  0.1,  0.2,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9,  1. ,
-        1.1,  1.2,  1.3,  1.4,  1.5,  1.6,  1.7,  1.8,  1.9,  2. ,  2.1,
-        2.2,  2.3,  2.4,  2.5,  2.6,  2.7,  2.8,  2.9,  3. ,  3.1,  3.2,
+<pre><code>FrequencyLine(level=array([ 2.2,  2.3,  2.4,  2.5,  2.6,  2.7,  2.8,  2.9,  3. ,  3.1,  3.2,
         3.3,  3.4,  3.5,  3.6,  3.7,  3.8,  3.9,  4. ,  4.1,  4.2,  4.3,
         4.4,  4.5,  4.6,  4.7,  4.8,  4.9,  5. ,  5.1,  5.2,  5.3,  5.4,
         5.5,  5.6,  5.7,  5.8,  5.9,  6. ,  6.1,  6.2,  6.3,  6.4,  6.5,
@@ -360,68 +332,100 @@ q_overtopping (standaard 0.01 m3/m/s): Het kritische overslagdebiet.
        13.2, 13.3, 13.4, 13.5, 13.6, 13.7, 13.8, 13.9, 14. , 14.1, 14.2,
        14.3, 14.4, 14.5, 14.6, 14.7, 14.8, 14.9, 15. , 15.1, 15.2, 15.3,
        15.4, 15.5, 15.6, 15.7, 15.8, 15.9, 16. , 16.1, 16.2, 16.3, 16.4,
-       16.5, 16.6, 16.7, 16.8, 16.9, 17. , 17.1, 17.2, 17.3, 17.4]), exceedance_frequency=array([3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999485e+02,
-       3.59999485e+02, 3.59999444e+02, 3.58906944e+02, 3.44548093e+02,
-       3.20570382e+02, 2.88807545e+02, 2.55492605e+02, 2.04700145e+02,
-       1.43731597e+02, 9.15778466e+01, 5.74711429e+01, 3.53893855e+01,
-       2.24846668e+01, 1.49958040e+01, 1.05884718e+01, 7.77961732e+00,
-       5.91970867e+00, 4.57400423e+00, 3.60827886e+00, 2.86294955e+00,
-       2.30843496e+00, 1.85816940e+00, 1.49944372e+00, 1.21986303e+00,
-       9.82039270e-01, 8.12300052e-01, 6.64063151e-01, 5.37895413e-01,
-       4.44102720e-01, 3.65448909e-01, 3.00512897e-01, 2.50232269e-01,
-       2.05132845e-01, 1.70600581e-01, 1.40085559e-01, 1.17598038e-01,
-       9.74929885e-02, 8.10644717e-02, 6.75893439e-02, 5.62596727e-02,
-       4.71157329e-02, 3.90443830e-02, 3.27602862e-02, 2.75929540e-02,
-       2.32354932e-02, 1.93019803e-02, 1.63430233e-02, 1.37269955e-02,
-       1.15051932e-02, 9.68949637e-03, 8.25126577e-03, 6.87700507e-03,
-       5.82077187e-03, 4.92446710e-03, 4.16132608e-03, 3.55705675e-03,
-       2.98056091e-03, 2.57261525e-03, 2.14558807e-03, 1.82248252e-03,
-       1.55846336e-03, 1.31460921e-03, 1.11352024e-03, 9.38644121e-04,
-       8.05463499e-04, 6.80586360e-04, 5.75789097e-04, 4.90326058e-04,
-       4.18285304e-04, 3.57202515e-04, 3.00848160e-04, 2.57438937e-04,
-       2.20745171e-04, 1.86009352e-04, 1.57281274e-04, 1.35257458e-04,
-       1.15634891e-04, 9.86286276e-05, 8.46449601e-05, 7.18567537e-05,
-       6.14460072e-05, 5.29525909e-05, 4.54732328e-05, 3.88230703e-05,
-       3.34136169e-05, 2.86448538e-05, 2.48181737e-05, 2.14642248e-05,
-       1.83130220e-05, 1.57972289e-05, 1.36302540e-05, 1.19018585e-05,
-       1.02430758e-05, 8.80964275e-06, 7.61740324e-06, 6.58086427e-06,
-       5.68250369e-06, 4.92410082e-06, 4.28229491e-06, 3.70939079e-06,
-       3.20188953e-06, 2.77900323e-06, 2.41223343e-06, 2.11054753e-06,
-       1.82376898e-06, 1.60651648e-06, 1.39154695e-06, 1.21206761e-06,
-       1.04830612e-06, 9.20474247e-07, 8.01479872e-07, 7.05595495e-07,
-       6.11724642e-07, 5.43931092e-07, 4.72922802e-07, 4.16242851e-07,
-       3.66411320e-07, 3.22053129e-07, 2.79534645e-07, 2.47157918e-07,
-       2.17540746e-07, 1.91278108e-07, 1.68989619e-07, 1.48885158e-07,
-       1.30092544e-07, 1.15614780e-07, 1.02052883e-07, 8.90326014e-08,
-       7.86409107e-08, 6.98482491e-08, 6.13032745e-08, 5.41355931e-08,
-       4.80973239e-08, 4.23644177e-08, 3.73751931e-08, 3.27671360e-08,
-       2.92710116e-08, 2.58067696e-08, 2.28214073e-08, 2.03211870e-08,
-       1.79726224e-08, 1.58482195e-08, 1.40235454e-08, 1.23122015e-08,
-       1.08692607e-08, 9.64381572e-09, 8.52756025e-09, 7.56798031e-09,
-       6.67381332e-09, 5.88241533e-09, 5.14738958e-09, 4.56539279e-09,
-       4.00240741e-09, 3.56817740e-09, 3.14576041e-09]))</code></pre>
+       16.5, 16.6, 16.7, 16.8, 16.9, 17. , 17.1, 17.2, 17.3, 17.4, 17.5,
+       17.6, 17.7, 17.8, 17.9, 18. , 18.1, 18.2, 18.3, 18.4, 18.5, 18.6,
+       18.7, 18.8, 18.9, 19. , 19.1, 19.2, 19.3, 19.4, 19.5, 19.6, 19.7,
+       19.8, 19.9, 20. , 20.1, 20.2, 20.3, 20.4, 20.5, 20.6, 20.7, 20.8,
+       20.9, 21. , 21.1, 21.2, 21.3, 21.4, 21.5, 21.6, 21.7, 21.8, 21.9,
+       22. , 22.1, 22.2, 22.3, 22.4, 22.5, 22.6, 22.7, 22.8, 22.9, 23. ,
+       23.1, 23.2, 23.3, 23.4, 23.5, 23.6, 23.7, 23.8, 23.9, 24. , 24.1,
+       24.2, 24.3, 24.4, 24.5, 24.6, 24.7, 24.8, 24.9, 25. , 25.1, 25.2,
+       25.3, 25.4, 25.5, 25.6, 25.7, 25.8, 25.9, 26. , 26.1, 26.2, 26.3,
+       26.4, 26.5, 26.6, 26.7, 26.8, 26.9, 27. , 27.1, 27.2, 27.3, 27.4,
+       27.5, 27.6, 27.7, 27.8, 27.9, 28. , 28.1, 28.2, 28.3]), exceedance_frequency=array([3.59999486e+02, 3.55155738e+02, 3.22681630e+02, 2.80880406e+02,
+       2.40384988e+02, 1.79689011e+02, 1.12637580e+02, 6.33106633e+01,
+       3.60710793e+01, 2.21207285e+01, 1.48745023e+01, 1.07552227e+01,
+       8.12462962e+00, 6.29868193e+00, 4.95699499e+00, 3.93836791e+00,
+       3.15169459e+00, 2.53653808e+00, 2.04765085e+00, 1.66330245e+00,
+       1.35226141e+00, 1.10499585e+00, 9.03426346e-01, 7.41588621e-01,
+       6.09237280e-01, 5.02821220e-01, 4.15287684e-01, 3.43290005e-01,
+       2.84099391e-01, 2.36075281e-01, 1.96048906e-01, 1.63498421e-01,
+       1.36263514e-01, 1.13675230e-01, 9.50080155e-02, 7.93489378e-02,
+       6.65897820e-02, 5.56965822e-02, 4.67396478e-02, 3.92749509e-02,
+       3.29227225e-02, 2.76561864e-02, 2.32161401e-02, 1.95281224e-02,
+       1.64275488e-02, 1.38224987e-02, 1.16345572e-02, 9.81079907e-03,
+       8.28218249e-03, 6.98209819e-03, 5.89604941e-03, 4.98387582e-03,
+       4.21238836e-03, 3.56523532e-03, 3.01802347e-03, 2.55618979e-03,
+       2.16592081e-03, 1.83839760e-03, 1.56000943e-03, 1.31978971e-03,
+       1.11997955e-03, 9.49675107e-04, 8.05683062e-04, 6.84312782e-04,
+       5.81186426e-04, 4.92835129e-04, 4.18880518e-04, 3.55511402e-04,
+       3.02148595e-04, 2.56665688e-04, 2.18521685e-04, 1.86159501e-04,
+       1.58301016e-04, 1.34890354e-04, 1.14831039e-04, 9.84147898e-05,
+       8.39049603e-05, 7.17089438e-05, 6.13700368e-05, 5.24842771e-05,
+       4.50134633e-05, 3.86790595e-05, 3.31655895e-05, 2.84717331e-05,
+       2.44418290e-05, 2.10444189e-05, 1.81221511e-05, 1.55936117e-05,
+       1.34489108e-05, 1.16101660e-05, 1.00193402e-05, 8.65463438e-06,
+       7.46218922e-06, 6.45572099e-06, 5.57969455e-06, 4.83204072e-06,
+       4.18644773e-06, 3.62537248e-06, 3.14308451e-06, 2.72749145e-06,
+       2.37109028e-06, 2.06186919e-06, 1.79675975e-06, 1.56371969e-06,
+       1.36186902e-06, 1.18890018e-06, 1.03554832e-06, 9.03596060e-07,
+       7.89803044e-07, 6.89698333e-07, 6.03198686e-07, 5.27221573e-07,
+       4.62664304e-07, 4.05836930e-07, 3.55512464e-07, 3.11281644e-07,
+       2.73682739e-07, 2.40687475e-07, 2.11546884e-07, 1.86207309e-07,
+       1.63592583e-07, 1.44254122e-07, 1.26979832e-07, 1.11988233e-07,
+       9.85846520e-08, 8.70407268e-08, 7.65927461e-08, 6.75667607e-08,
+       5.96759222e-08, 5.26805043e-08, 4.65390076e-08, 4.10598843e-08,
+       3.63174643e-08, 3.20377417e-08, 2.83272319e-08, 2.50145416e-08,
+       2.21018499e-08, 1.95396163e-08, 1.72650485e-08, 1.52413101e-08,
+       1.34720053e-08, 1.19090115e-08, 1.05317919e-08, 9.30163770e-09,
+       8.20253215e-09, 7.24243083e-09, 6.40687446e-09, 5.63988762e-09,
+       4.96829799e-09, 4.37864351e-09, 3.84317083e-09, 3.39123046e-09,
+       2.98328667e-09, 2.61747889e-09, 2.29599023e-09, 2.01435023e-09,
+       1.76333560e-09, 1.53972252e-09, 1.34649964e-09, 1.17249584e-09,
+       1.02170205e-09, 8.88520237e-10, 7.70783590e-10, 6.68159366e-10,
+       5.78527769e-10, 5.00641100e-10, 4.32991846e-10, 3.76310365e-10,
+       3.27038238e-10, 2.83106550e-10, 2.43600650e-10, 2.08346583e-10,
+       1.79940667e-10, 1.53624623e-10, 1.30701914e-10, 1.11790038e-10,
+       9.47187990e-11, 8.03795607e-11, 6.84814534e-11, 5.82997450e-11,
+       4.91471776e-11, 4.20833805e-11, 3.55059029e-11, 3.02306342e-11,
+       2.51215011e-11, 2.10050617e-11, 1.73793527e-11, 1.41660188e-11,
+       1.14831489e-11, 9.23717634e-12, 7.39077952e-12, 5.87169669e-12,
+       4.59615331e-12, 3.67818929e-12, 2.93941089e-12, 2.46421148e-12,
+       2.00640388e-12, 1.64908095e-12, 1.34853013e-12, 1.08104503e-12,
+       8.68799663e-13, 6.62332306e-13, 5.14320709e-13, 3.69770779e-13,
+       2.66463479e-13, 1.77491294e-13, 1.07358748e-13, 5.99185735e-14,
+       2.67278423e-14, 8.79314404e-15, 1.93865152e-15, 1.04663983e-16,
+       7.07166796e-17, 4.63317778e-17, 2.90236448e-17, 1.83447363e-17,
+       9.84023537e-18, 4.01860402e-18, 1.56035568e-18, 4.22184003e-52,
+       2.81085600e-52, 1.80916529e-52, 1.17822823e-52, 7.74232253e-53,
+       5.16411224e-53, 3.32504218e-53, 2.23159243e-53, 1.46512092e-53,
+       9.75611697e-54, 6.32263979e-54, 4.14359304e-54, 2.78004335e-54,
+       1.84787559e-54, 1.23554943e-54, 7.85388978e-55, 5.16246977e-55,
+       3.42603125e-55, 2.28804644e-55, 1.45978282e-55, 9.59554403e-56,
+       6.34905860e-56, 4.36416608e-56, 2.77355524e-56, 1.80680503e-56,
+       1.19338411e-56, 7.84959355e-57, 4.89870074e-57, 3.13049246e-57,
+       2.03782900e-57, 1.30112424e-57, 7.78812212e-58, 4.74513435e-58,
+       2.88452676e-58, 1.67594942e-58, 8.85809830e-59, 4.88399403e-59,
+       2.53089791e-59, 1.25596755e-59, 2.68897258e-60, 1.51015848e-60,
+       7.25582339e-61, 2.03396766e-61]), result_variable=None)</code></pre>
 </div>
 </div>
 <p>Hieronder is een plot van de berekende overschrijdingsfrequentielijn gegeven.</p>
 <div id="eb55b994" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>[<span class="dv">8</span>, <span class="dv">5</span>])</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>plt.plot(</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span> <span class="op">/</span> np.array(hbn_borselle.exceedance_frequency), hbn_borselle.level, label<span class="op">=</span><span class="st">"Pydra"</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Overschrijdingsfrequentielijn HBN met q = 10 l/m/s (WS_1_30-4_dk_00002)"</span>)</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>plt.xscale(<span class="st">"log"</span>)</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>plt.xticks([<span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1_000</span>, <span class="dv">10_000</span>, <span class="dv">100_000</span>])</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Terugkeertijd [jaar]"</span>)</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">10</span>, <span class="dv">100_000</span>)</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Kruinhoogte [NAP+m]"</span>)</span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">4</span>, <span class="dv">12</span>)</span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>[<span class="dv">8</span>, <span class="dv">5</span>])</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>plt.plot(</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span> <span class="op">/</span> np.array(hbn_borselle.exceedance_frequency), hbn_borselle.level, label<span class="op">=</span><span class="st">"Pydra"</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Overschrijdingsfrequentielijn HBN met q = 10 l/m/s (WS_1_30-4_dk_00002)"</span>)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>plt.xscale(<span class="st">"log"</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>plt.xticks([<span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1_000</span>, <span class="dv">10_000</span>, <span class="dv">100_000</span>])</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Terugkeertijd [jaar]"</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">10</span>, <span class="dv">100_000</span>)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Kruinhoogte [NAP+m]"</span>)</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">4</span>, <span class="dv">12</span>)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -432,28 +436,28 @@ q_overtopping (standaard 0.01 m3/m/s): Het kritische overslagdebiet.
 </div>
 <p>En een vergelijking met Hydra-NL.</p>
 <div id="a64d55e6" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>hydranl_tt <span class="op">=</span> np.array(</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    [<span class="dv">10</span>, <span class="dv">30</span>, <span class="dv">100</span>, <span class="dv">300</span>, <span class="dv">1_000</span>, <span class="dv">3_000</span>, <span class="dv">10_000</span>, <span class="dv">30_000</span>, <span class="dv">100_000</span>, <span class="dv">300_000</span>, <span class="dv">1_000_000</span>]</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>hydranl_hbn <span class="op">=</span> np.array(</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    [<span class="fl">5.582</span>, <span class="fl">6.206</span>, <span class="fl">6.904</span>, <span class="fl">7.558</span>, <span class="fl">8.282</span>, <span class="fl">8.955</span>, <span class="fl">9.71</span>, <span class="fl">10.412</span>, <span class="fl">11.207</span>, <span class="fl">11.969</span>, <span class="fl">12.831</span>]</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>[<span class="dv">8</span>, <span class="dv">5</span>])</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>plt.plot(</span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span> <span class="op">/</span> np.array(hbn_borselle.exceedance_frequency), hbn_borselle.level, label<span class="op">=</span><span class="st">"Pydra"</span></span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>plt.plot(hydranl_tt, hydranl_hbn, <span class="st">":"</span>, label<span class="op">=</span><span class="st">"Hydra-NL"</span>)</span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Overschrijdingsfrequentielijn HBN met q = 10 l/m/s (WS_1_30-4_dk_00002)"</span>)</span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>plt.xscale(<span class="st">"log"</span>)</span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>plt.xticks([<span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1_000</span>, <span class="dv">10_000</span>, <span class="dv">100_000</span>])</span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Terugkeertijd [jaar]"</span>)</span>
-<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">10</span>, <span class="dv">10_00_000</span>)</span>
-<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Kruinhoogte [NAP+m]"</span>)</span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">4</span>, <span class="dv">13</span>)</span>
-<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>hydranl_tt <span class="op">=</span> np.array(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    [<span class="dv">10</span>, <span class="dv">30</span>, <span class="dv">100</span>, <span class="dv">300</span>, <span class="dv">1_000</span>, <span class="dv">3_000</span>, <span class="dv">10_000</span>, <span class="dv">30_000</span>, <span class="dv">100_000</span>, <span class="dv">300_000</span>, <span class="dv">1_000_000</span>]</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>hydranl_hbn <span class="op">=</span> np.array(</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    [<span class="fl">5.582</span>, <span class="fl">6.206</span>, <span class="fl">6.904</span>, <span class="fl">7.558</span>, <span class="fl">8.282</span>, <span class="fl">8.955</span>, <span class="fl">9.71</span>, <span class="fl">10.412</span>, <span class="fl">11.207</span>, <span class="fl">11.969</span>, <span class="fl">12.831</span>]</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>[<span class="dv">8</span>, <span class="dv">5</span>])</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>plt.plot(</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span> <span class="op">/</span> np.array(hbn_borselle.exceedance_frequency), hbn_borselle.level, label<span class="op">=</span><span class="st">"Pydra"</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>plt.plot(hydranl_tt, hydranl_hbn, <span class="st">":"</span>, label<span class="op">=</span><span class="st">"Hydra-NL"</span>)</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Overschrijdingsfrequentielijn HBN met q = 10 l/m/s (WS_1_30-4_dk_00002)"</span>)</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>plt.xscale(<span class="st">"log"</span>)</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>plt.xticks([<span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1_000</span>, <span class="dv">10_000</span>, <span class="dv">100_000</span>])</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Terugkeertijd [jaar]"</span>)</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">10</span>, <span class="dv">10_00_000</span>)</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Kruinhoogte [NAP+m]"</span>)</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">4</span>, <span class="dv">13</span>)</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -470,333 +474,54 @@ HBNs voor een heel traject
 
 run = False</code></pre>
 <div id="73351b1b" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">"ignore"</span>)  <span class="co"># future warnings are annoying</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Voor de vorm voegen we ons eerder gedefinieerde profiel ook toe aan WS_1_30-4_dk_00001 en WS_1_30-4_dk_00003</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>tmp_location <span class="op">=</span> hrdatabase.create_location(<span class="st">"WS_1_30-4_dk_00001"</span>)</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>tmp_location.set_profile(profile)</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>tmp_location <span class="op">=</span> hrdatabase.create_location(<span class="st">"WS_1_30-4_dk_00003"</span>)</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>tmp_location.set_profile(profile)</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Bereken de HBNs voor uitvoerpunten die een profiel hebben</span></span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>alle_hbns <span class="op">=</span> hbn.calculate(hrdatabase)</span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: deze error beter afvangen:</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">"ignore"</span>)  <span class="co"># future warnings are annoying</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Voor de vorm voegen we ons eerder gedefinieerde profiel ook toe aan WS_1_30-4_dk_00001 en WS_1_30-4_dk_00003</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>tmp_location <span class="op">=</span> hrdatabase.create_location(<span class="st">"WS_1_30-4_dk_00001"</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>tmp_location.set_profile(profile)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>tmp_location <span class="op">=</span> hrdatabase.create_location(<span class="st">"WS_1_30-4_dk_00003"</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>tmp_location.set_profile(profile)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Bereken de HBNs voor uitvoerpunten die een profiel hebben</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>alle_hbns <span class="op">=</span> hbn.calculate(hrdatabase)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: deze error beter afvangen:</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[WARNING] Profile is not assiged to location 'WS_1_30-4_dk_00006'. Skipping this calculation.
 [WARNING] Profile is not assiged to location 'WS_2_30-4_dk_00005'. Skipping this calculation.
 [WARNING] Profile is not assiged to location 'WS_1_30-4_dk_00004'. Skipping this calculation.
-[09:20:05]: Model uncertainties 1/25 (fhs = 0.558; ftspec = 0.71; p = 0.002)
-[09:20:05]: Model uncertainties 2/25 (fhs = 0.558; ftspec = 0.835; p = 0.011)
-[09:20:05]: Model uncertainties 3/25 (fhs = 0.558; ftspec = 0.96; p = 0.019)
-[09:20:05]: Model uncertainties 4/25 (fhs = 0.558; ftspec = 1.085; p = 0.011)
-[09:20:05]: Model uncertainties 5/25 (fhs = 0.558; ftspec = 1.21; p = 0.002)
-[09:20:05]: Model uncertainties 6/25 (fhs = 0.774; ftspec = 0.71; p = 0.011)
-[09:20:05]: Model uncertainties 7/25 (fhs = 0.774; ftspec = 0.835; p = 0.058)
-[09:20:05]: Model uncertainties 8/25 (fhs = 0.774; ftspec = 0.96; p = 0.104)
-[09:20:06]: Model uncertainties 9/25 (fhs = 0.774; ftspec = 1.085; p = 0.058)
-[09:20:06]: Model uncertainties 10/25 (fhs = 0.774; ftspec = 1.21; p = 0.011)
-[09:20:06]: Model uncertainties 11/25 (fhs = 0.99; ftspec = 0.71; p = 0.019)
-[09:20:06]: Model uncertainties 12/25 (fhs = 0.99; ftspec = 0.835; p = 0.104)
-[09:20:06]: Model uncertainties 13/25 (fhs = 0.99; ftspec = 0.96; p = 0.185)
-[09:20:06]: Model uncertainties 14/25 (fhs = 0.99; ftspec = 1.085; p = 0.104)
-[09:20:06]: Model uncertainties 15/25 (fhs = 0.99; ftspec = 1.21; p = 0.019)
-[09:20:06]: Model uncertainties 16/25 (fhs = 1.206; ftspec = 0.71; p = 0.011)
-[09:20:06]: Model uncertainties 17/25 (fhs = 1.206; ftspec = 0.835; p = 0.058)
-[09:20:06]: Model uncertainties 18/25 (fhs = 1.206; ftspec = 0.96; p = 0.104)
-[09:20:06]: Model uncertainties 19/25 (fhs = 1.206; ftspec = 1.085; p = 0.058)
-[09:20:06]: Model uncertainties 20/25 (fhs = 1.206; ftspec = 1.21; p = 0.011)
-[09:20:06]: Model uncertainties 21/25 (fhs = 1.422; ftspec = 0.71; p = 0.002)
-[09:20:06]: Model uncertainties 22/25 (fhs = 1.422; ftspec = 0.835; p = 0.011)
-[09:20:06]: Model uncertainties 23/25 (fhs = 1.422; ftspec = 0.96; p = 0.019)
-[09:20:06]: Model uncertainties 24/25 (fhs = 1.422; ftspec = 1.085; p = 0.011)
-[09:20:06]: Model uncertainties 25/25 (fhs = 1.422; ftspec = 1.21; p = 0.002)
-[09:20:06]: Model uncertainties 1/25 (fhs = 0.558; ftspec = 0.71; p = 0.002)
-[09:20:06]: Model uncertainties 2/25 (fhs = 0.558; ftspec = 0.835; p = 0.011)
-[09:20:06]: Model uncertainties 3/25 (fhs = 0.558; ftspec = 0.96; p = 0.019)
-[09:20:06]: Model uncertainties 4/25 (fhs = 0.558; ftspec = 1.085; p = 0.011)
-[09:20:06]: Model uncertainties 5/25 (fhs = 0.558; ftspec = 1.21; p = 0.002)
-[09:20:06]: Model uncertainties 6/25 (fhs = 0.774; ftspec = 0.71; p = 0.011)
-[09:20:06]: Model uncertainties 7/25 (fhs = 0.774; ftspec = 0.835; p = 0.058)
-[09:20:06]: Model uncertainties 8/25 (fhs = 0.774; ftspec = 0.96; p = 0.104)
-[09:20:06]: Model uncertainties 9/25 (fhs = 0.774; ftspec = 1.085; p = 0.058)
-[09:20:06]: Model uncertainties 10/25 (fhs = 0.774; ftspec = 1.21; p = 0.011)
-[09:20:06]: Model uncertainties 11/25 (fhs = 0.99; ftspec = 0.71; p = 0.019)
-[09:20:06]: Model uncertainties 12/25 (fhs = 0.99; ftspec = 0.835; p = 0.104)
-[09:20:06]: Model uncertainties 13/25 (fhs = 0.99; ftspec = 0.96; p = 0.185)
-[09:20:06]: Model uncertainties 14/25 (fhs = 0.99; ftspec = 1.085; p = 0.104)
-[09:20:06]: Model uncertainties 15/25 (fhs = 0.99; ftspec = 1.21; p = 0.019)
-[09:20:06]: Model uncertainties 16/25 (fhs = 1.206; ftspec = 0.71; p = 0.011)
-[09:20:06]: Model uncertainties 17/25 (fhs = 1.206; ftspec = 0.835; p = 0.058)
-[09:20:06]: Model uncertainties 18/25 (fhs = 1.206; ftspec = 0.96; p = 0.104)
-[09:20:06]: Model uncertainties 19/25 (fhs = 1.206; ftspec = 1.085; p = 0.058)
-[09:20:06]: Model uncertainties 20/25 (fhs = 1.206; ftspec = 1.21; p = 0.011)
-[09:20:06]: Model uncertainties 21/25 (fhs = 1.422; ftspec = 0.71; p = 0.002)
-[09:20:06]: Model uncertainties 22/25 (fhs = 1.422; ftspec = 0.835; p = 0.011)
-[09:20:07]: Model uncertainties 23/25 (fhs = 1.422; ftspec = 0.96; p = 0.019)
-[09:20:07]: Model uncertainties 24/25 (fhs = 1.422; ftspec = 1.085; p = 0.011)
-[09:20:07]: Model uncertainties 25/25 (fhs = 1.422; ftspec = 1.21; p = 0.002)
-[09:20:07]: Model uncertainties 1/25 (fhs = 0.558; ftspec = 0.71; p = 0.002)
-[09:20:07]: Model uncertainties 2/25 (fhs = 0.558; ftspec = 0.835; p = 0.011)
-[09:20:07]: Model uncertainties 3/25 (fhs = 0.558; ftspec = 0.96; p = 0.019)
-[09:20:07]: Model uncertainties 4/25 (fhs = 0.558; ftspec = 1.085; p = 0.011)
-[09:20:07]: Model uncertainties 5/25 (fhs = 0.558; ftspec = 1.21; p = 0.002)
-[09:20:07]: Model uncertainties 6/25 (fhs = 0.774; ftspec = 0.71; p = 0.011)
-[09:20:07]: Model uncertainties 7/25 (fhs = 0.774; ftspec = 0.835; p = 0.058)
-[09:20:07]: Model uncertainties 8/25 (fhs = 0.774; ftspec = 0.96; p = 0.104)
-[09:20:07]: Model uncertainties 9/25 (fhs = 0.774; ftspec = 1.085; p = 0.058)
-[09:20:07]: Model uncertainties 10/25 (fhs = 0.774; ftspec = 1.21; p = 0.011)
-[09:20:07]: Model uncertainties 11/25 (fhs = 0.99; ftspec = 0.71; p = 0.019)
-[09:20:07]: Model uncertainties 12/25 (fhs = 0.99; ftspec = 0.835; p = 0.104)
-[09:20:07]: Model uncertainties 13/25 (fhs = 0.99; ftspec = 0.96; p = 0.185)
-[09:20:07]: Model uncertainties 14/25 (fhs = 0.99; ftspec = 1.085; p = 0.104)
-[09:20:07]: Model uncertainties 15/25 (fhs = 0.99; ftspec = 1.21; p = 0.019)
-[09:20:07]: Model uncertainties 16/25 (fhs = 1.206; ftspec = 0.71; p = 0.011)
-[09:20:07]: Model uncertainties 17/25 (fhs = 1.206; ftspec = 0.835; p = 0.058)
-[09:20:07]: Model uncertainties 18/25 (fhs = 1.206; ftspec = 0.96; p = 0.104)
-[09:20:07]: Model uncertainties 19/25 (fhs = 1.206; ftspec = 1.085; p = 0.058)
-[09:20:07]: Model uncertainties 20/25 (fhs = 1.206; ftspec = 1.21; p = 0.011)
-[09:20:07]: Model uncertainties 21/25 (fhs = 1.422; ftspec = 0.71; p = 0.002)
-[09:20:07]: Model uncertainties 22/25 (fhs = 1.422; ftspec = 0.835; p = 0.011)
-[09:20:07]: Model uncertainties 23/25 (fhs = 1.422; ftspec = 0.96; p = 0.019)
-[09:20:07]: Model uncertainties 24/25 (fhs = 1.422; ftspec = 1.085; p = 0.011)
-[09:20:07]: Model uncertainties 25/25 (fhs = 1.422; ftspec = 1.21; p = 0.002)</code></pre>
+[WARNING] Profile is not assiged to location 'WS_1_30-4_dk_00003'. Skipping this calculation.
+[WARNING] Profile is not assiged to location 'WS_1_30-4_dk_00002'. Skipping this calculation.
+[WARNING] Profile is not assiged to location 'WS_1_30-4_dk_00001'. Skipping this calculation.</code></pre>
 </div>
 </div>
 <p>Omdat we nu een heel traject doorrekenen, zal <i>calculate()</i> niet één frequentielijn returnen. In plaats daarvan wordt een dictionary gereturnd met als key de naam van het uitvoerpunt en als value het <i>FrequencyLine</i> resultaat object. Als er geen HBN berekent is, is de waarde in de dictionary <i>None</i>.</p>
 <div id="2aad8be0" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(alle_hbns)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(alle_hbns)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>{'WS_1_30-4_dk_00006': None, 'WS_2_30-4_dk_00005': None, 'WS_1_30-4_dk_00004': None, 'WS_1_30-4_dk_00003': FrequencyLine(level=array([-1.40000000e+00, -1.30000000e+00, -1.20000000e+00, -1.10000000e+00,
-       -1.00000000e+00, -9.00000000e-01, -8.00000000e-01, -7.00000000e-01,
-       -6.00000000e-01, -5.00000000e-01, -4.00000000e-01, -3.00000000e-01,
-       -2.00000000e-01, -1.00000000e-01,  1.33226763e-15,  1.00000000e-01,
-        2.00000000e-01,  3.00000000e-01,  4.00000000e-01,  5.00000000e-01,
-        6.00000000e-01,  7.00000000e-01,  8.00000000e-01,  9.00000000e-01,
-        1.00000000e+00,  1.10000000e+00,  1.20000000e+00,  1.30000000e+00,
-        1.40000000e+00,  1.50000000e+00,  1.60000000e+00,  1.70000000e+00,
-        1.80000000e+00,  1.90000000e+00,  2.00000000e+00,  2.10000000e+00,
-        2.20000000e+00,  2.30000000e+00,  2.40000000e+00,  2.50000000e+00,
-        2.60000000e+00,  2.70000000e+00,  2.80000000e+00,  2.90000000e+00,
-        3.00000000e+00,  3.10000000e+00,  3.20000000e+00,  3.30000000e+00,
-        3.40000000e+00,  3.50000000e+00,  3.60000000e+00,  3.70000000e+00,
-        3.80000000e+00,  3.90000000e+00,  4.00000000e+00,  4.10000000e+00,
-        4.20000000e+00,  4.30000000e+00,  4.40000000e+00,  4.50000000e+00,
-        4.60000000e+00,  4.70000000e+00,  4.80000000e+00,  4.90000000e+00,
-        5.00000000e+00,  5.10000000e+00,  5.20000000e+00,  5.30000000e+00,
-        5.40000000e+00,  5.50000000e+00,  5.60000000e+00,  5.70000000e+00,
-        5.80000000e+00,  5.90000000e+00,  6.00000000e+00,  6.10000000e+00,
-        6.20000000e+00,  6.30000000e+00,  6.40000000e+00,  6.50000000e+00,
-        6.60000000e+00,  6.70000000e+00,  6.80000000e+00,  6.90000000e+00,
-        7.00000000e+00,  7.10000000e+00,  7.20000000e+00,  7.30000000e+00,
-        7.40000000e+00,  7.50000000e+00,  7.60000000e+00,  7.70000000e+00,
-        7.80000000e+00,  7.90000000e+00,  8.00000000e+00,  8.10000000e+00,
-        8.20000000e+00,  8.30000000e+00,  8.40000000e+00,  8.50000000e+00,
-        8.60000000e+00,  8.70000000e+00,  8.80000000e+00,  8.90000000e+00,
-        9.00000000e+00,  9.10000000e+00,  9.20000000e+00,  9.30000000e+00,
-        9.40000000e+00,  9.50000000e+00,  9.60000000e+00,  9.70000000e+00,
-        9.80000000e+00,  9.90000000e+00,  1.00000000e+01,  1.01000000e+01,
-        1.02000000e+01,  1.03000000e+01,  1.04000000e+01,  1.05000000e+01,
-        1.06000000e+01,  1.07000000e+01,  1.08000000e+01,  1.09000000e+01,
-        1.10000000e+01,  1.11000000e+01,  1.12000000e+01,  1.13000000e+01,
-        1.14000000e+01,  1.15000000e+01,  1.16000000e+01,  1.17000000e+01,
-        1.18000000e+01,  1.19000000e+01,  1.20000000e+01,  1.21000000e+01,
-        1.22000000e+01,  1.23000000e+01,  1.24000000e+01,  1.25000000e+01,
-        1.26000000e+01,  1.27000000e+01,  1.28000000e+01,  1.29000000e+01,
-        1.30000000e+01,  1.31000000e+01,  1.32000000e+01,  1.33000000e+01,
-        1.34000000e+01,  1.35000000e+01,  1.36000000e+01,  1.37000000e+01,
-        1.38000000e+01,  1.39000000e+01,  1.40000000e+01,  1.41000000e+01,
-        1.42000000e+01,  1.43000000e+01,  1.44000000e+01,  1.45000000e+01,
-        1.46000000e+01,  1.47000000e+01,  1.48000000e+01,  1.49000000e+01,
-        1.50000000e+01,  1.51000000e+01,  1.52000000e+01,  1.53000000e+01,
-        1.54000000e+01,  1.55000000e+01,  1.56000000e+01,  1.57000000e+01,
-        1.58000000e+01,  1.59000000e+01,  1.60000000e+01,  1.61000000e+01,
-        1.62000000e+01,  1.63000000e+01,  1.64000000e+01,  1.65000000e+01,
-        1.66000000e+01,  1.67000000e+01,  1.68000000e+01,  1.69000000e+01,
-        1.70000000e+01,  1.71000000e+01,  1.72000000e+01,  1.73000000e+01,
-        1.74000000e+01,  1.75000000e+01,  1.76000000e+01,  1.77000000e+01,
-        1.78000000e+01,  1.79000000e+01,  1.80000000e+01,  1.81000000e+01,
-        1.82000000e+01,  1.83000000e+01]), exceedance_frequency=array([3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59984836e+02, 3.59612063e+02, 3.56276956e+02, 3.46593479e+02,
-       3.29476264e+02, 2.98016496e+02, 2.47762176e+02, 1.90290676e+02,
-       1.39438192e+02, 1.03980706e+02, 7.61703947e+01, 5.61219616e+01,
-       4.25496089e+01, 3.21866563e+01, 2.48524212e+01, 1.95858338e+01,
-       1.54735354e+01, 1.24989212e+01, 9.97796354e+00, 8.14619282e+00,
-       6.65665662e+00, 5.49280865e+00, 4.54894375e+00, 3.77726980e+00,
-       3.11749307e+00, 2.58251758e+00, 2.13996099e+00, 1.79532658e+00,
-       1.50028328e+00, 1.24725343e+00, 1.04421483e+00, 8.69429031e-01,
-       7.29476707e-01, 6.12422219e-01, 5.08341299e-01, 4.34497236e-01,
-       3.63265087e-01, 3.00049811e-01, 2.57302489e-01, 2.12708806e-01,
-       1.79667264e-01, 1.50762569e-01, 1.27037311e-01, 1.07250879e-01,
-       8.96510928e-02, 7.51447072e-02, 6.27508358e-02, 5.36163020e-02,
-       4.44378941e-02, 3.76065701e-02, 3.15939325e-02, 2.63551861e-02,
-       2.21456474e-02, 1.87314078e-02, 1.56935983e-02, 1.32509623e-02,
-       1.12087168e-02, 9.28957823e-03, 7.78129285e-03, 6.59830876e-03,
-       5.51597079e-03, 4.62131607e-03, 3.88986700e-03, 3.27914665e-03,
-       2.76961796e-03, 2.33061038e-03, 1.96394717e-03, 1.65755300e-03,
-       1.40877370e-03, 1.17993200e-03, 1.00147245e-03, 8.41098941e-04,
-       7.16390319e-04, 6.00457166e-04, 5.11703920e-04, 4.27497031e-04,
-       3.63231726e-04, 3.09074979e-04, 2.63663714e-04, 2.21745274e-04,
-       1.87949953e-04, 1.59427589e-04, 1.34273417e-04, 1.14449596e-04,
-       9.85199923e-05, 8.29278916e-05, 7.05924982e-05, 6.01109364e-05,
-       5.13224486e-05, 4.37108073e-05, 3.73282148e-05, 3.17747031e-05,
-       2.73951558e-05, 2.32844146e-05, 1.97595742e-05, 1.71138679e-05,
-       1.46063812e-05, 1.24589851e-05, 1.07964549e-05, 9.20507528e-06,
-       7.82854313e-06, 6.73406220e-06, 5.87659228e-06, 5.04140195e-06,
-       4.33568927e-06, 3.71561447e-06, 3.20711596e-06, 2.78319451e-06,
-       2.43138298e-06, 2.06944863e-06, 1.79629130e-06, 1.55672811e-06,
-       1.35103988e-06, 1.17187786e-06, 1.00202536e-06, 8.82884583e-07,
-       7.61428461e-07, 6.64274769e-07, 5.76633972e-07, 5.06324588e-07,
-       4.41197474e-07, 3.85369096e-07, 3.37637853e-07, 2.97426298e-07,
-       2.58036986e-07, 2.27219851e-07, 1.98996871e-07, 1.74683861e-07,
-       1.53914972e-07, 1.34931999e-07, 1.18605708e-07, 1.04581055e-07,
-       9.21180769e-08, 8.06207383e-08, 7.08949382e-08, 6.23116653e-08,
-       5.48407732e-08, 4.87440533e-08, 4.29324543e-08, 3.77547843e-08,
-       3.30542005e-08, 2.92294027e-08, 2.56969855e-08, 2.29559257e-08,
-       2.03685338e-08, 1.79640462e-08, 1.59494571e-08, 1.40043177e-08,
-       1.23068074e-08, 1.08535016e-08, 9.63387411e-09, 8.56601238e-09,
-       7.57065554e-09, 6.69893391e-09, 5.89871335e-09, 5.15414700e-09,
-       4.55788218e-09, 4.04630189e-09, 3.58456039e-09, 3.15012165e-09,
-       2.78478262e-09, 2.44714627e-09])), 'WS_1_30-4_dk_00002': FrequencyLine(level=array([ 0. ,  0.1,  0.2,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9,  1. ,
-        1.1,  1.2,  1.3,  1.4,  1.5,  1.6,  1.7,  1.8,  1.9,  2. ,  2.1,
-        2.2,  2.3,  2.4,  2.5,  2.6,  2.7,  2.8,  2.9,  3. ,  3.1,  3.2,
-        3.3,  3.4,  3.5,  3.6,  3.7,  3.8,  3.9,  4. ,  4.1,  4.2,  4.3,
-        4.4,  4.5,  4.6,  4.7,  4.8,  4.9,  5. ,  5.1,  5.2,  5.3,  5.4,
-        5.5,  5.6,  5.7,  5.8,  5.9,  6. ,  6.1,  6.2,  6.3,  6.4,  6.5,
-        6.6,  6.7,  6.8,  6.9,  7. ,  7.1,  7.2,  7.3,  7.4,  7.5,  7.6,
-        7.7,  7.8,  7.9,  8. ,  8.1,  8.2,  8.3,  8.4,  8.5,  8.6,  8.7,
-        8.8,  8.9,  9. ,  9.1,  9.2,  9.3,  9.4,  9.5,  9.6,  9.7,  9.8,
-        9.9, 10. , 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8, 10.9,
-       11. , 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8, 11.9, 12. ,
-       12.1, 12.2, 12.3, 12.4, 12.5, 12.6, 12.7, 12.8, 12.9, 13. , 13.1,
-       13.2, 13.3, 13.4, 13.5, 13.6, 13.7, 13.8, 13.9, 14. , 14.1, 14.2,
-       14.3, 14.4, 14.5, 14.6, 14.7, 14.8, 14.9, 15. , 15.1, 15.2, 15.3,
-       15.4, 15.5, 15.6, 15.7, 15.8, 15.9, 16. , 16.1, 16.2, 16.3, 16.4,
-       16.5, 16.6, 16.7, 16.8, 16.9, 17. , 17.1, 17.2, 17.3, 17.4]), exceedance_frequency=array([3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999486e+02,
-       3.59999486e+02, 3.59999486e+02, 3.59999486e+02, 3.59999485e+02,
-       3.59999485e+02, 3.59999444e+02, 3.58906944e+02, 3.44548093e+02,
-       3.20570382e+02, 2.88807545e+02, 2.55492605e+02, 2.04700145e+02,
-       1.43731597e+02, 9.15778466e+01, 5.74711429e+01, 3.53893855e+01,
-       2.24846668e+01, 1.49958040e+01, 1.05884718e+01, 7.77961732e+00,
-       5.91970867e+00, 4.57400423e+00, 3.60827886e+00, 2.86294955e+00,
-       2.30843496e+00, 1.85816940e+00, 1.49944372e+00, 1.21986303e+00,
-       9.82039270e-01, 8.12300052e-01, 6.64063151e-01, 5.37895413e-01,
-       4.44102720e-01, 3.65448909e-01, 3.00512897e-01, 2.50232269e-01,
-       2.05132845e-01, 1.70600581e-01, 1.40085559e-01, 1.17598038e-01,
-       9.74929885e-02, 8.10644717e-02, 6.75893439e-02, 5.62596727e-02,
-       4.71157329e-02, 3.90443830e-02, 3.27602862e-02, 2.75929540e-02,
-       2.32354932e-02, 1.93019803e-02, 1.63430233e-02, 1.37269955e-02,
-       1.15051932e-02, 9.68949637e-03, 8.25126577e-03, 6.87700507e-03,
-       5.82077187e-03, 4.92446710e-03, 4.16132608e-03, 3.55705675e-03,
-       2.98056091e-03, 2.57261525e-03, 2.14558807e-03, 1.82248252e-03,
-       1.55846336e-03, 1.31460921e-03, 1.11352024e-03, 9.38644121e-04,
-       8.05463499e-04, 6.80586360e-04, 5.75789097e-04, 4.90326058e-04,
-       4.18285304e-04, 3.57202515e-04, 3.00848160e-04, 2.57438937e-04,
-       2.20745171e-04, 1.86009352e-04, 1.57281274e-04, 1.35257458e-04,
-       1.15634891e-04, 9.86286276e-05, 8.46449601e-05, 7.18567537e-05,
-       6.14460072e-05, 5.29525909e-05, 4.54732328e-05, 3.88230703e-05,
-       3.34136169e-05, 2.86448538e-05, 2.48181737e-05, 2.14642248e-05,
-       1.83130220e-05, 1.57972289e-05, 1.36302540e-05, 1.19018585e-05,
-       1.02430758e-05, 8.80964275e-06, 7.61740324e-06, 6.58086427e-06,
-       5.68250369e-06, 4.92410082e-06, 4.28229491e-06, 3.70939079e-06,
-       3.20188953e-06, 2.77900323e-06, 2.41223343e-06, 2.11054753e-06,
-       1.82376898e-06, 1.60651648e-06, 1.39154695e-06, 1.21206761e-06,
-       1.04830612e-06, 9.20474247e-07, 8.01479872e-07, 7.05595495e-07,
-       6.11724642e-07, 5.43931092e-07, 4.72922802e-07, 4.16242851e-07,
-       3.66411320e-07, 3.22053129e-07, 2.79534645e-07, 2.47157918e-07,
-       2.17540746e-07, 1.91278108e-07, 1.68989619e-07, 1.48885158e-07,
-       1.30092544e-07, 1.15614780e-07, 1.02052883e-07, 8.90326014e-08,
-       7.86409107e-08, 6.98482491e-08, 6.13032745e-08, 5.41355931e-08,
-       4.80973239e-08, 4.23644177e-08, 3.73751931e-08, 3.27671360e-08,
-       2.92710116e-08, 2.58067696e-08, 2.28214073e-08, 2.03211870e-08,
-       1.79726224e-08, 1.58482195e-08, 1.40235454e-08, 1.23122015e-08,
-       1.08692607e-08, 9.64381572e-09, 8.52756025e-09, 7.56798031e-09,
-       6.67381332e-09, 5.88241533e-09, 5.14738958e-09, 4.56539279e-09,
-       4.00240741e-09, 3.56817740e-09, 3.14576041e-09])), 'WS_1_30-4_dk_00001': FrequencyLine(level=array([ 1.3,  1.4,  1.5,  1.6,  1.7,  1.8,  1.9,  2. ,  2.1,  2.2,  2.3,
-        2.4,  2.5,  2.6,  2.7,  2.8,  2.9,  3. ,  3.1,  3.2,  3.3,  3.4,
-        3.5,  3.6,  3.7,  3.8,  3.9,  4. ,  4.1,  4.2,  4.3,  4.4,  4.5,
-        4.6,  4.7,  4.8,  4.9,  5. ,  5.1,  5.2,  5.3,  5.4,  5.5,  5.6,
-        5.7,  5.8,  5.9,  6. ,  6.1,  6.2,  6.3,  6.4,  6.5,  6.6,  6.7,
-        6.8,  6.9,  7. ,  7.1,  7.2,  7.3,  7.4,  7.5,  7.6,  7.7,  7.8,
-        7.9,  8. ,  8.1,  8.2,  8.3,  8.4,  8.5,  8.6,  8.7,  8.8,  8.9,
-        9. ,  9.1,  9.2,  9.3,  9.4,  9.5,  9.6,  9.7,  9.8,  9.9, 10. ,
-       10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8, 10.9, 11. , 11.1,
-       11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8, 11.9, 12. , 12.1, 12.2,
-       12.3, 12.4, 12.5, 12.6, 12.7, 12.8, 12.9, 13. , 13.1, 13.2, 13.3,
-       13.4, 13.5, 13.6, 13.7, 13.8, 13.9, 14. , 14.1, 14.2, 14.3, 14.4,
-       14.5, 14.6, 14.7, 14.8, 14.9, 15. , 15.1, 15.2, 15.3, 15.4, 15.5,
-       15.6, 15.7, 15.8, 15.9, 16. , 16.1, 16.2, 16.3, 16.4, 16.5]), exceedance_frequency=array([3.59999486e+02, 3.59964942e+02, 3.59871007e+02, 3.59524291e+02,
-       3.58730885e+02, 3.56236637e+02, 3.49768881e+02, 3.36419538e+02,
-       3.12263129e+02, 2.74002586e+02, 2.37491073e+02, 2.04211038e+02,
-       1.75111976e+02, 1.23038849e+02, 6.91039372e+01, 3.17638106e+01,
-       1.44376724e+01, 7.54981134e+00, 4.91123608e+00, 3.53150061e+00,
-       2.52498478e+00, 1.96123360e+00, 1.49663178e+00, 1.15196466e+00,
-       8.99218683e-01, 6.95102307e-01, 5.50319438e-01, 4.36171864e-01,
-       3.43068510e-01, 2.75218515e-01, 2.18238740e-01, 1.73258831e-01,
-       1.39376816e-01, 1.12840133e-01, 9.00709082e-02, 7.36151394e-02,
-       5.87821155e-02, 4.85866478e-02, 3.86802852e-02, 3.20605493e-02,
-       2.58585377e-02, 2.13951898e-02, 1.72944619e-02, 1.42872473e-02,
-       1.16616696e-02, 9.58656126e-03, 7.84549807e-03, 6.53200577e-03,
-       5.35701668e-03, 4.41967750e-03, 3.66704479e-03, 2.99712499e-03,
-       2.51162819e-03, 2.05318733e-03, 1.71952363e-03, 1.40979763e-03,
-       1.18004433e-03, 9.73689885e-04, 8.15155909e-04, 6.82855813e-04,
-       5.64955567e-04, 4.75325347e-04, 3.95103059e-04, 3.29502631e-04,
-       2.75774981e-04, 2.30850528e-04, 1.94327916e-04, 1.62382068e-04,
-       1.38014605e-04, 1.16019895e-04, 9.77622002e-05, 8.25629821e-05,
-       6.93522238e-05, 5.86353467e-05, 4.97869262e-05, 4.24642002e-05,
-       3.58567264e-05, 3.05235221e-05, 2.58727558e-05, 2.21107941e-05,
-       1.86783584e-05, 1.59556310e-05, 1.35217816e-05, 1.15970984e-05,
-       9.89367184e-06, 8.54203979e-06, 7.18991826e-06, 6.28283410e-06,
-       5.15213871e-06, 4.57457572e-06, 3.81775970e-06, 3.36677655e-06,
-       2.85243485e-06, 2.45392387e-06, 2.11047945e-06, 1.80810494e-06,
-       1.55716790e-06, 1.35339067e-06, 1.15581587e-06, 1.00181775e-06,
-       8.49967635e-07, 7.36802212e-07, 6.39190728e-07, 5.45040966e-07,
-       4.76627057e-07, 3.98117111e-07, 3.53195509e-07, 2.97693737e-07,
-       2.60000255e-07, 2.22987704e-07, 1.93507160e-07, 1.66516143e-07,
-       1.43382711e-07, 1.23208855e-07, 1.06324781e-07, 9.13924248e-08,
-       7.90963955e-08, 6.85953910e-08, 5.89914447e-08, 5.06613723e-08,
-       4.36205069e-08, 3.75786063e-08, 3.21494047e-08, 2.78147812e-08,
-       2.38491982e-08, 2.05179442e-08, 1.77451776e-08, 1.53693464e-08,
-       1.28059670e-08, 1.11200035e-08, 9.41677239e-09, 8.01982952e-09,
-       6.83732691e-09, 5.77877746e-09, 4.92996582e-09, 4.09277827e-09,
-       3.46299439e-09, 3.01187632e-09, 2.50197484e-09, 2.13980228e-09,
-       1.78252183e-09, 1.50987399e-09, 1.27141138e-09, 1.06757618e-09,
-       8.88291793e-10, 7.47373134e-10, 6.14689893e-10, 5.23410615e-10,
-       4.36143186e-10, 3.58544608e-10, 3.00872847e-10, 2.41134871e-10,
-       1.93922539e-10]))}</code></pre>
+<pre><code>{'WS_1_30-4_dk_00006': None, 'WS_2_30-4_dk_00005': None, 'WS_1_30-4_dk_00004': None, 'WS_1_30-4_dk_00003': None, 'WS_1_30-4_dk_00002': None, 'WS_1_30-4_dk_00001': None}</code></pre>
 </div>
 </div>
 <p>Een overzicht van alle resultaten:</p>
 <div id="e233e5ae" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>[<span class="dv">8</span>, <span class="dv">5</span>])</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _loc <span class="kw">in</span> alle_hbns:</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> alle_hbns[_loc] <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>        plt.plot(</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>            <span class="dv">1</span> <span class="op">/</span> alle_hbns[_loc].exceedance_frequency, alle_hbns[_loc].level, label<span class="op">=</span>_loc</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Overschrijdingsfrequentielijn HBN met q = 10 l/m/s"</span>)</span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>plt.xscale(<span class="st">"log"</span>)</span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>plt.xticks([<span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1_000</span>, <span class="dv">10_000</span>, <span class="dv">100_000</span>])</span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Terugkeertijd [jaar]"</span>)</span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">10</span>, <span class="dv">10_00_000</span>)</span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Kruinhoogte [NAP+m]"</span>)</span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">4</span>, <span class="dv">13</span>)</span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>[<span class="dv">8</span>, <span class="dv">5</span>])</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _loc <span class="kw">in</span> alle_hbns:</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> alle_hbns[_loc] <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>        plt.plot(</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>            <span class="dv">1</span> <span class="op">/</span> alle_hbns[_loc].exceedance_frequency, alle_hbns[_loc].level, label<span class="op">=</span>_loc</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Overschrijdingsfrequentielijn HBN met q = 10 l/m/s"</span>)</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>plt.xscale(<span class="st">"log"</span>)</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>plt.xticks([<span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1_000</span>, <span class="dv">10_000</span>, <span class="dv">100_000</span>])</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Terugkeertijd [jaar]"</span>)</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>plt.xlim(<span class="dv">10</span>, <span class="dv">10_00_000</span>)</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Kruinhoogte [NAP+m]"</span>)</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">4</span>, <span class="dv">13</span>)</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
