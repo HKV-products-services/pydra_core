@@ -52,6 +52,18 @@ class ModelUncertainty:
             for comb, correlation in cu.groupby(["k", "rvid", "rvid2"]):
                 self.correlations[comb] = CorrelationUncertainty(correlation.to_numpy()[0])
 
+        # A database with only one wave period: the derived wave period gets the model uncertainty of the present one,
+        # and so does its correlation with the wave height, as in Hydra-NL
+        for (k, rvid), distribution in list(self.model_uncertainties.items()):
+            other = {"tspec": "tp", "tp": "tspec"}.get(rvid)
+            if other and (k, other) not in self.model_uncertainties:
+                self.model_uncertainties[k, other] = DistributionUncertainty([k, other, distribution.mu, distribution.sigma])
+        for (k, rvid, rvid2), correlation in list(self.correlations.items()):
+            period = rvid2 if rvid == "hs" else rvid
+            other = {"tspec": "tp", "tp": "tspec"}.get(period)
+            if other and self.get_correlation("hs", other, k) is None:
+                self.correlations[k, "hs", other] = CorrelationUncertainty([k, "hs", other, correlation.rho])
+
     def iterate_model_uncertainty(self, closing_situation=1, wave_period: str = "tspec"):
         """
         Iterate over all model uncertainty combinations for the water leve, significant wave height and wave period

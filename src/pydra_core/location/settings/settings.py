@@ -91,6 +91,9 @@ class Settings:
     model_uncertainty_wave_height_steps = None  # GH_ONZ_AANTAL
     model_uncertainty_wave_period_steps = None  # GP_ONZ_AANTAL
 
+    # Factor Tp / Tm-1,0 for a database with only one wave period
+    factor_tp_tspec = None  # FACTOR_TP_TM
+
     # File paths
     # Database
     database_path = None  # DBRVW

@@ -57,6 +57,16 @@ class Loading(ABC):
         Preprocess the LoadingModels.
         Makes sure the discretisations in every LoadingModel are the same.
         """
+        # A database with only one wave period: derive the other one, as Hydra-NL (Tp = Tm-1,0 * factor)
+        factor = self.settings.factor_tp_tspec
+        for _, model in self.iter_models():
+            if hasattr(model, "tspec") and not hasattr(model, "tp"):
+                model.tp = model.tspec * factor
+                model.result_variables = [*model.result_variables, "tp"]
+            elif hasattr(model, "tp") and not hasattr(model, "tspec"):
+                model.tspec = model.tp / factor
+                model.result_variables = [*model.result_variables, "tspec"]
+
         # Obtain the wind directions and closing situations
         self.r = sorted(set([r[0] for r in list(self.model.keys())]))
         self.k = sorted(set([k[1] for k in list(self.model.keys())]))
