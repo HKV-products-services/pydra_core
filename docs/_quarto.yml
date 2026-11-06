@@ -10,6 +10,8 @@ website:
         file:  examples.qmd
       - text: "Python API"
         file: reference/index.qmd
+      - text: "Hydra extensions"
+        file: hydra_extensions.qmd
       - text: "Changelog"
         file: CHANGELOG.md
 

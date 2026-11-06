@@ -211,6 +211,50 @@ class CrestLevelTables:
             return False
         return True
 
+    @staticmethod
+    def calculate_in_workers(
+        profile, qcrit: float, work: list[tuple[tuple, list[tuple]]], processes: int
+    ) -> list[list]:
+        """
+        Calculate crest level tables in worker processes. A worker calculates
+        'crest_level_table(profile, qcrit, h + delta_h, hs, tspec, direction, factor_hs, factor_tspec)', the call of the
+        ports, so the tables are the same.
+
+        Parameters
+        ----------
+        profile : Profile
+            The profile
+        qcrit : float
+            The critical discharge
+        work : list[tuple[tuple, list[tuple]]]
+            Per entry a loading (h, hs, tspec, direction) and its combinations (delta_h, factor_hs, factor_tspec)
+        processes : int
+            The number of worker processes
+
+        Returns
+        -------
+        list[list]
+            Per entry of 'work' the crest level table of each combination, in the same order
+        """
+        tasks = [
+            (index, loading, combinations[start : start + COMBINATIONS_PER_TASK])
+            for index, (loading, combinations) in enumerate(work)
+            for start in range(0, len(combinations), COMBINATIONS_PER_TASK)
+        ]
+        tables = [[] for _ in work]
+        with ProcessPoolExecutor(
+            max_workers=processes,
+            mp_context=mp.get_context("spawn"),
+            initializer=CrestLevelTables.init_worker,
+            initargs=(profile,),
+        ) as executor:
+            futures = [
+                (index, executor.submit(CrestLevelTables.calculate_shifted, qcrit, *loading, part))
+                for index, loading, part in tasks
+            ]
+            for index, future in futures:
+                tables[index].extend(future.result())
+        return tables
 
     @staticmethod
     def main_module_is_guarded() -> bool:

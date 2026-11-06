@@ -1,0 +1,1897 @@
+{
+ "central_h_none": {
+  "percentiles": {
+   "pct": [
+    5,
+    10,
+    25,
+    50,
+    75,
+    90,
+    95
+   ],
+   "level": 5.0,
+   "frequency": 3.9396244755862455e-05,
+   "directions": [
+    {
+     "r": 30.0,
+     "percentage": 8.096114436571377e-22
+    },
+    {
+     "r": 60.0,
+     "percentage": 8.104685735922304e-22
+    },
+    {
+     "r": 90.0,
+     "percentage": 8.107268234193746e-22
+    },
+    {
+     "r": 120.0,
+     "percentage": 8.106390259997433e-22
+    },
+    {
+     "r": 150.0,
+     "percentage": 8.116396253991802e-22
+    },
+    {
+     "r": 180.0,
+     "percentage": 8.110285454131092e-22
+    },
+    {
+     "r": 210.0,
+     "percentage": 2.1379154330340777e-10
+    },
+    {
+     "r": 240.0,
+     "percentage": 0.0011224092828851242
+    },
+    {
+     "r": 270.0,
+     "percentage": 6.697090230417485
+    },
+    {
+     "r": 300.0,
+     "percentage": 42.60327099862681
+    },
+    {
+     "r": 330.0,
+     "percentage": 50.61887668926978
+    },
+    {
+     "r": 360.0,
+     "percentage": 0.0796396721892572
+    }
+   ],
+   "sea_level": [
+    5.017576415840953,
+    5.032171035029894,
+    5.081244941399655,
+    5.190299093484273,
+    5.3762557903864945,
+    5.620708998337374,
+    5.804185579361131
+   ],
+   "wind_speed": [
+    30.82704130489494,
+    31.99145488260245,
+    33.91342967235968,
+    36.168988488019316,
+    38.66298058789003,
+    41.276980250145954,
+    43.035380266368264
+   ]
+  },
+  "freq_r": [
+   3.189565059146374e-28,
+   3.1929418292174225e-28,
+   3.193959236557256e-28,
+   3.193613347693983e-28,
+   3.197555333578262e-28,
+   3.195147907908595e-28,
+   8.422583966714618e-17,
+   4.4218710824794404e-10,
+   2.638402058696225e-06,
+   1.6784088916622384e-05,
+   1.9941936553172926e-05,
+   3.1375040178446285e-08
+  ],
+  "route": [
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure"
+  ],
+  "illustration_points": {
+   "level": 5.0,
+   "points": [
+    {
+     "r": 30.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 3.189565059146374e-28,
+     "percentage": 8.096114436571377e-22,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 60.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 3.1929418292174225e-28,
+     "percentage": 8.104685735922304e-22,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 90.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 3.193959236557256e-28,
+     "percentage": 8.107268234193746e-22,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 120.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 3.193613347693983e-28,
+     "percentage": 8.106390259997433e-22,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 150.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 3.197555333578262e-28,
+     "percentage": 8.116396253991802e-22,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 180.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 3.195147907908595e-28,
+     "percentage": 8.110285454131092e-22,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 210.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 8.422583966714618e-17,
+     "percentage": 2.1379154330340777e-10,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 240.0,
+     "u": 52.9,
+     "m": 4.999999999999999,
+     "distance": 51.48935800553987,
+     "beta": 7.175608546007779,
+     "contribution": 4.4218710824794404e-10,
+     "percentage": 0.0011224092828851242,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9999996797439766
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 3.202560233513648e-07
+      }
+     ],
+     "h": 4.999999999999999,
+     "hs": 4.197614,
+     "tspec": 8.766384000000002,
+     "wave_direction": 258.08834973097584,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 270.0,
+     "u": 40.4,
+     "m": 4.999999999999999,
+     "distance": 27.617125588895583,
+     "beta": 5.255199861936326,
+     "contribution": 2.638402058696225e-06,
+     "percentage": 6.697090230417485,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.999998403908881
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 1.596091119099262e-06
+      }
+     ],
+     "h": 4.999999999999999,
+     "hs": 4.684311999999999,
+     "tspec": 10.507168000000004,
+     "wave_direction": 279.023759923323,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 300.0,
+     "u": 34.7,
+     "m": 4.999999999999999,
+     "distance": 23.379822402626992,
+     "beta": 4.835268596740722,
+     "contribution": 1.6784088916622384e-05,
+     "percentage": 42.60327099862681,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9999993282586397
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 6.7174136027996e-07
+      }
+     ],
+     "h": 4.999999999999999,
+     "hs": 4.824755999999999,
+     "tspec": 11.914168,
+     "wave_direction": 289.2096601483248,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 330.0,
+     "u": 33.8,
+     "m": 4.999999999999999,
+     "distance": 22.331181639724377,
+     "beta": 4.725587967621,
+     "contribution": 1.9941936553172926e-05,
+     "percentage": 50.61887668926978,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9999956155943409
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 4.384405659054187e-06
+      }
+     ],
+     "h": 4.999999999999999,
+     "hs": 4.793443999999999,
+     "tspec": 12.563952,
+     "wave_direction": 298.0813202684249,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 360.0,
+     "u": 38.7,
+     "m": 4.999999999999999,
+     "distance": 34.51372983462765,
+     "beta": 5.874838707115936,
+     "contribution": 3.1375040178446285e-08,
+     "percentage": 0.0796396721892572,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9999974841431682
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 2.515856831736401e-06
+      }
+     ],
+     "h": 4.999999999999999,
+     "hs": 4.575445999999999,
+     "tspec": 12.242293999999998,
+     "wave_direction": 306.840164467283,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    }
+   ],
+   "main": {
+    "r": 330.0,
+    "u": 33.8,
+    "m": 4.999999999999999,
+    "distance": 22.331181639724377,
+    "beta": 4.725587967621,
+    "contribution": 1.9941936553172926e-05,
+    "percentage": 50.61887668926978,
+    "reason": null,
+    "alpha2": [
+     {
+      "key": "S",
+      "label": "S",
+      "kind": "stochastic",
+      "alpha2": 0.9999956155943409
+     },
+     {
+      "key": "U",
+      "label": "U",
+      "kind": "stochastic",
+      "alpha2": 4.384405659054187e-06
+     }
+    ],
+    "h": 4.999999999999999,
+    "hs": 4.793443999999999,
+    "tspec": 12.563952,
+    "wave_direction": 298.0813202684249,
+    "f_hs": 1.0,
+    "f_tspec": 1.0
+   }
+  }
+ },
+ "central_h_all": {
+  "percentiles": {
+   "pct": [
+    5,
+    10,
+    25,
+    50,
+    75,
+    90,
+    95
+   ],
+   "level": 5.0,
+   "frequency": 5.226919319204839e-05,
+   "directions": [
+    {
+     "r": 30.0,
+     "percentage": 2.5869697276780237e-17
+    },
+    {
+     "r": 60.0,
+     "percentage": 2.5747380228415716e-17
+    },
+    {
+     "r": 90.0,
+     "percentage": 2.589196177641446e-17
+    },
+    {
+     "r": 120.0,
+     "percentage": 2.5791118204331696e-17
+    },
+    {
+     "r": 150.0,
+     "percentage": 2.5967305648042785e-17
+    },
+    {
+     "r": 180.0,
+     "percentage": 2.5833050321030574e-17
+    },
+    {
+     "r": 210.0,
+     "percentage": 3.0154408154722793e-09
+    },
+    {
+     "r": 240.0,
+     "percentage": 0.002378276613620464
+    },
+    {
+     "r": 270.0,
+     "percentage": 7.84543836707043
+    },
+    {
+     "r": 300.0,
+     "percentage": 43.32858429450617
+    },
+    {
+     "r": 330.0,
+     "percentage": 48.72036767992088
+    },
+    {
+     "r": 360.0,
+     "percentage": 0.10323137887344984
+    }
+   ],
+   "sea_level": [
+    5.019225249014306,
+    5.035594317112736,
+    5.090892860134737,
+    5.214977596620351,
+    5.429558447386521,
+    5.715502072507535,
+    5.9309629069759255
+   ],
+   "wind_speed": [
+    30.729110480903742,
+    31.92294110107888,
+    33.907477819400945,
+    36.232498540115735,
+    38.80040278198493,
+    41.48592190671162,
+    43.25412511417879
+   ]
+  },
+  "freq_r": [
+   1.3521882047798344e-23,
+   1.3457947913481882e-23,
+   1.35335195221254e-23,
+   1.3480809400611697e-23,
+   1.3572901155945178e-23,
+   1.350272697969855e-23,
+   1.5761465854310853e-15,
+   1.2431059978145866e-09,
+   4.10074733684713e-06,
+   2.264750143227497e-05,
+   2.546574310649415e-05,
+   5.395820885817893e-08
+  ],
+  "route": [
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure"
+  ],
+  "illustration_points": {
+   "level": 5.0,
+   "points": [
+    {
+     "r": 30.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 1.3521882047798344e-23,
+     "percentage": 2.5869697276780237e-17,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 60.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 1.3457947913481882e-23,
+     "percentage": 2.5747380228415716e-17,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 90.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 1.35335195221254e-23,
+     "percentage": 2.589196177641446e-17,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 120.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 1.3480809400611697e-23,
+     "percentage": 2.5791118204331696e-17,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 150.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 1.3572901155945178e-23,
+     "percentage": 2.5967305648042785e-17,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 180.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 1.350272697969855e-23,
+     "percentage": 2.5833050321030574e-17,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 210.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 1.5761465854310853e-15,
+     "percentage": 3.0154408154722793e-09,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 240.0,
+     "u": 52.6,
+     "m": 4.999999999999999,
+     "distance": 48.10632523054186,
+     "beta": 6.935872348201188,
+     "contribution": 1.2431059978145866e-09,
+     "percentage": 0.002378276613620464,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9999978120070752
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 2.187992924807295e-06
+      }
+     ],
+     "h": 4.999999999999999,
+     "hs": 4.203116,
+     "tspec": 8.789796000000003,
+     "wave_direction": 258.2375255403232,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 270.0,
+     "u": 40.2,
+     "m": 4.999999999999999,
+     "distance": 26.76240117975297,
+     "beta": 5.173238944776567,
+     "contribution": 4.10074733684713e-06,
+     "percentage": 7.84543836707043,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9999995656488718
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 4.343511282851327e-07
+      }
+     ],
+     "h": 4.999999999999999,
+     "hs": 4.685155999999999,
+     "tspec": 10.518284000000001,
+     "wave_direction": 279.01387996562755,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 300.0,
+     "u": 34.6,
+     "m": 4.999999999999999,
+     "distance": 22.803898616419673,
+     "beta": 4.775342774756559,
+     "contribution": 2.264750143227497e-05,
+     "percentage": 43.32858429450617,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9999927361912891
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 7.263808710875842e-06
+      }
+     ],
+     "h": 4.999999999999999,
+     "hs": 4.823207999999998,
+     "tspec": 11.898124000000001,
+     "wave_direction": 289.20188018476057,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 330.0,
+     "u": 33.7,
+     "m": 4.999999999999999,
+     "distance": 21.862080426181254,
+     "beta": 4.67569036893818,
+     "contribution": 2.546574310649415e-05,
+     "percentage": 48.72036767992088,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.999989990120984
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 1.0009879016037488e-05
+      }
+     ],
+     "h": 4.999999999999999,
+     "hs": 4.792355999999999,
+     "tspec": 12.549848,
+     "wave_direction": 298.0736802613612,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 360.0,
+     "u": 38.4,
+     "m": 4.999999999999999,
+     "distance": 33.456566550905166,
+     "beta": 5.7841651559153435,
+     "contribution": 5.395820885817893e-08,
+     "percentage": 0.10323137887344984,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9999991516347285
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 8.483652714672151e-07
+      }
+     ],
+     "h": 4.999999999999999,
+     "hs": 4.577971999999999,
+     "tspec": 12.270008,
+     "wave_direction": 306.7811237893131,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    }
+   ],
+   "main": {
+    "r": 330.0,
+    "u": 33.7,
+    "m": 4.999999999999999,
+    "distance": 21.862080426181254,
+    "beta": 4.67569036893818,
+    "contribution": 2.546574310649415e-05,
+    "percentage": 48.72036767992088,
+    "reason": null,
+    "alpha2": [
+     {
+      "key": "S",
+      "label": "S",
+      "kind": "stochastic",
+      "alpha2": 0.999989990120984
+     },
+     {
+      "key": "U",
+      "label": "U",
+      "kind": "stochastic",
+      "alpha2": 1.0009879016037488e-05
+     }
+    ],
+    "h": 4.999999999999999,
+    "hs": 4.792355999999999,
+    "tspec": 12.549848,
+    "wave_direction": 298.0736802613612,
+    "f_hs": 1.0,
+    "f_tspec": 1.0
+   }
+  }
+ },
+ "central_hs_none": {
+  "percentiles": {
+   "pct": [
+    5,
+    10,
+    25,
+    50,
+    75,
+    90,
+    95
+   ],
+   "level": 4.57,
+   "frequency": 0.0001868370177643064,
+   "directions": [
+    {
+     "r": 30.0,
+     "percentage": 5.037806655903305e-38
+    },
+    {
+     "r": 60.0,
+     "percentage": 1.8915767343352146e-39
+    },
+    {
+     "r": 90.0,
+     "percentage": 1.0660670667636395e-38
+    },
+    {
+     "r": 120.0,
+     "percentage": 9.524356159200756e-41
+    },
+    {
+     "r": 150.0,
+     "percentage": 2.7985106056185542e-34
+    },
+    {
+     "r": 180.0,
+     "percentage": 1.0957066348459196e-33
+    },
+    {
+     "r": 210.0,
+     "percentage": 4.790670181771272e-19
+    },
+    {
+     "r": 240.0,
+     "percentage": 6.752449694553052e-06
+    },
+    {
+     "r": 270.0,
+     "percentage": 5.776680760115203
+    },
+    {
+     "r": 300.0,
+     "percentage": 49.299020310959506
+    },
+    {
+     "r": 330.0,
+     "percentage": 44.8990908811654
+    },
+    {
+     "r": 360.0,
+     "percentage": 0.02520129531020684
+    }
+   ],
+   "sea_level": [
+    4.534728872295255,
+    4.568139493926493,
+    4.637567973826162,
+    4.763170398028514,
+    4.953830118006697,
+    5.200757947943088,
+    5.386691830938022
+   ],
+   "wind_speed": [
+    29.730030172653024,
+    30.478666860995567,
+    31.994231955768925,
+    33.86273237823953,
+    35.99457950001256,
+    38.454844182994975,
+    40.1470236062267
+   ]
+  },
+  "freq_r": [
+   9.41248771662147e-44,
+   3.5341655591553724e-45,
+   1.9918079149086019e-44,
+   1.7795023009101728e-46,
+   5.228653757355537e-40,
+   2.047185599991755e-39,
+   8.950745298545323e-25,
+   1.2616075635337941e-11,
+   1.0792978057963714e-05,
+   9.210881933601644e-05,
+   8.388812240565509e-05,
+   4.708534859556648e-08
+  ],
+  "route": [
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour"
+  ]
+ },
+ "central_hbn_none": {
+  "percentiles": {
+   "pct": [
+    5,
+    10,
+    25,
+    50,
+    75,
+    90,
+    95
+   ],
+   "level": 17.38,
+   "frequency": 0.00013546487149009682,
+   "directions": [
+    {
+     "r": 30.0,
+     "percentage": 2.855774653744717e-36
+    },
+    {
+     "r": 60.0,
+     "percentage": 1.6186644719864424e-37
+    },
+    {
+     "r": 90.0,
+     "percentage": 6.469819940521509e-37
+    },
+    {
+     "r": 120.0,
+     "percentage": 9.083293981224728e-39
+    },
+    {
+     "r": 150.0,
+     "percentage": 6.164638780336752e-36
+    },
+    {
+     "r": 180.0,
+     "percentage": 2.455175986639262e-35
+    },
+    {
+     "r": 210.0,
+     "percentage": 4.981450188701259e-20
+    },
+    {
+     "r": 240.0,
+     "percentage": 1.859067789574327e-06
+    },
+    {
+     "r": 270.0,
+     "percentage": 3.791445114940968
+    },
+    {
+     "r": 300.0,
+     "percentage": 57.17238383314988
+    },
+    {
+     "r": 330.0,
+     "percentage": 39.02115301529104
+    },
+    {
+     "r": 360.0,
+     "percentage": 0.015016177550315115
+    }
+   ],
+   "sea_level": [
+    4.6017351361652565,
+    4.637804189820309,
+    4.7248271058199265,
+    4.852023802641628,
+    5.040669756554296,
+    5.287104241353368,
+    5.472655113211056
+   ],
+   "wind_speed": [
+    29.85138120870062,
+    30.65855464214645,
+    32.243722629246825,
+    34.16841475264646,
+    36.33812191003416,
+    38.72156981141671,
+    40.46413360566524
+   ]
+  },
+  "freq_r": [
+   3.8685714647420386e-42,
+   2.1927217468322885e-43,
+   8.76433326806812e-43,
+   1.2304672518733777e-44,
+   8.350920001611854e-42,
+   3.3259009951565924e-41,
+   6.748115096467346e-26,
+   2.5183837920606455e-12,
+   5.136076252572336e-06,
+   7.744849628740137e-05,
+   5.2859954786118044e-05,
+   2.034164562125914e-08
+  ],
+  "route": [
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour"
+  ],
+  "illustration_points": {
+   "level": 17.38,
+   "points": [
+    {
+     "r": 30.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 3.8685714647420386e-42,
+     "percentage": 2.855774653744717e-36,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 60.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 2.1927217468322885e-43,
+     "percentage": 1.6186644719864424e-37,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 90.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 8.76433326806812e-43,
+     "percentage": 6.469819940521509e-37,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 120.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 1.2304672518733777e-44,
+     "percentage": 9.083293981224728e-39,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 150.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 8.350920001611854e-42,
+     "percentage": 6.164638780336752e-36,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 180.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 3.3259009951565924e-41,
+     "percentage": 2.455175986639262e-35,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 210.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 6.748115096467346e-26,
+     "percentage": 4.981450188701259e-20,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 240.0,
+     "u": 53.4,
+     "m": 5.320156955725837,
+     "distance": 62.06050051949082,
+     "beta": 7.877848724080123,
+     "contribution": 2.5183837920606455e-12,
+     "percentage": 1.859067789574327e-06,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9999998762294638
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 1.2377053611826416e-07
+      }
+     ],
+     "h": 5.320156955725837,
+     "hs": 4.561297510010487,
+     "tspec": 9.938624055620142,
+     "wave_direction": 262.3258547385999,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 270.0,
+     "u": 39.2,
+     "m": 4.855732096654962,
+     "distance": 26.348579001639372,
+     "beta": 5.133086693368754,
+     "contribution": 5.136076252572336e-06,
+     "percentage": 3.791445114940968,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9999991478191862
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 8.521808137198897e-07
+      }
+     ],
+     "h": 4.855732096654962,
+     "hs": 4.630710322712161,
+     "tspec": 10.653258666712068,
+     "wave_direction": 279.06233273406684,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 300.0,
+     "u": 32.40914934362296,
+     "m": 4.583689666881414,
+     "distance": 20.382157631475724,
+     "beta": 4.5146603007840715,
+     "contribution": 7.744849628740137e-05,
+     "percentage": 57.17238383314988,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9986063346758333
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 0.0013936653241667044
+      }
+     ],
+     "h": 4.583689666881414,
+     "hs": 4.596379855081815,
+     "tspec": 11.526261147556966,
+     "wave_direction": 288.9641890572708,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 330.0,
+     "u": 32.20533246508722,
+     "m": 4.708689666881414,
+     "distance": 20.393549093357397,
+     "beta": 4.515921732421566,
+     "contribution": 5.2859954786118044e-05,
+     "percentage": 39.02115301529104,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9995094637326853
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 0.0004905362673147612
+      }
+     ],
+     "h": 4.708689666881414,
+     "hs": 4.644053002991532,
+     "tspec": 12.319081747923086,
+     "wave_direction": 297.7673323295392,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 360.0,
+     "u": 39.4,
+     "m": 5.081304544600027,
+     "distance": 35.31273159476795,
+     "beta": 5.942451648500638,
+     "contribution": 2.034164562125914e-08,
+     "percentage": 0.015016177550315115,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.999996687893873
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 3.312106126996198e-06
+      }
+     ],
+     "h": 5.081304544600027,
+     "hs": 4.604403680870069,
+     "tspec": 12.224487386452957,
+     "wave_direction": 307.0759424093529,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    }
+   ],
+   "main": {
+    "r": 300.0,
+    "u": 32.40914934362296,
+    "m": 4.583689666881414,
+    "distance": 20.382157631475724,
+    "beta": 4.5146603007840715,
+    "contribution": 7.744849628740137e-05,
+    "percentage": 57.17238383314988,
+    "reason": null,
+    "alpha2": [
+     {
+      "key": "S",
+      "label": "S",
+      "kind": "stochastic",
+      "alpha2": 0.9986063346758333
+     },
+     {
+      "key": "U",
+      "label": "U",
+      "kind": "stochastic",
+      "alpha2": 0.0013936653241667044
+     }
+    ],
+    "h": 4.583689666881414,
+    "hs": 4.596379855081815,
+    "tspec": 11.526261147556966,
+    "wave_direction": 288.9641890572708,
+    "f_hs": 1.0,
+    "f_tspec": 1.0
+   }
+  }
+ },
+ "south_h_all": {
+  "percentiles": {
+   "pct": [
+    5,
+    10,
+    25,
+    50,
+    75,
+    90,
+    95
+   ],
+   "level": 5.0,
+   "frequency": 0.00021726157676250335,
+   "directions": [
+    {
+     "r": 30.0,
+     "percentage": 2.8249542898492936e-10
+    },
+    {
+     "r": 60.0,
+     "percentage": 2.824835020722554e-10
+    },
+    {
+     "r": 90.0,
+     "percentage": 2.8245133255862796e-10
+    },
+    {
+     "r": 120.0,
+     "percentage": 2.824771004076223e-10
+    },
+    {
+     "r": 150.0,
+     "percentage": 2.8248323826267623e-10
+    },
+    {
+     "r": 180.0,
+     "percentage": 2.82502190904882e-10
+    },
+    {
+     "r": 210.0,
+     "percentage": 6.112273685387469e-06
+    },
+    {
+     "r": 240.0,
+     "percentage": 0.009172048297474396
+    },
+    {
+     "r": 270.0,
+     "percentage": 4.178211036873469
+    },
+    {
+     "r": 300.0,
+     "percentage": 43.77731588629076
+    },
+    {
+     "r": 330.0,
+     "percentage": 51.33868721988044
+    },
+    {
+     "r": 360.0,
+     "percentage": 0.6966076946892663
+    }
+   ],
+   "sea_level": [
+    5.019482152586792,
+    5.036871187627106,
+    5.095796931474905,
+    5.228036713517992,
+    5.458998601836114,
+    5.772370865981784,
+    6.009746747320967
+   ],
+   "wind_speed": [
+    27.380595082829394,
+    28.311378984058276,
+    30.042706842921266,
+    32.47578759728588,
+    35.57418881178309,
+    38.492864694736305,
+    40.24075659400542
+   ]
+  },
+  "freq_r": [
+   6.137540232946556e-16,
+   6.13728110696121e-16,
+   6.136582187035771e-16,
+   6.137142023386e-16,
+   6.137275375392696e-16,
+   6.13768714348564e-16,
+   1.327962218491239e-11,
+   1.992733675251122e-08,
+   9.07764717917624e-06,
+   9.511128675885718e-05,
+   0.00011153924134308207,
+   1.5134608613308257e-06
+  ],
+  "route": [
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure",
+   "pure"
+  ],
+  "illustration_points": {
+   "level": 5.0,
+   "points": [
+    {
+     "r": 30.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 6.137540232946556e-16,
+     "percentage": 2.8249542898492936e-10,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 60.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 6.13728110696121e-16,
+     "percentage": 2.824835020722554e-10,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 90.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 6.136582187035771e-16,
+     "percentage": 2.8245133255862796e-10,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 120.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 6.137142023386e-16,
+     "percentage": 2.824771004076223e-10,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 150.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 6.137275375392696e-16,
+     "percentage": 2.8248323826267623e-10,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 180.0,
+     "u": null,
+     "m": null,
+     "distance": null,
+     "beta": null,
+     "contribution": 6.13768714348564e-16,
+     "percentage": 2.82502190904882e-10,
+     "reason": "no contour",
+     "alpha2": null,
+     "h": null,
+     "hs": null,
+     "tspec": null,
+     "wave_direction": null,
+     "f_hs": null,
+     "f_tspec": null
+    },
+    {
+     "r": 210.0,
+     "u": 9.7,
+     "m": 4.999999999999999,
+     "distance": 52.395103070729256,
+     "beta": 7.2384461779258435,
+     "contribution": 1.327962218491239e-11,
+     "percentage": 6.112273685387469e-06,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9999995933094198
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 4.066905802559008e-07
+      }
+     ],
+     "h": 4.999999999999999,
+     "hs": 0.547274,
+     "tspec": 2.6778466666666665,
+     "wave_direction": 259.1474397155387,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 240.0,
+     "u": 46.4,
+     "m": 4.999999999999999,
+     "distance": 38.15246480597233,
+     "beta": 6.176768152195153,
+     "contribution": 1.992733675251122e-08,
+     "percentage": 0.009172048297474396,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9999960951564696
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 3.904843530461039e-06
+      }
+     ],
+     "h": 4.999999999999999,
+     "hs": 2.6091759999999997,
+     "tspec": 9.198816,
+     "wave_direction": 318.9096843809306,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 270.0,
+     "u": 38.6,
+     "m": 4.999999999999999,
+     "distance": 25.223606016706913,
+     "beta": 5.02231082438223,
+     "contribution": 9.07764717917624e-06,
+     "percentage": 4.178211036873469,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.999991824364431
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 8.17563556904513e-06
+      }
+     ],
+     "h": 4.999999999999999,
+     "hs": 2.7347719999999995,
+     "tspec": 8.866588000000002,
+     "wave_direction": 317.68735246796945,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 300.0,
+     "u": 33.4,
+     "m": 4.999999999999999,
+     "distance": 20.052479468454916,
+     "beta": 4.477999494021288,
+     "contribution": 9.511128675885718e-05,
+     "percentage": 43.77731588629076,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9999991631961637
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 8.368038363018254e-07
+      }
+     ],
+     "h": 4.999999999999999,
+     "hs": 2.8604319999999994,
+     "tspec": 9.983432,
+     "wave_direction": 325.6474719680105,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 330.0,
+     "u": 29.0,
+     "m": 4.999999999999999,
+     "distance": 19.03530777340025,
+     "beta": 4.36294714309035,
+     "contribution": 0.00011153924134308207,
+     "percentage": 51.33868721988044,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9999973094546677
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 2.690545332259981e-06
+      }
+     ],
+     "h": 4.999999999999999,
+     "hs": 2.9361199999999994,
+     "tspec": 10.45882,
+     "wave_direction": 332.6947949184659,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    },
+    {
+     "r": 360.0,
+     "u": 33.6,
+     "m": 4.999999999999999,
+     "distance": 26.98135895311837,
+     "beta": 5.194358377424335,
+     "contribution": 1.5134608613308257e-06,
+     "percentage": 0.6966076946892663,
+     "reason": null,
+     "alpha2": [
+      {
+       "key": "S",
+       "label": "S",
+       "kind": "stochastic",
+       "alpha2": 0.9999970808960105
+      },
+      {
+       "key": "U",
+       "label": "U",
+       "kind": "stochastic",
+       "alpha2": 2.9191039894214655e-06
+      }
+     ],
+     "h": 4.999999999999999,
+     "hs": 2.972235999999999,
+     "tspec": 11.114547999999997,
+     "wave_direction": 336.986320017097,
+     "f_hs": 1.0,
+     "f_tspec": 1.0
+    }
+   ],
+   "main": {
+    "r": 330.0,
+    "u": 29.0,
+    "m": 4.999999999999999,
+    "distance": 19.03530777340025,
+    "beta": 4.36294714309035,
+    "contribution": 0.00011153924134308207,
+    "percentage": 51.33868721988044,
+    "reason": null,
+    "alpha2": [
+     {
+      "key": "S",
+      "label": "S",
+      "kind": "stochastic",
+      "alpha2": 0.9999973094546677
+     },
+     {
+      "key": "U",
+      "label": "U",
+      "kind": "stochastic",
+      "alpha2": 2.690545332259981e-06
+     }
+    ],
+    "h": 4.999999999999999,
+    "hs": 2.9361199999999994,
+    "tspec": 10.45882,
+    "wave_direction": 332.6947949184659,
+    "f_hs": 1.0,
+    "f_tspec": 1.0
+   }
+  }
+ },
+ "south_hs_none": {
+  "percentiles": {
+   "pct": [
+    5,
+    10,
+    25,
+    50,
+    75,
+    90,
+    95
+   ],
+   "level": 2.98,
+   "frequency": 0.0001029675704024163,
+   "directions": [
+    {
+     "r": 30.0,
+     "percentage": 8.686488419820922e-15
+    },
+    {
+     "r": 60.0,
+     "percentage": 7.801960752787796e-16
+    },
+    {
+     "r": 90.0,
+     "percentage": 9.125214390132726e-17
+    },
+    {
+     "r": 120.0,
+     "percentage": 9.028086125154331e-17
+    },
+    {
+     "r": 150.0,
+     "percentage": 3.106668891023318e-22
+    },
+    {
+     "r": 180.0,
+     "percentage": 4.781612485730825e-21
+    },
+    {
+     "r": 210.0,
+     "percentage": 3.123557764555266e-18
+    },
+    {
+     "r": 240.0,
+     "percentage": 0.002354427861300298
+    },
+    {
+     "r": 270.0,
+     "percentage": 0.6215585195797073
+    },
+    {
+     "r": 300.0,
+     "percentage": 29.887821924412304
+    },
+    {
+     "r": 330.0,
+     "percentage": 68.38888618735805
+    },
+    {
+     "r": 360.0,
+     "percentage": 1.0993789407886274
+    }
+   ],
+   "sea_level": [
+    5.113443408323311,
+    5.145738408980862,
+    5.240931506749542,
+    5.383999675037538,
+    5.5971263300529746,
+    5.873936470474025,
+    6.0803983912031985
+   ],
+   "wind_speed": [
+    27.988738923663885,
+    28.647209235042247,
+    30.021849666432697,
+    31.936564427033726,
+    35.17323510939644,
+    38.418845257017644,
+    40.206059582615374
+   ]
+  },
+  "freq_r": [
+   8.944266079176849e-21,
+   8.033489430895663e-22,
+   9.396011551531338e-23,
+   9.296000936909064e-23,
+   3.198861477534401e-28,
+   4.9235102026156154e-27,
+   3.2162515402785844e-24,
+   2.4242971656584888e-09,
+   6.400037062404516e-07,
+   3.077476408176805e-05,
+   7.041837453239627e-05,
+   1.1320037848458686e-06
+  ],
+  "route": [
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour",
+   "contour"
+  ]
+ }
+}

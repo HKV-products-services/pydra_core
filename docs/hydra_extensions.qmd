@@ -1,0 +1,603 @@
+---
+title: "Hydra extensions"
+---
+
+The branch 'hydra_extensions' adds ports of Hydra-NL routines to pydra_core: percentiles, illustration points and the
+breakdown of the frequency per water system, plus compiled loops and caches that speed up the calculations. This page
+holds the background of these modules: the Hydra-NL routines they follow and the choices made in the port. The
+docstrings in the code only describe what a module, class or function does.
+
+## core/memory.py
+
+Memory of calculations within one Python process, so that a second question on the same location is fast.
+
+There are two stores, both only in the memory of the process; a new process starts empty:
+
+- 'crest_level_tables' keeps the crest level tables of 'CrestLevelTables.crest_level_table' (at most 50,000).
+  The ports in 'hydra/' use it when the caller passes no crest level function of its own.
+- 'calculations' keeps the calculation objects of the ports in 'hydra/' and the crest level line of the Rhine-Meuse
+  delta (at most 16). Calling a constructor again with the same arguments returns the kept object.
+
+The label of everything kept holds all settings of the location, the time the database was last changed and all
+other arguments; the label of a crest level table also holds a fingerprint of the loading grid. A changed setting,
+an edited database or another grid therefore gives a new calculation. When a store is full, the entry used longest
+ago falls out.
+
+The percentiles of the IJssel-Vecht delta and the percentiles and crest level line of the Rhine-Meuse delta calculate
+their crest level tables ahead in worker processes ('Memory.calculate_ahead') and keep them in 'crest_level_tables'; only
+from 'MIN_POINTS_PARALLEL' points together, which in practice means with model uncertainty.
+
+```python
+from pydra_core.core import memory
+
+memory.crest_level_tables.max_size = 10_000
+memory.calculations.enabled = False
+memory.processes = 1  # no worker processes
+memory.Memory.clear()
+```
+
+A kept object or table is shared by everyone who asks for it: a kept table is read-only, and the ports only add to
+their own caches after they are built, so the results do not depend on what was asked before.
+
+## hydra
+
+Ports of Hydra-NL routines.
+
+'library' holds the routines that are shared by all water systems: grids and densities, interpolation, contours
+(ISOLIJN), wave processing (VERWERKGOLF), percentiles and the scaling of the breakdown (SCHAALUITSPLITS). The
+'compiled_*' modules hold compiled loops for the illustration point scans of a 3D loading field with a barrier, the
+block probability over wind segments and the masked breakdown of the Rhine-Meuse delta.
+
+'percentiles' and 'illustration_points' are the Hydra-NL percentiles and illustration point of the lakes and the upper
+rivers.
+
+'illustration_points_3d' is the illustration point on a 3D loading field with a storm surge barrier, shared by the
+fresh water systems with a barrier; 'ijssel_vecht_delta' fills it in for the IJssel-Vecht delta and the Ramspol
+barrier.
+
+The ports keep their calculation objects and crest level tables in 'core.memory', within the Python process: building
+a port again with the same arguments returns the kept object. 'core.memory' tells how to switch this off and how to
+set the maximum sizes.
+
+## hydra/library.py
+
+The ported Hydra-NL routines that do not depend on a water system.
+
+Hydra-NL is organised the same way: 'libsrc\\Bibliotheek\\' holds the routines that every water system uses
+('Stapgrootte.f90', 'Hydra_contour.f90', 'interpolatiefuncties.f90', 'verwerkgolf.f90'), next to the families per
+area ('*_M'/'*_R' for the lakes and upper rivers, '*_VIJ' for the IJssel-Vecht delta, '*_B' for the lower rivers).
+This module is that library, plus the breakdown and percentile output of 'percentielen_Zoet.f90' that Hydra-NL also
+shares over all its fresh water systems. Code that differs per water system (which stochastic is slow, how the block
+probability is determined, which barrier there is and when it closes) does not belong here.
+
+### Two interpolators
+
+'inextrp1d_interp' and 'inextrp1d_fractions' calculate the same linear inter- and extrapolation, but not with the
+same floating point operations: the first builds on 'np.interp' plus a slope beyond the edges, the second on Hydra's
+own pattern of a lower index with a fraction ('INITIALISEER_INTERPOLATIE' and 'INEXTRP1D_INIT', with 'I_ONDER' and
+'FRACS'). On random grids they differ up to about 1e-12. That is negligible in every result, but not zero, and
+comparisons with Hydra-NL are made bit for bit. Merging them would shift numbers without improving anything, so both
+are kept, each with a name that says which implementation it is. The same holds for the two variants of
+'probability_density'.
+
+### Two ports of CONTOUREN_SAMENVOEGEN
+
+'merge_along_axis' is the simple variant (sort on the second axis, thin out three or more equal values) and
+'merge_contours' the full port of 'contourbewerking.f90'. They do not give the same result everywhere, so both are
+kept.
+
+## hydra/compiled_contour.py
+
+Compiled counterpart of 'Contour.isoline_python' (ISOLIJN, marching squares). numba is optional: without it, the
+caller uses the Python route, with the same results.
+
+The results are bit for bit equal to the Python route. Therefore:
+
+* 'fastmath' is off (the numba default), so that nothing is reordered;
+* the operations are in exactly the same order as in 'library', including the sum '0 + z0 + z1 + z2 + z3' that
+  Python's 'sum()' over a generator does;
+* the points follow the same loop order: bottom, right, top, left, then the closed contours.
+
+The Python route grows its output with 'list.append'; here the buffer is allocated beforehand. If it fills up, no
+result is made up: 'isoline_kernel' returns -1 and 'isoline' returns None, so that the caller uses the Python
+route.
+
+## hydra/compiled_interpolation.py
+
+Compiled counterpart of 'HydraInterpolate.inextrp1d_fractions' (INEXTRP1D). numba is optional: without it, the caller
+uses the numpy route, with the same results.
+
+The results are bit for bit equal to the numpy route. The operation is purely elementwise, so per point the same
+sequence of operations is carried out:
+
+```
+j  = clip(searchsorted(xp, x) - 1, 0, len(xp) - 2)
+fr = (x - xp[j]) / (xp[j+1] - xp[j])
+y  = fp[j] * (1 - fr) + fp[j+1] * fr
+```
+
+Two edge cases where numpy differs from a naive binary search:
+
+* 'np.searchsorted' with side='left' is 'bisect_left', which is copied literally in the kernel.
+* numpy places a NaN in 'x' at the end (i = len(xp)), whereas a binary search on 'xp[mid] < NaN' (always false)
+  ends at 0. That is why the NaN branch is explicit.
+
+## hydra/compiled_lower_river_breakdown.py
+
+The masked contributions of the Rhine-Meuse delta breakdown in one compiled loop.
+
+Per wind direction, barrier state and uncertainty combination: the response table linear to the block grid (first u,
+then m, then q), zero where the response does not reach the level (FREQ_UMQKR), and the probability density x du x dm
+x weight(q) summed into the marginals over q, m and u. Hydra-NL does the same point by point (FREQDICHTHEID_B).
+
+There are no intermediate arrays on the whole (u, m, q) grid. The response and the mask are bit for bit equal to a
+numpy route over the full grid; the sums are not, because the order of summation differs (up to 2e-13 relative).
+
+## hydra/compiled_scans.py
+
+Compiled scans of the illustration points on a 3D loading field with a storm surge barrier (ILLU_PUNTU,
+ILLU_PUNTQ and ILLU_PUNTM): per contour point the distance to the origin in the standard normal space, and the
+point with the smallest distance.
+
+The contour itself is made with the compiled ISOLIJN ('compiled_contour'); the merging of a contour in several parts
+is list work and stays with the caller. The scans start after the contour: one kernel call per iteration.
+
+The results are bit for bit equal to the Python route. That is possible because numba calls scipy's 'ndtri'
+directly through its C address in 'scipy.special.cython_special': the same cephes routine that
+'scipy.special.ndtri' uses.
+
+'cache=True' is not allowed on the functions that call 'ndtri': its address is baked into the compiled code and can
+differ per run, so a cached version would jump to a wrong address. Those functions compile on first use (1-2 s).
+
+NaN values are handled explicitly in 'bracket', 'extremes2', 'extremes4' and 'phi_hydra', because numpy and a
+hand written loop differ there without an error: 'np.searchsorted' puts a NaN at the end where a binary search ends
+at the start, and 'np.max' over a NaN gives NaN (so '>= 0.99' is false) where 'if v > mx' skips it.
+
+## hydra/compiled_wind_segments.py
+
+The block probability P(H >= h | m, q) as a sum over all wind segments where the loading is above the level, as a
+compiled loop.
+
+Hydra-NL reads the block probability as P(U >= u_charac), with u_charac the wind speed where the loading crosses the
+level (BLOKKENREKENEN_VIJ). That only holds when the loading rises with the wind, which is why Hydra-NL repairs along
+the wind. Here every wind segment with h >= level counts:
+
+```
+P(H >= h | m, q) = sum [P(U >= u_begin) - P(U >= u_end)]      (a segment up to the edge of the table: P(U >= u_begin))
+```
+
+For a rising table that is one segment from u_charac, so P(U >= u_charac): Hydra-NL's method, without the need for
+the wind repair.
+
+The table is first interpolated linearly to the block discharge (INEXTRP1D: lower index clamped, fraction not, so
+extrapolating). Whether h is above the level at a wind node follows from h linear along the lake level. Where the
+wind crosses follows Hydra-NL's isoline ('crossing'): in every cell of the table a straight piece between the two
+edge crossings. Linear in the wind along the block grid line would shift u_charac near the closing wind speed and
+with it the barrier share. P(U >= u) is linear on the statistics grid, and 0 beyond UMAX; where the isoline runs
+along the edge U = UMAX, Hydra-NL gives P(U >= UMAX), here 0.
+
+## hydra/percentiles.py
+
+The Hydra-NL percentiles of the slow stochastic and the wind speed, for the lakes and the upper rivers.
+
+This is a port of Hydra-NL's breakdown chain (UITSPL and UR): the percentiles of the slow stochastic (the lake level M
+or the discharge Q) and of the wind speed, given that a level is exceeded. These are the 'T00x_UITSPL' and 'T00x_UR'
+tables in 'uitvoer.html'. The slow stochastic is taken from 'statistics.stochastics_slow' ("a" for the lakes, "q" for
+the upper rivers), so that one class covers both water systems.
+
+### One formula for two water systems
+
+Hydra-NL shares the output between the lakes and the upper rivers (PERCENTIELENS, SCHRIJFPERCENTIELEN, PERCENTAGE_UR in
+'percentielen_Zoet.f90' and 'uitsplitsingen_VIJ.f90'), but not the breakdown itself: the lakes go through
+SPLITSENRD and SPLITSENMQ ('splitsen_VIJ.f90'), the upper rivers through SPLITSEN_B and FREQUENTIE_B ('splitsen_B.f90',
+shared with the lower rivers). Both give the same breakdown:
+
+```
+contribution(u, s, r) = [density of U for u >= u_characteristic(s, r)] * P(r) * f_S(s) * delta_s
+```
+
+This module calculates that formula directly, in the form of SPLITSENMQ, for both systems. Two differences between M
+and Q remain, and are flags of '_SlowPeak':
+
+* for the river, BLOKKENREKENEN_R gives the block probability with the wind direction already summed out. That is
+  the same as p(s) = sum_r P(r) * P(U >= u_characteristic(s, r) | r), which is calculated here for both;
+* OVERSCHRIJDINGSDUUR_Q (formula 4.6) does not clamp the exceedance durations of the wave to at least one block
+  duration, OVERSCHRIJDINGSDUUR_M (formula 6.3) does. That is the flag 'clamp_duration'.
+
+The chain for the lakes (Fortran sources in 'progsrc/berekenen_Zoet'):
+
+* PERCENTIELVULLEN and PERCENTIELENS ('percentielen_Zoet.f90'): the seven percentiles (5 to 95 %) from the
+  normalised cumulative breakdown, with the half bin convention;
+* UITSPLITSEN_FREQ, SPLITSENRD and SPLITSENMQ ('uitsplitsenfreq.f90', 'splitsen_VIJ.f90'): per wind direction r and
+  block s the contribution P_pot(U >= u_characteristic(s, r) | r) * f_S(s) * delta_s * P(r). The wind breakdown puts
+  that same mass on every u >= u_characteristic, with the density of the potential wind (STAT_WIND, grid
+  0:0.2:UMAX);
+* BLOKKENREKENEN_M and CONTOURVERWERKING ('blokkenrekenen_M.f90', 'contour.f90'): u_characteristic(s, r) is the wind
+  speed at which the isoline load(u, s) = level crosses s, linearly inter- and extrapolated on the block grid and
+  clipped to [0, UMAX]. The block probability is p(s) = sum_r P(r) * P_pot(U >= u_characteristic(s, r) | r);
+* VERWERKGOLF ('verwerkgolf.f90'): SCHALING per peak, the saturated trapezoid probability divided by the linear
+  sum of block probabilities;
+* FREQDICHTHM and OVERSCHRIJDINGSDUUR_M ('freqdichtheid_M.f90', formula 6.3 of Geerse 2005.088): the momentary
+  frequency density f_S(s) = -d/ds sum_peak delta_peak * f_peak * SCHALING_peak * D(s, peak), with D the number of
+  wind blocks that the trapezoid spends above s.
+
+Model uncertainty is the outer loop over the combinations of ONZWAARDEN (water level delta_h, and for the crest level
+also the wave factors), weighted with KANSONZ. With ONZ_PAFH = 1 (fully dependent) Hydra-NL accumulates the breakdown
+per combination in the same way ('uitsplitsingen_VIJ.f90'). Statistical uncertainty is the choice of the marginal
+distributions, see 'Settings.include_statistical_uncertainty'.
+
+The wave shapes are built on Hydra-NL's time axis, see 'WaveProcessing.wave_shapes_on_hydra_axis'.
+
+Only the shape of the breakdown matters: PERCENTIELENS normalises the cumulative distribution, so the absolute scale of
+the frequency drops out.
+
+## hydra/illustration_points.py
+
+The Hydra-NL illustration point for the lakes and the upper rivers.
+
+This is a port of Hydra-NL's routine ILLU_PUNTQ ('illustratiepunt_Zoet.f90'). The routine does not depend on the water
+system: it branches on REGIO and runs over the slow stochastic, the lake level M (REGIO 1 and 3) or the Rhine discharge
+Q (REGIO 2), plus the fast stochastic wind speed U given the wind direction r. The port follows the same
+generalisation: the slow stochastic is taken from 'statistics.stochastics_slow' ("a" for the lakes, "q" for the upper
+rivers), so that one class covers both water systems. One slow stochastic and one closing situation are covered;
+anything else raises a 'NotImplementedError'.
+
+### Method
+
+* the isoline response(u, s) = level, on the loading table per wind direction, refined bilinearly;
+* per point the Rosenblatt transformation Y = Phi^-1(F_S(s)), Z = Phi^-1(F_U|r(u)); the wind is independent of the
+  slow stochastic, so the conditional probability is the marginal one;
+* the illustration point is the point closest to the origin, and beta is that distance.
+
+### Model uncertainty
+
+Hydra-NL has an outer loop IONZ over the uncertainty combinations of ONZWAARDEN ('modelonzekerheden.f90'). Every
+combination has the values ONZ(IONZ, 1:4) = [delta_h (added to the water level), f_Hm0, f_Tm-1,0, f_Tp (multiplying
+the waves)] and a distance contribution AFSTONZ(IONZ) = eps_h^2 + eps_Hm0^2 + eps_Tm-1,0^2. The total squared distance
+is Y^2 + Z^2 + AFSTONZ, and the illustration point is the combination (over IONZ and the isoline) with the smallest
+total distance ('uitsplitsingen_VIJ.f90').
+
+The grids of the water level and the wave height come from 'DistributionUncertainty.discretise'. For the waves the
+grid is built around 1.0 with sigma and only then multiplied with the bias mu (f = mu * (1 + sigma * eps)).
+
+The correlation only exists between the uncertainty of the wave height and that of the wave period (Hs with Tspec and
+Hs with Tp). It enters through the conditional period uncertainty given Hs (MU_TSPEC = 1 + rho * (sigma_ts / sigma_hs) *
+(f_hs - 1)); Tp is a deterministic function of the realisation of Tspec and has no dimension of its own in the
+distance. That keeps eps_Hm0^2 + eps_Tm-1,0^2 the right Mahalanobis distance. 'discretise' only gives the marginal
+grid around 1.0, so the conditionally shifted period grid is built here with the same discretisation.
+
+Statistical uncertainty is the choice of the marginal distributions, see 'Settings.include_statistical_uncertainty'.
+
+## hydra/illustration_points_3d.py
+
+The Hydra-NL illustration point on a 3D loading field with a storm surge barrier: the machinery that every fresh water
+system with a barrier shares.
+
+This is a port of the 3D branch of 'illustratiepunt_Zoet.f90'. What differs per water system is in a subclass, one
+module per water system ('ijssel_vecht_delta' for the IJssel-Vecht delta).
+
+### Method
+
+* the design point (discharge Q, level M, wind speed U) is the point closest to the origin over the union of three
+  families of 2D isolines: ILLU_PUNTQ (fixed discharge, contour in (u, m)), ILLU_PUNTM (fixed level, contour in
+  (u, q)) and ILLU_PUNTU (fixed wind speed, contour in (m, q)). There is no 3D optimiser. Every contour comes from
+  ISOLIJN, is merged into one polyline by CONTOUREN_SAMENVOEGEN and refined with FACTOR = 10;
+* the conditional Rosenblatt transformation runs in the order q, m, u: 'conditional_probabilities' derives F(q|k),
+  F(m|q,k) and F(u|m,q,k) from the joint density, normalised per axis with the trapezium rule. The Hydra-NL system
+  documentation prescribes that order for all fresh water systems. Which stochastics depend on each other does not
+  matter here, that is already in the density that comes in;
+* EXTREMEN: where a probability cell jumps from about 0 to about 1 across the barrier ((max - min) >= 0.99), the
+  coordinate is set to +MAXINT and the point is excluded;
+* the loading table is extended in the wind speed to UMAX (UITBREIDING, linear with the last slope of the table), as
+  Hydra-NL does before it calculates the illustration point;
+* model uncertainty: the combinations of 'uncertainty_combinations_by_distance', with distance^2 = X^2 + Y^2 + Z^2 +
+  AFSTONZ and the level shifted per combination (water level: level - delta; wave height: level / f_Hm0; crest
+  level: a crest level table per combination).
+
+### The seams
+
+Everything after 'joint_umqk' only consumes the density that comes out of it. Which stochastics depend on each other
+and how the barrier works is only in these methods of the subclass:
+
+| Method | Purpose |
+|---|---|
+| '_level_axis' | the name of the level axis in the loading table |
+| 'loading_relevant' | which (r, k) tables are loaded |
+| 'check' | whether this water system is accepted |
+| 'statistics_grids' | the statistics grids of the level and the discharge |
+| 'prepare' | preparation of the water system (densities, barrier tables) |
+| 'after_block_grids' | preparation that needs the block grids |
+| 'joint_umqk' | the joint density over (u, m, q) per barrier state |
+| 'conditional_probabilities_direct' | the Rosenblatt chain directly, instead of from a density |
+| 'design_level' | a fixed value of the level in the design point |
+
+The acceptance test for a new water system is conservation: the sum over the barrier states must equal the density
+without a barrier. A barrier redistributes probability mass, it does not create it.
+
+This module names no barrier on purpose. The barriers of the water systems work with different tables and different
+closing criteria; a fact about one of them belongs in the module of that water system.
+
+The barrier states are indices 0 (open) and 1 (closed) inside this module. Outside it they are the closing situations
+k = 1 (open) and k = 2 (closed) of the loading table ('_loading[(r, ik + 1)]'). How 'k' is coded in the statistics
+differs per water system; that translation belongs to 'joint_umqk' and therefore to the module of the water system.
+
+## hydra/ijssel_vecht_delta.py
+
+The Hydra-NL illustration point for the IJssel-Vecht delta (REGIO 1): a 3D loading field with the Ramspol barrier.
+
+This is a port of the IJssel-Vecht delta chain of 'illustratiepunt_Zoet.f90'. The 3D machinery (the three contour
+families, the Rosenblatt chain q, m, u, the scans, the design point) is in 'illustration_points_3d'; this module only
+holds what belongs to the IJssel-Vecht delta.
+
+Joint density of lake level and discharge
+------------------------------------------
+Lake level and discharge are both slow here, and therefore coupled. Pydra's 'statistics.density_aq' is not used: it
+differs from Hydra-NL's DICHTH_MQBLOK (another merging of the joint durations, a running maximum and a normalisation of
+the masses), by up to about 7 % in OVKANSMQ, which moves the lake level of the illustration point one bin. The density
+is therefore rebuilt with the ported Hydra-NL chain ('joint_density_lake_level_discharge': OVERSCHRIJDINGSDUREN, the
+sum of STAT_GEZAMENLIJK and KANSDICHTHEID twice) on pydra's peak density and wave shapes, which equal Hydra-NL's.
+
+### Ramspol barrier
+
+The closing wind speed per (lake level, discharge) comes from the KeringUD data through the ported BLOKSNELHEID. Above
+the closing wind speed the probability mass of the wind splits into the failure probability of the barrier (closing
+situation 1, open) and one minus that (closing situation 2, closed). At easterly wind directions the barrier never
+closes and only the open state exists. Pydra's reader ignores the KeringUD data and uses a fixed split without a wind
+dependent closure; this module follows Hydra-NL.
+
+The KeringUD data come from the table 'KeringUD' in the database if it is there. Production databases do not have it;
+Hydra-NL then reads the CSV of the region from the folder 'data/ini' of its installation, and so does this module: the
+caller passes that folder as 'hydra_ini_directory'.
+
+### Closing situations
+
+Hydra-NL counts IK = 1 as open and IK = 2 as closed; the loading table uses ClosingSituationId 1 (failing barrier,
+always open) and 2 (regular closing). Pydra's loading key 'k' follows the database, so the closing situation k of this
+module is both: 1 open, 2 closed.
+
+The wind is conditionally independent given the direction, so the density factorises as g(u|r) g(m,q) P(k|u,m,q,r).
+
+## hydra/ijssel_vecht_delta_percentiles.py
+
+The Hydra-NL breakdown, percentiles and frequency line for the IJssel-Vecht delta (REGIO 1), with the split over the
+open and closed Ramspol barrier.
+
+This is a port of the breakdown chain of the IJssel-Vecht delta ('progsrc/berekenen_Zoet'), on pydra's intermediate
+results:
+
+* BLOKKENREKENEN_VIJ: the block probability P(H >= h | q, m) per (m, q), per wind direction and closing situation,
+  mixed over the closing situations as (1 - alpha) * P(functioning) + alpha * P(failing). Instead of one
+  characteristic wind speed per cell, the block probability is the sum over the wind segments with h >= level
+  ('compiled_wind_segments');
+* VERWERKGOLF (REGIO 1): SCHALING(s, k) = GQM / G_SLANG per (lake level peak s, discharge peak k), with the block
+  probability evaluated bilinearly on the simultaneous lake level and discharge waves (shared time axis; the shift of
+  84 hours is in pydra's lake level wave shape);
+* FREQDICHTHQM and OVERSCHRIJDINGSDUREN: the joint frequency density f(m, q), differentiated twice from the sum over
+  the trapezia of dm * dq * DICHTH_MQPIEK * SCHALING * DUREN. The durations are those of 'ijssel_vecht_delta';
+  pydra's 'density_aq' is not used (see there);
+* SPLITSENRD, SPLITSENMQ, BIJDRAGEKERING and BIJDRAGENWIND ('splitsen_VIJ.f90'): the breakdown per wind direction;
+* PERCENTIELEN_KERING, PERCENTIELENS ('percentielen_Zoet.f90') and PERCENTAGE_UR, in 'library'.
+
+### Closing situations
+
+On the input side Hydra-NL counts IK = 1 as a functioning barrier (database k = 2, regular closing) and IK = 2 as a
+failing barrier (database k = 1, always open). On the output side IK = 1 is open and IK = 2 closed. The physical split
+uses the closing wind speed BLOKSNELHEID from the KeringUD data ('ijssel_vecht_delta.BarrierClosingData'); a split on
+pydra's k axis would give the failure probabilities (0.01 / 0.99), not open and closed.
+
+### Two loading tables
+
+The breakdown and the frequency line use the loading table as pydra delivers it, with the repairs of the settings,
+extended linearly to UMAX and not repaired again: Hydra-NL's repair after the extension makes every level artificially
+reachable just below UMAX in the tail. With 'with_repaired_loading' the object also holds Hydra-NL's own table
+(repaired, extended to UMAX and repaired again), for comparing the method with Hydra-NL; 'breakdown_of_table' and
+'frequency_of_table' calculate on it with 'line=False'.
+
+### Scaling
+
+Hydra-NL's SCHAALUITSPLITS scales every breakdown family to the target frequency. Percentiles and percentages normalise
+that absolute scale away, so 'breakdown' leaves it out, as it leaves out NGEGEVENSBLOK (a constant factor). As soon as
+an absolute number is taken from the breakdown (the frequency or return period per wind direction or closing
+situation) that no longer holds: the density route lies a few percent above the frequency line. Use
+'breakdown_scaled' then; see 'Scaling.scale_breakdown'.
+
+Measured gap (times NGEGEVENSBLOK, without model uncertainty, ratio to the frequency line):
+
+```
+IJ_1_10-3_dk_00035   2.2 m 1.063 -> 3.8 m 1.061   (flat)
+IJ_1_11-1_dk_00147   2.2 m 1.051 -> 3.8 m 1.036   (slightly decreasing)
+ZW_1_9-1_dk_00304    1.2 m 1.121 -> 2.8 m 1.017   (clearly decreasing)
+```
+
+The gap depends on the level, which is why Hydra-NL scales per level and does not correct with one constant.
+
+### Grids
+
+The breakdown grids of lake level and discharge are pydra's 'ablok' and 'qblok' (equal to Hydra-NL's MBLOK and QBLOK);
+the wind speed grid is VECTORVULLEN(0, UMAX, 0.2).
+
+### Model uncertainty
+
+An outer loop over the uncertainty combinations with their probability KANSONZ, the whole chain per combination (fully
+dependent, ONZ_PAFH = 100). Water level: level - delta; wave height: level / f_hs; crest level: the crest level table
+per combination.
+
+## hydra/rhine_meuse_delta.py
+
+The Hydra-NL illustration point for the Rhine-Meuse delta: a 3D loading field with the Europoort barrier.
+
+The 3D machinery (the three contour families, the Rosenblatt chain q, m, u, the scans, the design point) is in
+'illustration_points_3d'; this module only holds what belongs to the Rhine-Meuse delta.
+
+### Factorisation
+
+The sea level and the wind are fast and come from the same storm, so they are dependent; only the discharge is slow.
+The joint density is g(u, m, r | q) = P(r) g(m | r) g(u | m, r) given the discharge, which pydra implements in
+'StatisticsLowerRiver'. The density is taken from pydra, with the barrier probabilities of 'BarrierEuropoort' already
+in it. Three things change on the way in:
+
+* axes: 'calculate_probability' returns (u, q, m); the machinery wants (u, m, q);
+* masses: pydra returns the probability mass per cell, the machinery integrates a density with step sizes. The mass
+  is divided by the cell volume du dm dq on the statistics grids, with the same step sizes as pydra's bins, so that
+  the integral gives the masses back;
+* closing situations: the loading table has k = 1 (open) and k = 2 (closed); pydra's statistics code them as 0 and
+  11. 'calculate_probability' is asked per closing situation, because the branch that returns both at once
+  ('closing_situation=None') fails with a broadcast error on the westerly directions.
+
+### Easterly wind directions
+
+At the nine easterly directions the loading table has no sea level axis (2D in (u, q)) and the barrier never closes.
+As in Hydra-NL's ONDKANSEN_ILLU_B, the Rosenblatt chain is then built directly: F(q) the marginal of the discharge,
+F(m|q) a constant 0.5 (Phi^-1(0.5) = 0, the sea level adds nothing to beta), F(u|m,q) = 1 - G(u|r), and no mass in the
+closed state. The sea level of the design point is the spring tide level of the database (SPRINGTIJ): the unique sea
+level over all loading rows with an easterly direction.
+
+## hydra/rhine_meuse_delta_percentiles.py
+
+The Hydra-NL breakdown, percentiles and crest level frequency line for the Rhine-Meuse delta (REGIO 0), with the split
+over the open and closed Europoort barrier.
+
+This is a port of the breakdown chain of the lower rivers ('freqdichtheid_B.f90' and 'splitsen_B.f90'), on pydra's
+intermediate results:
+
+* FREQDICHTHQ (formula 4.6 [Geerse, 2005.088]): the frequency density of the discharge f_Q(q);
+* KANS_UMQKR: the joint density over (u, m, q, k) per wind direction, times f_Q(q);
+* FREQ_UMQKR: zero where the loading lies below the level;
+* BIJDRAGEN_UMQKR: times du dm dq times KANSONZ;
+* FREQ_URK, FREQ_MRK and FREQ_QRK: the marginals, the breakdown families;
+* SCHAALUITSPLITS and PERCENTIELEN, in 'library'.
+
+There is no contour, no characteristic wind speed and no evaluation on two simultaneous waves: the Rhine-Meuse delta
+integrates directly over the (u, m, q, k) grid, as the quadrature of the failure probability per block in
+'illustration_points_3d' does. This module therefore builds on 'HydraRhineMeuseDeltaIllustrationPoint', which holds
+the loading tables, the block grids, the density per barrier state and the response tables, and only adds the
+breakdown.
+
+### The seam with pydra: one factor in q
+
+KANS_UMQKR builds the bracket P(k|u,m,q,r) f(m|r) f(u|m,r) P(r) first, and multiplies it by the frequency density of
+the discharge KANSDQ(q) only at the end. Pydra builds the same bracket, but multiplies it by the probability density
+g_q(q) of the discharge. 'HydraRhineMeuseDeltaIllustrationPoint.bracket_umqk' divides g_q out, and this module
+multiplies by f_Q(q).
+
+That is allowed because the joint factorises in q when summed over the barrier states: per barrier state the shape
+over (u, m) differs over q (the closing probability depends on the discharge), but the sum over k of P(k|.) is 1 and
+the other two factors integrate to 1, so that the sum over (u, m, k) of joint * du * dm equals g_q(q) P(r). Measured on
+HV_1_20-4_dk_00087: a largest relative deviation of 4.9e-15 to 8.8e-15 over 120 discharges at four wind directions.
+
+### The block probability p(q)
+
+FREQDICHTHQ needs SCHALING(qpeak), which VERWERKGOLF derives from the block probability
+p(q) = P(loading >= level | Q = q). Hydra-NL calculates it in BLOKKENREKENEN_B as the sum over the directions and the
+barrier states of the masked bracket integrated over (u, m). That is the marginal over (u, m, k) of the same masked
+bracket the breakdown comes from; the bracket has no discharge factor, so nothing has to be divided out.
+
+### Two model uncertainties, one per barrier state
+
+The HRD table 'UncertaintyModelFactor' has a column 'ClosingSituationId'; on DK_1_22-1_dk_00291 sigma is 0.25 m for an
+open and 0.30 m for a closed barrier. Hydra-NL calculates with both ('WS_PAR_PER_KERING' is always on for REGIO 0) and
+shifts the water level per barrier state with its own delta. The probabilities stay one vector: the bin edges lie in
+standard normal units, so the lists per barrier state have the same weights in the same order, and Hydra-NL walks them
+in lockstep with one KANSONZ per combination. The constructor refuses lists with different weights.
+
+### Grids
+
+The discharge and the sea level are the block grids of the illustration point. The wind speed is the block grid on
+which pydra delivers the density (about 0.55 m/s); Hydra-NL calculates with USTAP = 0.5 for REGIO 0. Hydra-NL prints
+its UITSPL tables on a coarser grid from 'invoer.hyd' (UITQSTAP, UITMSTAP, UITWSTAP); that does not matter for
+percentiles, which are values of the stochastic and not bin contents.
+
+### Scaling
+
+NGEGEVENSBLOK is left out of the breakdown: a constant factor that drops out of percentiles and percentages. As soon as
+an absolute number is taken from the breakdown, use 'breakdown_scaled'; see 'Scaling.scale_breakdown'.
+
+### Crest level frequency line
+
+'crest_level_line' is the frequency line of the crest level with the crest level per situation in the loading table.
+In the Rhine-Meuse delta one water level per barrier state, discharge and sea level comes with different waves, so a
+crest level as a function of (water level, u, r) is not enough. Every point (q, m, k, u, r) gets its crest level from
+its own waves, and the line follows pydra's water level line: refine to the statistics grid, repair, and sum the
+probabilities per level class over the slow stochastic. The refinement is a matrix built after
+'LoadingModel.refine', applied to every crest level table; 'check_refine_source' refuses when 'refine' changes.
+
+## hydra/coast_breakdown.py
+
+The Hydra-NL breakdown and percentiles for the coast.
+
+This is a port of BEREKEN_FAALKANSZEE ('watersysteem_zee.f90'), the salt branch of Hydra-NL for REGIO 5: the Wadden
+Sea, the Holland coast and the Western Scheldt. The Eastern Scheldt (REGIO 4) is not covered: there Hydra-NL selects
+ten illustration points with HOOGSTE_BIJDRAGEN instead of filling every direction. Pydra gives exactly those REGIO 5
+locations the class 'StatisticsCoast', and that is the check at the start.
+
+The coast has no slow stochastic: sea level and wind speed are both fast within the same block. The machinery of
+'percentiles.py' (peaks, block grids, wave shapes, exceedance durations) therefore does not exist here.
+
+### Method
+
+Per wind direction:
+
+1. ISOLIJN on the loading field B(u, m) at the requested level gives the contour (WU, WM), on the grid of the
+  loading table;
+2. if the contour contains the sentinel, CONTOUREN_SAMENVOEGEN;
+3. if the contour is vertical (min(WM) equals max(WM)), ZUIVER_ZEEWS and KANSEN_ZUIVER_ZEE: the probability is read
+  from the exceedance curve of the sea level at the contour level;
+4. otherwise VERFIJNEN_CONTOUR gives the characteristic wind speed per sea level, and KANSEN_CONTOURZEE sums the
+  cells with a hard indicator on the grid nodes: a cell counts as soon as USTAT(IU) >= UKARAK(IM).
+
+For a water level calculation the local water level at the coast is exactly the sea level, the isoline is always
+vertical and Hydra-NL takes route 3, in which the step size of the sea level drops out. For the crest level the loading
+depends on the wind, the isoline is slanted and route 4 applies. Route 4 depends on 'settings.m_step'; the caller sets
+it as Hydra-NL calculates (MSTAP), this module uses it as it comes in.
+
+### Repair
+
+The loading field is repaired with REPAREER_ZOUT: a falling cell is set equal to its neighbour. Pydra's own
+'LoadingModel.repair' makes it strictly larger by 1e-6 per step instead, which tilts an exactly vertical isoline and
+thereby the choice between route 3 and route 4. The vertical test therefore allows exactly that artificial slope.
+
+### Model uncertainty
+
+As in Hydra-NL the outer loop is over the uncertainty combinations ('rekenen_onzekerheden.f90'): per combination the
+whole loading chain again, and the breakdowns summed with the weight KANSONZ. The coastal databases have no water level
+uncertainty, so a water level calculation has a single combination. For the wave height and the wave period Hydra-NL
+applies the model uncertainty to the level instead of to the loading field; that route is not covered.
+
+## hydra/coast_illustration_points.py
+
+The Hydra-NL illustration points for the coast.
+
+This is a port of ILLU_PUNT_BEPALEN and ONDKANSEN_ILLU ('illustratiepunt_Zout.f90'). Per wind direction the design
+point is the point on the contour with the smallest distance to the origin in standard normal space. The coast covers
+the same locations as 'coast_breakdown' (REGIO 5).
+
+### Method
+
+* The loading field is put on the grid of the statistics, not on that of the loading table: for the sea Hydra-NL
+  sets WATERSTANDEN%U = STATISTIEK%USTAT and WATERSTANDEN%M = STATISTIEK%MSTAT ('watersysteem_zee.f90'). The waves
+  are interpolated to that grid first, and the crest level is calculated per cell afterwards; the other way round
+  (interpolating the crest level of the coarse grid) gives a different contour.
+* The field is repaired with REPAREER_ZOUT and the isoline is taken at the level.
+* Every segment of the contour is divided linearly into ten pieces; the last segment gets one point more, so that
+  its end point is included.
+* The distance is bivariate: X^2 + Y^2, with X from the sea level and Y from the wind speed given that sea level.
+  The wind direction is the outer loop and adds nothing to the distance within a direction (Rosenblatt).
+* The non-exceedance probabilities come from the cell probabilities KANS_MUR of the statistics, as cumulative sums
+  of half cell masses: ONDKANSM over the sea level and ONDKANSUDM over the wind given the sea level.
+
+Every wind direction gets an illustration point ('uitsplitsingen_Zout.f90' calls ILLU_PUNT_VULLEN for all directions).
+The single main illustration point of HOOFDIP4OVERZICHT ('IPuitvoer_Zout.f90') is the direction with the largest
+contribution to the exceedance frequency, not the one with the smallest distance; on equal contributions the lowest
+direction index wins.
+
+### Model uncertainty
+
+The outer loop is over the uncertainty combinations, and per direction the point with the smallest total distance
+X^2 + Y^2 + AFSTONZ stays ('uitsplitsingen_Zout.f90'); on equal distances the first combination wins. A direction can
+therefore choose a different combination than its neighbour.
+
+### Influence factors
+
+Hydra-NL prints no influence factors. 'alpha2' is the standard FORM decomposition alpha^2_i = u_i^2 / beta^2 of the
+Rosenblatt coordinates, with the same function as the lakes and upper rivers. The term of the water level uncertainty
+is left out: the coastal databases have none, and a bar of zero would suggest a measured negligible influence.

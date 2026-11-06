@@ -23,6 +23,7 @@ dependencies = [
   "pandas",
   "numpy",
   "scipy",
+  "numba",
   "fiona",
   "shapely",
   "matplotlib>=3.9.3"
