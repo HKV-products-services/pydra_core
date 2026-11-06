@@ -173,6 +173,18 @@ class Settings:
             else:
                 raise ValueError(f"[ERROR] Key '{key}' not defined in Settings.")
 
+        # A coastal database can cover more than one sub area, while its label holds only one. The wind
+        # statistics of the sub area of the location itself are used, as in Hydra-NL.
+        sub_area = self.__determine_coastal_sub_area()
+        if sub_area is not self.watersystem:
+            self.watersystem = sub_area
+            with CalculationSettingsReader() as database:
+                settings = database.get_settings(self.watersystem)
+            for _, row in settings.iterrows():
+                key = row["SettingName"]
+                if isinstance(key, str) and key.lower() in ["wind_speed_probability", "sigma_function"]:
+                    setattr(self, key.lower(), row["SettingValue"])
+
         # Collect all settings with statistical uncertainty (with '_metOnzHeid')
         self.__vars_with_statistical_uncertainty = {}
         for variable in [var for var in dir(self) if not callable(getattr(self, var)) and not var.startswith("__")]:
@@ -194,6 +206,28 @@ class Settings:
         for setting in self.__vars_with_statistical_uncertainty.keys():
             value = self.__vars_with_statistical_uncertainty[setting]
             setattr(self, setting, value if include else value.replace("_metOnzHeid", ""))
+
+    def __determine_coastal_sub_area(self):
+        """
+        Determine the sub area of the Dutch coast or the Wadden Sea in which the location lies, with the
+        boundaries of Hydra-NL (BerParInfoSUZout.ini). Other water systems are returned unchanged.
+
+        Returns
+        -------
+        WaterSystem
+            The water system of the sub area
+        """
+        # Dutch coast: south below y = 480000, north above y = 540000, central in between
+        if self.watersystem in [WaterSystem.COAST_NORTH, WaterSystem.COAST_CENTRAL, WaterSystem.COAST_SOUTH]:
+            if self.y_coordinate < 480000.0:
+                return WaterSystem.COAST_SOUTH
+            return WaterSystem.COAST_NORTH if self.y_coordinate > 540000.0 else WaterSystem.COAST_CENTRAL
+
+        # Wadden Sea: west below x = 160000, otherwise east
+        if self.watersystem in [WaterSystem.WADDEN_SEA_EAST, WaterSystem.WADDEN_SEA_WEST]:
+            return WaterSystem.WADDEN_SEA_WEST if self.x_coordinate < 160000.0 else WaterSystem.WADDEN_SEA_EAST
+
+        return self.watersystem
 
     def __determine_sea_level_statistics_points(self):
         """
