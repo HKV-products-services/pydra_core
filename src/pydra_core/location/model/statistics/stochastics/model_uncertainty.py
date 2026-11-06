@@ -278,8 +278,9 @@ class ModelUncertainty:
         klassekansen = []
 
         # Bereken per niveau (waterstand) de kans dat de waterstand door onzekerheid in een andere klasse valt
+        # The factor is mu * (1 + sigma * eps), as in Hydra-NL, so the applied spread is mu * sigma
         for niveau in niveaus:
-            grenskansen = norm.cdf(hgrens / niveau, loc=mu, scale=sigma)
+            grenskansen = norm.cdf(hgrens / niveau, loc=mu, scale=mu * sigma)
             klassekansen.append(grenskansen[1:] - grenskansen[:-1])
         klassekansen = np.array(klassekansen)
 
@@ -317,6 +318,10 @@ class DistributionUncertainty:
         edges : list
             List with the edges of each bin
         """
+        # Additive or multiplicative, the same split as process_model_uncertainty
+        if self.rvid not in ["h", "hs", "tspec", "tp"]:
+            raise KeyError(f"[ERROR] Unknown model uncertainty '{self.rvid}': not additive (h) or multiplicative (hs, tspec, tp).")
+
         # If nsteps is 1, there is no need to discretise
         if nsteps == 1:
             return self.mu, [self.mu - 100 * self.sigma, self.mu + 100 * self.sigma]
