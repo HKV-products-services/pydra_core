@@ -7,9 +7,20 @@ from ..location import Location
 
 
 class ModelOvertopping(ModelBase):
-    def __init__(self, location: Location, water_levels: np.ndarray, probability: np.ndarray):
+    def __init__(self, location: Location, water_levels: np.ndarray, probability: np.ndarray, loading: LoadingOvertopping = None):
         """
         Overtopping model
+
+        Parameters
+        ----------
+        location : Location
+            The Location object
+        water_levels : np.ndarray
+            The water levels
+        probability : np.ndarray
+            The probability of the water levels
+        loading : LoadingOvertopping, optional
+            The loading for the same location and water levels, if already built (default None)
         """
         # Inherit
         super().__init__(location.get_settings())
@@ -18,4 +29,4 @@ class ModelOvertopping(ModelBase):
         self.statistics = StatisticsOvertopping(location, water_levels, probability)
 
         # Init loading
-        self.loading = LoadingOvertopping(location, water_levels)
+        self.loading = LoadingOvertopping(location, water_levels) if loading is None else loading

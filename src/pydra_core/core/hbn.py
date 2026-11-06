@@ -4,6 +4,7 @@ from datetime import datetime
 from scipy.stats import norm
 
 from .calculation import Calculation
+from .crest_level_tables import CrestLevelTables
 from .datamodels.frequency_line import FrequencyLine
 from ..common.enum import Breakwater
 from ..common.probability import ProbabilityFunctions
@@ -19,7 +20,7 @@ class HBN(Calculation):
     Calculate the HBN for a location
     """
 
-    def __init__(self, q_overtopping: float, model_uncertainty: bool = True):
+    def __init__(self, q_overtopping: float, model_uncertainty: bool = True, processes: int = None):
         """
         The __init__ method initializes an instance of the ExceedanceFrequencyLine class. It takes in several parameters to configure the calculation of the frequency line.
 
@@ -29,6 +30,9 @@ class HBN(Calculation):
             The average overtopping discharge.
         model_uncertainty : bool (optional)
             Enable or disable the use of model uncertainties when calculating the frequency line. Default is True.
+        processes : int (optional)
+            The number of worker processes for the crest levels of the model uncertainty combinations; 1 calculates
+            them in this process. Default is None: the number of cores minus 2.
         """
         # Inherit
         super().__init__()
@@ -36,6 +40,7 @@ class HBN(Calculation):
         # Save settings
         self.set_overtopping_discharge(q_overtopping)
         self.use_model_uncertainty(model_uncertainty)
+        self.set_processes(processes)
 
         # Optional settings, can be adjusted by user outside of __init__
         self.set_range(None, None)
@@ -99,93 +104,111 @@ class HBN(Calculation):
         sea = isinstance(statistics, (StatisticsCoast, StatisticsEasternScheldt))
         groups, p_dh = self.__water_level_uncertainty(loading, monz, self.model_uncertainty and not sea)
 
-        # P(H=h, U=u, R=r | slow) per group of closing situations with the same dh
-        split = ["u"] + slow_stochastics + ["r"] + (["k"] if len(groups) > 1 else [])
-        p_hur_tr = model.calculate_probability_loading(
-            result_variable="h",
-            levels=h_boundaries,
-            split_input_variables=split,
-            model_uncertainty=self.model_uncertainty and sea,
-            given=slow_stochastics,
-        )
-        p_groups = []
-        for dh, closing_situations in groups.items():
-            p = p_hur_tr[..., [loading.k.index(k) for k in closing_situations]].sum(axis=-1) if len(groups) > 1 else p_hur_tr
-            p_groups.append((np.array(dh), p[1:-1]))
-
-        # Init wave overtopping statistics and loading
-        model_hbn = ModelOvertopping(location, levels, p_groups[0][1])
-        model_hbn_statistics = model_hbn.get_statistics()
-        model_hbn_loading = model_hbn.get_loading()
+        # The overtopping loading does not depend on the water level probabilities. It is built first, so the worker
+        # processes calculate the crest levels while the water level probabilities are calculated
+        model_hbn_loading = LoadingOvertopping(location, levels)
         h_org = {key: m.h.copy() for key, m in model_hbn_loading.iter_models()}
 
         # With a straight slope without foreshore and breakwater, the crest level at h + dh is the crest level at h plus dh
         # (the waves are equal). The crest level is then calculated once and the levels are shifted with dh
-        h_min = min(np.min(h) for h in h_org.values()) + min(np.min(dh) for dh, _ in p_groups)
+        h_min = min(np.min(h) for h in h_org.values()) + min(np.min(dh) for dh in groups)
         shift = self.__translation_invariant(profile, h_min)
-        if len(p_groups) > 1:
-            p_groups = [(dh, p, np.ascontiguousarray(np.moveaxis(p, model_hbn_statistics.dimensions.index("r"), 0))) for dh, p in p_groups]
-        else:
-            p_groups = [(p_groups[0][0], model_hbn_statistics.probability, model_hbn_statistics.probability_r)]
 
-        # Iterate over the wave conditions model uncertainty
+        # Wave conditions model uncertainty
         # ASSUME: model uncertainties for wave height/period do not differ given the state of the barrier
         iterator = np.array(list(monz.iterate_model_uncertainty_wave_conditions(wave_period="tspec")))
         iterator = iterator if self.model_uncertainty else np.array([[1.0, 1.0, 1.0]])
-        exceedance_probability = np.zeros(len(levels))
-        for n_id, (factor_hs, factor_tspec, p_occ) in enumerate(iterator):
-            # Info
-            if self.verbose and self.model_uncertainty:
-                print(f"[{datetime.now().strftime('%H:%M:%S')}]: Model uncertainties {n_id + 1}/{len(iterator)} (fhs = {round(factor_hs, 3)}; ftspec = {round(factor_tspec, 3)}; p = {round(p_occ, 3)})")
 
-            # Calculate and repair the height of the HBNs (once, if they shift with the water level)
-            if shift:
-                model_hbn_loading.calculate_hbn(profile, self.q_overtopping, factor_hs, factor_tspec)
-                model_hbn_loading.repair_loadingmodels("hbn")
+        # The water level shifts of the crest level tables, in the order of the loop below: none if the crest levels
+        # shift with the water level, otherwise per value of the water level uncertainty and per group
+        dh_values = [0.0] if shift else [np.array(dh)[i] for i in range(len(p_dh)) for dh in groups]
+        crest_level_tables = None
+        if CrestLevelTables.worthwhile(model_hbn_loading, len(iterator) * len(dh_values), self.processes):
+            crest_level_tables = CrestLevelTables(profile, self.q_overtopping, h_org, model_hbn_loading, dh_values, iterator[:, :2], self.processes)
+        try:
+            # P(H=h, U=u, R=r | slow) per group of closing situations with the same dh
+            split = ["u"] + slow_stochastics + ["r"] + (["k"] if len(groups) > 1 else [])
+            p_hur_tr = model.calculate_probability_loading(
+                result_variable="h",
+                levels=h_boundaries,
+                split_input_variables=split,
+                model_uncertainty=self.model_uncertainty and sea,
+                given=slow_stochastics,
+            )
+            p_groups = []
+            for dh, closing_situations in groups.items():
+                p = p_hur_tr[..., [loading.k.index(k) for k in closing_situations]].sum(axis=-1) if len(groups) > 1 else p_hur_tr
+                p_groups.append((np.array(dh), p[1:-1]))
 
-            # Every value of the water level uncertainty applies to all blocks of a slow wave
-            for i, _p_dh in enumerate(p_dh):
-                p_hbn_slow = 0.0
-                for dh, p, p_r in p_groups:
-                    # Shift the levels (P(HBN + dh in bin) = P(HBN in bin - dh)), or the water level and calculate the HBNs
-                    if shift:
-                        hbn_levels = levels[1:] - dh[i]
+            # Init wave overtopping statistics
+            model_hbn = ModelOvertopping(location, levels, p_groups[0][1], loading=model_hbn_loading)
+            model_hbn_statistics = model_hbn.get_statistics()
+            if len(p_groups) > 1:
+                p_groups = [(dh, p, np.ascontiguousarray(np.moveaxis(p, model_hbn_statistics.dimensions.index("r"), 0))) for dh, p in p_groups]
+            else:
+                p_groups = [(p_groups[0][0], model_hbn_statistics.probability, model_hbn_statistics.probability_r)]
+
+            # Iterate over the wave conditions model uncertainty
+            exceedance_probability = np.zeros(len(levels))
+            for n_id, (factor_hs, factor_tspec, p_occ) in enumerate(iterator):
+                # Info
+                if self.verbose and self.model_uncertainty:
+                    print(f"[{datetime.now().strftime('%H:%M:%S')}]: Model uncertainties {n_id + 1}/{len(iterator)} (fhs = {round(factor_hs, 3)}; ftspec = {round(factor_tspec, 3)}; p = {round(p_occ, 3)})")
+
+                # Calculate and repair the height of the HBNs (once, if they shift with the water level)
+                if shift:
+                    hbn = None if crest_level_tables is None else crest_level_tables.get(0, n_id)
+                    model_hbn_loading.calculate_hbn(profile, self.q_overtopping, factor_hs, factor_tspec, hbn=hbn)
+                    model_hbn_loading.repair_loadingmodels("hbn")
+
+                # Every value of the water level uncertainty applies to all blocks of a slow wave
+                for i, _p_dh in enumerate(p_dh):
+                    p_hbn_slow = 0.0
+                    for i_group, (dh, p, p_r) in enumerate(p_groups):
+                        # Shift the levels (P(HBN + dh in bin) = P(HBN in bin - dh)), or the water level and calculate the HBNs
+                        if shift:
+                            hbn_levels = levels[1:] - dh[i]
+                        else:
+                            hbn_levels = levels[1:]
+                            for key, m in model_hbn_loading.iter_models():
+                                m.h = h_org[key] + dh[i]
+                            hbn = None if crest_level_tables is None else crest_level_tables.get(i * len(p_groups) + i_group, n_id)
+                            model_hbn_loading.calculate_hbn(profile, self.q_overtopping, factor_hs, factor_tspec, hbn=hbn)
+                            model_hbn_loading.repair_loadingmodels("hbn")
+
+                        # Calculate the probability of a HBN
+                        model_hbn_statistics.probability, model_hbn_statistics.probability_r = p, p_r
+                        p_hbn_slow = p_hbn_slow + model_hbn.calculate_probability_loading(
+                            result_variable="hbn",
+                            levels=hbn_levels,
+                            model_uncertainty=False,
+                            split_input_variables=slow_stochastics,
+                            given=slow_stochastics,
+                        )
+
+                    # Translate to exceedance probabilities P(HBN>hbn | Q=q)
+                    ep_hbn_slow = np.cumsum(p_hbn_slow[::-1], axis=0)[-1::-1]
+
+                    # Process slow stochastics (they are always at the last axes of the matrix)
+                    if len(statistics.stochastics_slow) > 0:
+                        ep_hbn = model.process_slow_stochastics(ep_hbn_slow) * settings.periods_base_duration
+
+                    # If there are no slow stochastics, the excedeence probability times the amount of periods
                     else:
-                        hbn_levels = levels[1:]
-                        for key, m in model_hbn_loading.iter_models():
-                            m.h = h_org[key] + dh[i]
-                        model_hbn_loading.calculate_hbn(profile, self.q_overtopping, factor_hs, factor_tspec)
-                        model_hbn_loading.repair_loadingmodels("hbn")
+                        ep_hbn = ep_hbn_slow * settings.periods_block_duration
 
-                    # Calculate the probability of a HBN
-                    model_hbn_statistics.probability, model_hbn_statistics.probability_r = p, p_r
-                    p_hbn_slow = p_hbn_slow + model_hbn.calculate_probability_loading(
-                        result_variable="hbn",
-                        levels=hbn_levels,
-                        model_uncertainty=False,
-                        split_input_variables=slow_stochastics,
-                        given=slow_stochastics,
-                    )
+                    exceedance_probability += _p_dh * p_occ * ep_hbn
 
-                # Translate to exceedance probabilities P(HBN>hbn | Q=q)
-                ep_hbn_slow = np.cumsum(p_hbn_slow[::-1], axis=0)[-1::-1]
+            # Restore the water levels
+            for key, m in model_hbn_loading.iter_models():
+                m.h = h_org[key]
 
-                # Process slow stochastics (they are always at the last axes of the matrix)
-                if len(statistics.stochastics_slow) > 0:
-                    ep_hbn = model.process_slow_stochastics(ep_hbn_slow) * settings.periods_base_duration
-
-                # If there are no slow stochastics, the excedeence probability times the amount of periods
-                else:
-                    ep_hbn = ep_hbn_slow * settings.periods_block_duration
-
-                exceedance_probability += _p_dh * p_occ * ep_hbn
-
-        # Restore the water levels
-        for key, m in model_hbn_loading.iter_models():
-            m.h = h_org[key]
-
-        # Return the exceedance frequency line of the HBN
-        return FrequencyLine(levels, exceedance_probability)
+            # Return the exceedance frequency line of the HBN
+            return FrequencyLine(levels, exceedance_probability)
+        finally:
+            # The worker processes stop, also when the calculation stops with an error
+            if crest_level_tables is not None:
+                crest_level_tables.close()
 
     def __calculate_coast(self, location: Location) -> FrequencyLine:
         """
@@ -323,6 +346,18 @@ class HBN(Calculation):
 
         # Save the critical overtopping
         self.q_overtopping = q_overtopping
+
+    def set_processes(self, processes: int = None):
+        """
+        Set the number of worker processes for the crest levels of the model uncertainty combinations.
+
+        Parameters
+        ----------
+        processes : int, optional
+            The number of worker processes; 1 calculates the crest levels in this process. None means the number
+            of cores minus 2 (default None).
+        """
+        self.processes = CrestLevelTables.default_processes() if processes is None else max(1, int(processes))
 
     def use_model_uncertainty(self, model_uncertainty: bool):
         """

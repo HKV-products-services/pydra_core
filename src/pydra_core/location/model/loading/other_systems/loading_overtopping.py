@@ -72,6 +72,7 @@ class LoadingOvertopping(Loading):
         qcrit: float = 10,
         factor_hs: float = 1.0,
         factor_tspec: float = 1.0,
+        hbn: dict = None,
     ) -> None:
         """
         Add hbn result variables to each of the LoadingModels.
@@ -87,9 +88,11 @@ class LoadingOvertopping(Loading):
             Factor for the significant wave height, used for model uncertainty
         factor_tspec : float
             Factor for the spectral wave period, used for model uncertainty
+        hbn : dict, optional
+            The crest levels per loading model key, already calculated for the same arguments (default None)
         """
-        for _, model in self.iter_models():
-            model.calculate_hbn(profile, qcrit, factor_hs, factor_tspec)
+        for key, model in self.iter_models():
+            model.calculate_hbn(profile, qcrit, factor_hs, factor_tspec, hbn=None if hbn is None else hbn[key])
 
     def calculate_qavg(
         self,

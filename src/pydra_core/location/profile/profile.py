@@ -1,5 +1,4 @@
 import ast
-import matplotlib.pyplot as plt
 import numbers
 import numpy as np
 
@@ -574,6 +573,8 @@ class Profile:
         Draw a cross-section of the profile
         """
         # Init plot
+        import matplotlib.pyplot as plt
+
         plt.figure(figsize=[8, 5])
 
         # Foreshore

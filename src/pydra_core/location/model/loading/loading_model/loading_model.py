@@ -5,6 +5,7 @@ from typing import Dict, Union
 
 from ....profile.profile import Profile
 from .....common.interpolate import InterpStruct
+from .....core.crest_level_tables import CrestLevelTables
 
 
 class LoadingModel:
@@ -272,7 +273,7 @@ class LoadingModel:
             # Add the adjusted grid to the loadingmodel
             setattr(self, var, np.stack(rows, axis=axis))
 
-    def calculate_hbn(self, profile: Profile, qcrit: float, factor_hs: float, factor_tspec: float):
+    def calculate_hbn(self, profile: Profile, qcrit: float, factor_hs: float, factor_tspec: float, hbn: np.ndarray = None):
         """
         Add hbn result variables to each of the LoadingModels.
         If 'hbn' is already defined, it will overwrite the old result variable.
@@ -287,20 +288,20 @@ class LoadingModel:
             Factor for the significant wave height, used for model uncertainty
         factor_tspec : float
             Factor for the spectral wave period, used for model uncertainty
+        hbn : np.ndarray, optional
+            The crest levels, already calculated with 'crest_level_table' for the same arguments (default None)
         """
         # Controleer of de juiste resultaatwaarden aanwezig zijn
         for resvar in ["h", "hs", "tspec", "dir"]:
             if not hasattr(self, resvar):
                 raise KeyError(f"Resultaatvariabele '{resvar}' is nodig voor kruinhoogteberekening, maar niet aanwezig.")
 
-        # Prepare wave conditions
-        _h = self.h.ravel()
-        _hs = np.array(self.hs * factor_hs).ravel()
-        _tspec = np.array(self.tspec * factor_tspec).ravel()
-        _dir = np.array(self.dir).ravel()
-
         # Calculate HBN
-        self.hbn = np.reshape([profile.calculate_crest_level(qcrit, _h, _hs, _tspec, _dir)], self.h.shape)
+        if hbn is None:
+            hbn = CrestLevelTables.crest_level_table(
+                profile, qcrit, self.h, self.hs, self.tspec, self.dir, factor_hs, factor_tspec
+            )
+        self.hbn = hbn
 
         # Add the result variable
         self.result_variables.append("hbn")
