@@ -253,7 +253,14 @@ class Settings:
                 [refpoints.loc["Den Oever"].values, refpoints.loc["Den Helder"].values],
             ):
                 subregion = 1
-            elif self.y_coordinate > refpoints.loc["IJmuiden"].values[1]:
+            # The boundary is the line through IJmuiden and IJmuiden virtueel, across the coastline, as in the
+            # input files of Hydra-NL. The latitude of IJmuiden puts locations just north-west of it in the wrong
+            # subregion.
+            elif CommonFunctions.position_from_line(
+                "north",
+                (self.x_coordinate, self.y_coordinate),
+                [refpoints.loc["IJmuiden"].values, refpoints.loc["IJmuiden virtueel"].values],
+            ):
                 subregion = 2
             elif self.y_coordinate > refpoints.loc["Hoek van Holland"].values[1]:
                 subregion = 3
