@@ -81,6 +81,7 @@ class Settings:
     # Lower riviers (and VZM)
     transitional_wind = None  # TRANSWIND
     fu = None  # FU
+    sea_level_translation = None  # Sea level shift from Hoek van Holland to Maasmond: 0.02 m in WBI2017 and OI2014, 0 in BOI2023
 
     # IJssel-Vechtdelta
     failure_probability_ramspol = None  # FAALKANSKERING

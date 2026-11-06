@@ -32,7 +32,7 @@ class SeaLevelLowerRiver(SeaLevel):
         nr = epm.shape[1]
 
         # Correct for the distance between Hoek van Holland and Maasmond
-        self.translation_m = 0.02 - settings.sea_level_rise
+        self.translation_m = settings.sea_level_translation - settings.sea_level_rise
 
         # Equidistant filling vector with seawater levels
         self.m = ProbabilityFunctions.get_hnl_disc_array(settings.m_min, settings.m_max, settings.m_step)
