@@ -5,6 +5,7 @@ from .loading.loading_factory import LoadingFactory
 from .loading.water_systems.loading_coast import LoadingCoast
 from .statistics.statistics_factory import StatisticsFactory
 from ..settings.settings import Settings
+from ...common.compiled_loops import exceedance_over_wave_shape
 from ...common.probability import ProbabilityFunctions
 
 
@@ -25,6 +26,9 @@ class ModelWaterSystem(ModelBase):
         # For the coast, extend the loading to the lowest sea level of the statistics (as in Hydra-NL)
         if isinstance(self.loading, LoadingCoast):
             self.loading.extend_lowest_sea_level(self.statistics.sea_level.get_discretisation()[0])
+
+        # Interpolation indices of the wave shape for the compiled route of process_wave_shape
+        self._wave_shape_indices = None
 
     def process_slow_stochastics(self, exceedance_probability: np.ndarray, axis: int = None) -> np.ndarray:
         """
@@ -107,6 +111,27 @@ class ModelWaterSystem(ModelBase):
         statistics = self.get_statistics()
         slow_stochastics = list(statistics.stochastics_slow.keys())
         fp = exceedance_probability
+
+        # With one slow stochastic and a block duration equal to that of the wind, the loop below runs as one compiled
+        # loop with the same operations per element and in the same order. The interpolation indices only depend on the
+        # statistics and are determined once per model: the HBN with model uncertainty processes the wave shape once per
+        # model uncertainty combination.
+        if slow_stochastics in (["q"], ["a"]):
+            stochastic = statistics.discharge if slow_stochastics == ["q"] else statistics.lake_level
+            xp = np.asarray(statistics.discharge.qpeak if slow_stochastics == ["q"] else statistics.lake_level.apeak)
+            x = stochastic.get_wave_shape().get_wave_shapes()
+            tijden = stochastic.get_wave_shape().time
+            block_duration = tijden[1] - tijden[0]
+            if block_duration == statistics.wind_speed.block_duration_wind and fp.dtype == xp.dtype == x.dtype == np.float64 and fp.shape[0] == x.shape[1]:
+                if self._wave_shape_indices is None:
+                    intidx = np.array([(xp[None, :] <= ix[:, None]).sum(1) - 1 for ix in x], dtype=np.uint16)
+                    self._wave_shape_indices = np.minimum(np.maximum(intidx, 0), len(xp) - 2)
+                eindduur = tijden[-1] - tijden[-2]
+                use_last = bool(eindduur >= (0.5 * block_duration))
+                factor_second_last = float(((0.5 * block_duration) + eindduur) / block_duration)
+                factor_last = float((eindduur - (block_duration / 2.0)) / block_duration)
+                flat = np.ascontiguousarray(fp).reshape(fp.shape[0], -1)
+                return exceedance_over_wave_shape(flat, xp, x, self._wave_shape_indices, use_last, factor_second_last, factor_last).reshape(fp.shape)
 
         # Result variables
         intidxs = []
