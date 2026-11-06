@@ -4,6 +4,7 @@ from abc import ABC
 from scipy.sparse import csr_matrix
 
 from .loading.loading import Loading
+from .probability_grid import DirectionProbabilityGrid
 from .statistics.statistics import Statistics
 from .statistics.water_systems.statistics_coast import StatisticsCoast
 from ..settings.settings import Settings
@@ -69,10 +70,29 @@ class ModelBase(ABC):
                 shp.extend([len(statistics.stochastics_fast[var])])
             elif var in list(statistics.stochastics_slow.keys()):
                 shp.extend([len(statistics.stochastics_slow[var])])
-        probability = np.zeros(shp)
 
         # Seperate the discrete stochastics from the continuous stochastics (slow and fast)
         contvars = [var for var in split_input_variables if var not in statistics.stochastics_discrete]
+
+        # A grid split on the wind direction (last axis) is kept as the slice per wind direction that split_load_model
+        # returns, instead of filling a dense grid that is almost entirely zero
+        if split_input_variables and split_input_variables[-1] == "r" and "k" not in split_input_variables and not model_uncertainty:
+            grid = DirectionProbabilityGrid(shp)
+            for (direction, closing_situation), _ in loading.iter_models():
+                probability_loading = self.split_load_model(
+                    direction=direction,
+                    closing_situation=closing_situation,
+                    result_variable=result_variable,
+                    levels=levels,
+                    split_input_variables=contvars,
+                    given=given,
+                )
+                if np.sum(probability_loading) == 0.0:
+                    continue
+                grid.add_slice(loading.r.index(direction), probability_loading)
+            return grid
+
+        probability = np.zeros(shp)
 
         # Loop through all loading models (per r, k)
         for (direction, closing_situation), _ in loading.iter_models():
