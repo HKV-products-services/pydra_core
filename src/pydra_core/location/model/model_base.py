@@ -7,6 +7,7 @@ from .loading.loading import Loading
 from .statistics.statistics import Statistics
 from .statistics.water_systems.statistics_coast import StatisticsCoast
 from ..settings.settings import Settings
+from ...common.compiled_loops import sum_rows_per_class
 from ...common.probability import ProbabilityFunctions
 
 
@@ -19,6 +20,9 @@ class ModelBase(ABC):
         self.settings = settings
         self.statistics = None
         self.loading = None
+
+        # The sparse form of the frozen probability slices, see 'split_load_model'
+        self._sparse_slices = {}
 
     def calculate_probability_loading(
         self,
@@ -180,7 +184,8 @@ class ModelBase(ABC):
         refined_load = loading_model.refine(result_variable, comb_fast_slow)
 
         # Calculate the probability of these loading combinations
-        loading_probability = statistics.calculate_probability(loading_model.direction, loading_model.closing_situation, given=given)
+        probability_slice = statistics.calculate_probability(loading_model.direction, loading_model.closing_situation, given=given)
+        loading_probability = probability_slice
 
         # Check the dimension from the loading and probability arrays
         assert refined_load.shape == tuple(loading_probability.shape[: refined_load.ndim])
@@ -230,7 +235,19 @@ class ModelBase(ABC):
             idxs.append((ones * np.arange(var_size).reshape(tuple(shape))).ravel())
 
         # Sum all probabilities into the relevant bin (based on the levels)
-        if len(extra_kansvar) > 0:
+        if len(extra_kansvar) > 0 and self.__is_frozen(probability_slice):
+            # A frozen slice is the same array for every model uncertainty combination. Its probabilities are made
+            # sparse once, and only the nonzero ones are summed per class, in the same order as the sparse matrix
+            # below. Skipping a zero does not change a sum of probabilities, which are never negative. The slice is
+            # kept with its sparse form, so its memory (and thus the key) cannot be reused by another array.
+            flat = np.ravel_multi_index(tuple(idxs), probability.shape[: len(idxs)])
+            key = (probability_slice.__array_interface__["data"][0], probability_slice.shape, probability_slice.strides)
+            if key not in self._sparse_slices:
+                self._sparse_slices[key] = (probability_slice, csr_matrix(loading_probability.reshape(len(flat), -1)))
+            sparse_probability = self._sparse_slices[key][1]
+            n_classes = int(np.prod(probability.shape[: len(idxs)]))
+            probability = sum_rows_per_class(flat, sparse_probability.indptr, sparse_probability.indices, sparse_probability.data, n_classes, sparse_probability.shape[1]).reshape(probability.shape)
+        elif len(extra_kansvar) > 0:
             # Sum the rows (with the extra dimensions) with a sparse matrix (much faster than a loop over all cells)
             flat = np.ravel_multi_index(tuple(idxs), probability.shape[: len(idxs)])
             matrix = csr_matrix((np.ones(len(flat)), (flat, np.arange(len(flat)))), shape=(int(np.prod(probability.shape[: len(idxs)])), len(flat)))
@@ -242,6 +259,23 @@ class ModelBase(ABC):
 
         # Return the probabilities
         return probability
+
+    @staticmethod
+    def __is_frozen(array: np.ndarray) -> bool:
+        """
+        Return whether an array and the array it is a view of are both read-only, so its values cannot change.
+
+        Parameters
+        ----------
+        array : np.ndarray
+            The array
+
+        Returns
+        -------
+        bool
+            True if neither the array nor its base can be written
+        """
+        return isinstance(array, np.ndarray) and not array.flags.writeable and (not isinstance(array.base, np.ndarray) or not array.base.flags.writeable)
 
     def get_statistics(self) -> Statistics:
         """

@@ -145,6 +145,9 @@ class HBN(Calculation):
             model_hbn_statistics = model_hbn.get_statistics()
             if len(p_groups) > 1:
                 p_groups = [(dh, p, np.ascontiguousarray(np.moveaxis(p, model_hbn_statistics.dimensions.index("r"), 0))) for dh, p in p_groups]
+                # Read-only, as in 'StatisticsOvertopping.set_probability'
+                for _, _, p_r in p_groups:
+                    p_r.flags.writeable = False
             else:
                 p_groups = [(p_groups[0][0], model_hbn_statistics.probability, model_hbn_statistics.probability_r)]
 

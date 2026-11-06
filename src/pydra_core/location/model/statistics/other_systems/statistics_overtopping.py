@@ -46,6 +46,7 @@ class StatisticsOvertopping(Statistics):
         """
         Set the probability of wlev, u, xtr1, xtr2, ..., r.
         A contiguous copy with the wind direction as first axis is saved once, so calculate_probability returns a view.
+        The copy is read-only, so 'split_load_model' can keep the sparse form of its views.
 
         Parameters
         ----------
@@ -54,6 +55,7 @@ class StatisticsOvertopping(Statistics):
         """
         self.probability = probability
         self.probability_r = np.ascontiguousarray(np.moveaxis(probability, self.dimensions.index("r"), 0))
+        self.probability_r.flags.writeable = False
 
     def calculate_probability(self, wind_direction: float, closing_situation: int = 1, given: list = []) -> np.ndarray:
         """
