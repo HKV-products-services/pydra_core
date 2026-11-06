@@ -4,12 +4,15 @@ from abc import ABC
 from scipy.sparse import csr_matrix
 
 from .loading.loading import Loading
-from .probability_grid import DirectionProbabilityGrid
+from .probability_grid import DirectionProbabilityGrid, SparseProbabilityGrid
 from .statistics.statistics import Statistics
 from .statistics.water_systems.statistics_coast import StatisticsCoast
 from ..settings.settings import Settings
 from ...common.compiled_loops import sum_rows_per_class
 from ...common.probability import ProbabilityFunctions
+
+# From this dense size, a probability grid split on the wind direction is stored sparse
+SPARSE_GRID_BYTES = 2 * 1024**3
 
 
 class ModelBase(ABC):
@@ -74,9 +77,41 @@ class ModelBase(ABC):
         # Seperate the discrete stochastics from the continuous stochastics (slow and fast)
         contvars = [var for var in split_input_variables if var not in statistics.stochastics_discrete]
 
-        # A grid split on the wind direction (last axis) is kept as the slice per wind direction that split_load_model
-        # returns, instead of filling a dense grid that is almost entirely zero
-        if split_input_variables and split_input_variables[-1] == "r" and "k" not in split_input_variables and not model_uncertainty:
+        # A grid split on the wind direction (last axis) is almost entirely zero. From a dense size of 2 GiB only its
+        # nonzero values are kept, per wind direction. The accumulation is the same as below, in a dense buffer for
+        # one wind direction at a time.
+        per_direction = split_input_variables and split_input_variables[-1] == "r" and "k" not in split_input_variables and not model_uncertainty
+        if per_direction and 8 * int(np.prod(shp)) >= SPARSE_GRID_BYTES:
+            grid = SparseProbabilityGrid(shp)
+            buffer = np.zeros(grid.slice_shape)
+            current = None
+            for (direction, closing_situation), _ in loading.iter_models():
+                ir = loading.r.index(direction)
+                probability_loading = self.split_load_model(
+                    direction=direction,
+                    closing_situation=closing_situation,
+                    result_variable=result_variable,
+                    levels=levels,
+                    split_input_variables=contvars,
+                    given=given,
+                )
+                if np.sum(probability_loading) == 0.0:
+                    continue
+                nz = np.nonzero(probability_loading)
+                # Another wind direction: store the previous slice and restore what is stored for this one
+                if current != ir:
+                    if current is not None:
+                        grid.set_slice(current, buffer)
+                    buffer[...] = 0.0
+                    grid.fill(ir, buffer)
+                    current = ir
+                buffer[nz] += probability_loading[nz]
+            if current is not None:
+                grid.set_slice(current, buffer)
+            return grid
+
+        # Below that size, the grid is kept as the slice per wind direction that split_load_model returns
+        if per_direction:
             grid = DirectionProbabilityGrid(shp)
             for (direction, closing_situation), _ in loading.iter_models():
                 probability_loading = self.split_load_model(

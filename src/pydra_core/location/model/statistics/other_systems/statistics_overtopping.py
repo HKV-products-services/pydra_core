@@ -1,7 +1,7 @@
 import numpy as np
 
 from ..statistics import Statistics
-from ...probability_grid import DirectionProbabilityGrid
+from ...probability_grid import DirectionProbabilityGrid, SparseProbabilityGrid
 from ....location import Location
 
 
@@ -52,11 +52,11 @@ class StatisticsOvertopping(Statistics):
 
         Parameters
         ----------
-        probability : np.ndarray | DirectionProbabilityGrid
+        probability : np.ndarray | DirectionProbabilityGrid | SparseProbabilityGrid
             The probability [wlev, u, xtr1, xtr2, ..., r]
         """
         self.probability = probability
-        if isinstance(probability, DirectionProbabilityGrid):
+        if isinstance(probability, (DirectionProbabilityGrid, SparseProbabilityGrid)):
             if self.dimensions.index("r") != probability.ndim - 1:
                 raise ValueError("[ERROR] A probability grid per wind direction requires the wind direction as the last dimension.")
             self.probability_r = None
@@ -80,7 +80,7 @@ class StatisticsOvertopping(Statistics):
         # Obtain the wind direction id
         ir = list(self.stochastics_discrete["r"]).index(wind_direction)
 
-        # Return the probability for this wind direction (a view or the kept slice, no copy)
-        if isinstance(self.probability, DirectionProbabilityGrid):
+        # Return the probability for this wind direction: a view, the kept slice or the slice rebuilt from a sparse grid
+        if isinstance(self.probability, (DirectionProbabilityGrid, SparseProbabilityGrid)):
             return self.probability.get_slice(ir)
         return self.probability_r[ir]

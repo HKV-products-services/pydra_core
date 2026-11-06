@@ -114,3 +114,114 @@ class DirectionProbabilityGrid:
             freeze(dense_slice)
             grid._slices[ir] = dense_slice[key]
         return grid
+
+
+class SparseProbabilityGrid:
+    """
+    A probability grid with the wind direction as the last axis, that keeps only the nonzero values per wind
+    direction. For the large grids of the HBN calculation (up to 30 GiB dense) almost all values are zero.
+
+    It supports the same as DirectionProbabilityGrid: 'shape', a contiguous slice '[a:b]' on the first axis and
+    'get_slice(ir)'.
+    """
+
+    def __init__(self, shape):
+        """
+        Create an empty grid.
+
+        Parameters
+        ----------
+        shape : tuple
+            The shape of the dense grid, with the wind direction as the last axis
+        """
+        self.shape = tuple(int(x) for x in shape)
+        self.dtype = np.float64
+        self.slice_shape = self.shape[:-1]
+        self._indices = {}
+        self._values = {}
+
+    @property
+    def ndim(self) -> int:
+        """
+        Return the number of dimensions of the dense grid.
+
+        Returns
+        -------
+        int
+            The number of dimensions
+        """
+        return len(self.shape)
+
+    def set_slice(self, ir: int, dense_slice: np.ndarray) -> None:
+        """
+        Store the nonzero values of a dense slice for a wind direction.
+
+        Parameters
+        ----------
+        ir : int
+            The index of the wind direction
+        dense_slice : np.ndarray
+            The probabilities of the wind direction, with the shape 'slice_shape'
+        """
+        nz = np.flatnonzero(dense_slice)
+        self._indices[ir] = nz
+        self._values[ir] = dense_slice.reshape(-1)[nz].copy()
+
+    def fill(self, ir: int, buffer: np.ndarray) -> None:
+        """
+        Put the stored values of a wind direction back into a buffer of zeros.
+
+        Parameters
+        ----------
+        ir : int
+            The index of the wind direction
+        buffer : np.ndarray
+            A buffer of zeros with the shape 'slice_shape', filled in place
+        """
+        if ir in self._indices:
+            buffer.reshape(-1)[self._indices[ir]] = self._values[ir]
+
+    def get_slice(self, ir: int) -> np.ndarray:
+        """
+        Return the dense slice of a wind direction, as np.take(..., ir, axis=-1) on the dense grid.
+
+        Parameters
+        ----------
+        ir : int
+            The index of the wind direction
+
+        Returns
+        -------
+        np.ndarray
+            The probabilities of the wind direction, with the shape 'slice_shape'
+        """
+        dense_slice = np.zeros(self.slice_shape)
+        self.fill(ir, dense_slice)
+        return dense_slice
+
+    def __getitem__(self, key):
+        """
+        Take a contiguous slice on the first axis.
+
+        Parameters
+        ----------
+        key : slice
+            A slice '[a:b]' without a step
+
+        Returns
+        -------
+        SparseProbabilityGrid
+            The grid of the slice
+        """
+        if not isinstance(key, slice) or key.indices(self.shape[0])[2] != 1:
+            raise TypeError(f"[ERROR] SparseProbabilityGrid only supports '[a:b]' on the first axis, not {key!r}.")
+        start, stop, _ = key.indices(self.shape[0])
+        stop = max(stop, start)
+        grid = SparseProbabilityGrid((stop - start,) + self.shape[1:])
+        per_level = int(np.prod(self.slice_shape[1:])) if len(self.slice_shape) > 1 else 1
+        for ir, flat in self._indices.items():
+            level = flat // per_level
+            keep = (level >= start) & (level < stop)
+            grid._indices[ir] = flat[keep] - start * per_level
+            grid._values[ir] = self._values[ir][keep]
+        return grid
