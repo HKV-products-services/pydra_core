@@ -1,0 +1,12 @@
+*
+* Kansen op faseverschil tussen top van de storm en de getijtop voor Oosterschelde
+*
+* Voor meer achtergrondinformatie over de inhoud van dit bestand wordt verwezen
+* naar het statistiek-rapport van BOI2023 (HKV lijn in water, project PR5612.10).
+* 
+* Datum: 18 maart 2026
+* 
+*       Tijd    Kans
+*  [minuten]     [-]
+*
+      -320.0     1.0

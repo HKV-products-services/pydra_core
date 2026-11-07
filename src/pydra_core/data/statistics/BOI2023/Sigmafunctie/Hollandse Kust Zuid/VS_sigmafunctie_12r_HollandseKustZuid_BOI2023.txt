@@ -1,0 +1,17 @@
+* Correlatiecoëfficiënten (sigma) voor de Hollandse Kust Zuid voor de correlatie tussen
+* zeewaterstand en windsnelheid te Hoek van Holland per windrichting.
+* 
+* De correlatiecoëfficiënten zijn toegeleverd door het KNMI en betreft statistiek voor BOI2023.
+* 
+* Voor meer achtergrondinformatie over de inhoud van dit bestand wordt verwezen
+* naar het statistiek-rapport van BOI2023 (HKV lijn in water, project PR5612.10).
+* 
+* Datum: 17 maart 2026
+* 
+* De waarde -99.0 betekent: geen correlatie.
+* 
+* Onderstaand is m de zeewaterstand en r de windrichting
+* 
+* m \ r  30      60      90      120     150     180     210     240     270     300     330     360
+0.0      -99.00  -99.00  -99.00  -99.00  -99.00  -99.00  -99.00  2.60    1.90    1.60    1.60    2.20    
+6.5      -99.00  -99.00  -99.00  -99.00  -99.00  -99.00  -99.00  2.60    1.90    1.60    1.60    2.20    

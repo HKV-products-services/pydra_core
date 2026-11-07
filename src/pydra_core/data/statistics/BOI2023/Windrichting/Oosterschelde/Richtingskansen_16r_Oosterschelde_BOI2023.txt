@@ -1,0 +1,26 @@
+* Kansen op de windrichtingen voor de Oosterschelde
+* 
+* Richtingskansen zijn toegeleverd door het KNMI en betreft statistiek voor BOI2023.
+* Kansen zijn overgenomen van locatie Hoek van Holland.
+* 
+* Voor meer achtergrondinformatie over de inhoud van dit bestand wordt verwezen
+* naar het statistiek-rapport van BOI2023 (HKV lijn in water, project PR5612.10).
+* 
+* Datum: 18 februari 2026
+* 
+  22.50     4.870e-02       
+  45.00     5.360e-02       
+  67.50     4.990e-02       
+  90.00     4.840e-02       
+  112.50    3.900e-02       
+  135.00    3.600e-02       
+  157.50    3.840e-02       
+  180.00    5.650e-02       
+  202.50    8.530e-02       
+  225.00    1.264e-01       
+  247.50    9.640e-02       
+  270.00    8.040e-02       
+  292.50    6.620e-02       
+  315.00    6.260e-02       
+  337.50    5.880e-02       
+  360.00    5.340e-02       

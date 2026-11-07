@@ -1,0 +1,39 @@
+*
+* BOI2023-invoerbestand voor Hydra-NL met overschrijdingskansen van de piekafvoer
+* van de Vecht bij Dalfsen met statistische onzekerheid voor zichtjaar 2125.
+*
+* Voor meer achtergrondinformatie over de inhoud van dit bestand wordt verwezen
+* naar het statistiek-rapport van BOI2023 (HKV lijn in water, project PR5612.10).
+*
+* Datum: 13 maart 2026
+*
+* Basisduur trapezia: B = 30 dagen
+*
+* Piekafvoer  Overschrijdingskans
+*     [m3/s]                  [-]
+           0           1.0000E+00
+         180           1.6667E-01
+         236           8.3333E-02
+         287           3.3333E-02
+         331           1.6667E-02
+         387           6.6667E-03
+         398           5.5556E-03
+         476           1.6667E-03
+         537           6.6667E-04
+         549           5.5556E-04
+         582           3.3333E-04
+         625           1.6667E-04
+         639           1.3333E-04
+         681           6.6667E-05
+         692           5.5556E-05
+         722           3.3333E-05
+         761           1.6667E-05
+         798           8.3333E-06
+         810           6.6667E-06
+         819           5.5556E-06
+         844           3.3333E-06
+         877           1.6667E-06
+         907           8.3333E-07
+         925           5.5556E-07
+         945           3.3333E-07
+         973           1.6667E-07

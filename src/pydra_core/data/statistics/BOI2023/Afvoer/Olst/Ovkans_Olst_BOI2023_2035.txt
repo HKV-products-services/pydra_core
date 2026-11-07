@@ -1,0 +1,39 @@
+*
+* BOI2023-invoerbestand voor Hydra-NL met overschrijdingskansen van de piekafvoer
+* van de IJssel bij Olst zonder statistische onzekerheid voor zichtjaar 2035.
+*
+* Voor meer achtergrondinformatie over de inhoud van dit bestand wordt verwezen
+* naar het statistiek-rapport van BOI2023 (HKV lijn in water, project PR5612.10).
+*
+* Datum: 13 maart 2026
+*
+* Basisduur trapezia: B = 30 dagen
+*
+* Piekafvoer  Overschrijdingskans
+*     [m3/s]                  [-]
+         200           1.000
+         600           0.303
+         970           8.3333e-02
+        1172           3.3333e-02
+        1338           1.6667e-02
+        1578           6.6667e-03
+        1625           5.5556e-03
+        1891           1.6667e-03
+        2053           6.6667e-04
+        2075           5.5556e-04
+        2126           3.3333e-04
+        2191           1.6667e-04
+        2201           1.3333e-04
+        2250           6.6667e-05
+        2267           5.5556e-05
+        2316           3.3333e-05
+        2386           1.6667e-05
+        2476           8.3333e-06
+        2500           6.6667e-06
+        2524           5.5556e-06
+        2583           3.3333e-06
+        2667           1.6667e-06
+        2750           8.3333E-07
+        2799           5.5556E-07
+        2862           3.3333E-07
+        2951           1.6667E-07

@@ -1,0 +1,22 @@
+* Kansen op de windrichtingen voor de Waddenzee
+* 
+* Richtingskansen zijn toegeleverd door het KNMI en betreft statistiek voor BOI2023.
+* Kansen zijn overgenomen van locatie Hoek van Holland.
+* 
+* Voor meer achtergrondinformatie over de inhoud van dit bestand wordt verwezen
+* naar het statistiek-rapport van BOI2023 (HKV lijn in water, project PR5612.10).
+* 
+* Datum: 18 februari 2026
+* 
+  30.00     6.740e-02       
+  60.00     6.920e-02       
+  90.00     6.310e-02       
+  120.00    5.060e-02       
+  150.00    4.930e-02       
+  180.00    7.350e-02       
+  210.00    1.376e-01       
+  240.00    1.456e-01       
+  270.00    1.057e-01       
+  300.00    8.660e-02       
+  330.00    8.110e-02       
+  360.00    7.030e-02       

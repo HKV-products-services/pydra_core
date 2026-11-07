@@ -1,0 +1,24 @@
+*
+* Kansen op de windrichtingen voor Schiphol
+*
+* Voor meer achtergrondinformatie over de inhoud van dit bestand wordt verwezen
+* naar het statistiek-rapport van BOI2023 (HKV lijn in water, project PR5612.10).
+*
+* Datum: 13 maart 2026
+*
+22.5	0.025466057
+45	0.037003166
+67.5	0.060780865
+90	0.05269082
+112.5	0.045304256
+135	0.051705944
+157.5	0.066690116
+180	0.091593387
+202.5	0.123320436
+225	0.112768203
+247.5	0.100105522
+270	0.075202251
+292.5	0.050087935
+315	0.03960605
+337.5	0.036932817
+360	0.030742174

@@ -1,12 +1,13 @@
 """
 The choice of the scenario: 'get_settings' and 'create_location' take the scenario of the statistics and settings in
 'calculation_settings.sqlite', an unknown name is an error, the Settings carry the scenario and it is part of the label
-in 'core.memory'.
+in 'core.memory'; the BOI2023 scenarios have every setting of WBI2017 and their own files.
 """
 
 import copy
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from pydra_core import HRDatabase
@@ -36,21 +37,44 @@ def test_the_scenario_is_passed_on(hrd):
     assert hrd.create_location(location_name, scenario="WBI2017").get_settings().scenario == "WBI2017"
 
 
-def test_wbi2017_is_one_of_the_scenarios():
+def test_the_scenarios():
     with CalculationSettingsReader() as database:
-        assert "WBI2017" in database.get_scenarios()
+        assert database.get_scenarios() == ["BOI2023_2035", "BOI2023_2075_Mn", "BOI2023_2125_Mn", "WBI2017"]
 
 
-def test_every_file_in_the_settings_exists():
+def test_every_scenario_has_the_settings_of_wbi2017():
+    # Hydra-NL 2.9.2 has no discharge statistics of Olst for 2075 and 2125 (a dummy file), so the IJssel delta has none
+    with CalculationSettingsReader() as database:
+        names = {}
+        for scenario, water_system, name in database.con.execute("SELECT Scenario, WaterSystem, SettingName FROM CalculationSettings"):
+            names.setdefault(scenario, set()).add((water_system, name))
+    for scenario in ["BOI2023_2035", "BOI2023_2075_Mn", "BOI2023_2125_Mn"]:
+        missing = names["WBI2017"] - names[scenario]
+        assert missing == (set() if scenario == "BOI2023_2035" else {(5, "discharge_probability")}), scenario
+        assert names[scenario] <= names["WBI2017"], scenario
+
+
+def test_every_file_in_the_settings_exists_with_and_without_statistical_uncertainty():
     statistics = FileHydraNL.PACKAGE_PATH
     with CalculationSettingsReader() as database:
         paths = list(database.con.execute("SELECT Scenario, SettingValue FROM CalculationSettings WHERE SettingValue LIKE '%/%'"))
         for table in ["CoastSubSystems", "WaddenSeaSubSystems", "WesternScheldtSubSystems"]:
             for scenario, *points in database.con.execute(f"SELECT Scenario, Point1, Point2, Point3 FROM {table}"):
                 paths += [(scenario, point) for point in points]
-    missing = [(scenario, path) for scenario, path in paths if not (statistics / path).is_file()]
+    missing = [(scenario, variant) for scenario, path in paths for variant in {path, path.replace("_metOnzHeid", "")} if not (statistics / variant).is_file()]
     assert paths and not missing
     assert all(path.startswith(f"{scenario.split('_')[0]}/") for scenario, path in paths)
+
+
+@pytest.mark.parametrize("scenario", ["BOI2023_2035", "BOI2023_2075_Mn", "BOI2023_2125_Mn"])
+def test_a_boi2023_location_has_its_own_statistics(hrd, scenario):
+    location_name = hrd.get_location_names()[0]
+    settings = hrd.get_settings(location_name, scenario=scenario)
+    assert settings.wind_speed_probability.startswith("BOI2023/")
+    assert settings.lake_level_rise == {"BOI2023_2035": 0.0, "BOI2023_2075_Mn": 0.25, "BOI2023_2125_Mn": 0.3}[scenario]
+    statistics = hrd.create_location(settings).get_model().get_statistics()
+    wbi2017 = hrd.create_location(location_name).get_model().get_statistics()
+    assert not np.array_equal(statistics.get_lake_level().epapeak, wbi2017.get_lake_level().epapeak)
 
 
 def test_every_scenario_has_the_europoort_barrier_in_every_zone():

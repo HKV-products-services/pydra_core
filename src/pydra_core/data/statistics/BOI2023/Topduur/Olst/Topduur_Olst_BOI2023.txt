@@ -1,0 +1,16 @@
+*
+* BOI2023-invoerbestand voor Hydra-NL met topduren van de IJssel bij Olst
+* voor trapeziumvormige afvoergolven.
+*
+* Voor meer achtergrondinformatie over de inhoud van dit bestand wordt verwezen
+* naar het statistiek-rapport van BOI2023 (HKV lijn in water, project PR5612.10).
+*
+* Datum: 13 maart 2026
+*
+* Basisduur B = 30 dagen
+*
+* Piekafvoer  Topduur
+*     [m3/s]    [uur]
+         200      720
+         800       24
+        4000       24

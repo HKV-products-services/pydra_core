@@ -1,0 +1,21 @@
+*
+* BOI2023-invoerbestand voor Hydra-NL met overschrijdingskansen van het piekmeerpeil
+* van het Volkerak-Zoommeer zonder statistische onzekerheid voor zichtjaar 2035.
+*
+* Voor meer achtergrondinformatie over de inhoud van dit bestand wordt verwezen
+* naar het statistiek-rapport van BOI2023 (HKV lijn in water, project PR5612.10).
+*
+* Datum: 13 maart 2026
+*
+* Basisduur trapezia: B = 30 dagen
+*
+* Verticale   knikparameter av = 0.1
+* Horizontale knikparameter ah = 0.5
+*
+* Piekmeerpeil  Overschrijdingskans
+*      [m+NAP]                  [-]
+          0.05            1.000E+00
+          0.12            6.000E-01
+          0.22            1.667e-01
+          0.94            1.667E-05
+          1.12            1.667E-06

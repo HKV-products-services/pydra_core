@@ -1,0 +1,14 @@
+*
+* Kansen op stormduren voor Oosterschelde
+*
+* Voor meer achtergrondinformatie over de inhoud van dit bestand wordt verwezen
+* naar het statistiek-rapport van BOI2023 (HKV lijn in water, project PR5612.10).
+* 
+* Datum: 18 maart 2026
+*
+*  Duur    Kans
+* [uur]     [-]
+*
+     40   0.475
+     60   0.349
+     80   0.176

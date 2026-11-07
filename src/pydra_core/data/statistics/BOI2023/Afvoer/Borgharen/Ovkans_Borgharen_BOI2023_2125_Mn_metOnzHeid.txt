@@ -1,0 +1,43 @@
+*
+* BOI2023-invoerbestand voor Hydra-NL met overschrijdingskansen van de piekafvoer
+* van de Maas bij Borgharen met statistische onzekerheid voor zichtjaar 2125.
+*
+* Voor meer achtergrondinformatie over de inhoud van dit bestand wordt verwezen
+* naar het statistiek-rapport van BOI2023 (HKV lijn in water, project PR5612.10).
+*
+* Datum: 13 maart 2026
+*
+* Basisduur trapezia: B = 30 dagen
+*
+* Piekafvoer  Overschrijdingskans
+*     [m3/s]                  [-]
+           0           1.000
+          75           0.995
+         200           0.880
+         300           0.760
+         500           0.550
+        1000           0.264
+        1626           8.3333E-02
+        2021           3.3333E-02
+        2313           1.6667E-02
+        2717           6.6667E-03
+        2798           5.5556E-03
+        3299           1.6667E-03
+        3636           6.6667E-04
+        3699           5.5556E-04
+        3868           3.3333E-04
+        4085           1.6667E-04
+        4153           1.3333E-04
+        4361           6.6667E-05
+        4415           5.5556E-05
+        4567           3.3333E-05
+        4773           1.6667E-05
+        4979           8.3333E-06
+        5046           6.6667E-06
+        5100           5.5556E-06
+        5251           3.3333E-06
+        5455           1.6667E-06
+        5655           8.3333E-07
+        5771           5.5556E-07
+        5915           3.3333E-07
+        6109           1.6667E-07

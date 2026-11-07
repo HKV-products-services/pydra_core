@@ -1,0 +1,42 @@
+*
+* BOI2023-invoerbestand voor Hydra-NL met overschrijdingskansen van de piekafvoer
+* van de Rijn bij Lobith zonder statistische onzekerheid voor zichtjaar 2075.
+*
+* Voor meer achtergrondinformatie over de inhoud van dit bestand wordt verwezen
+* naar het statistiek-rapport van BOI2023 (HKV lijn in water, project PR5612.10).
+*
+* Datum: 13 maart 2026
+*
+* Basisduur trapezia: B = 30 dagen
+*
+* Piekafvoer  Overschrijdingskans
+*     [m3/s]                  [-]
+         750           1.00
+        1000           0.97
+        1500           0.80
+        3500           0.30
+        4500           0.22
+        7034           8.3333e-02
+        8845           3.3333e-02
+       10233           1.6667e-02
+       11934           6.6667e-03
+       12241           5.5556e-03
+       13749           1.6667e-03
+       14339           6.6667e-04
+       14428           5.5556e-04
+       14662           3.3333e-04
+       15054           1.6667e-04
+       15132           1.3333e-04
+       15543           6.6667e-05
+       15674           5.5556e-05
+       15930           3.3333e-05
+       16220           1.6667e-05
+       16606           8.3333e-06
+       16675           6.6667e-06
+       16736           5.5556e-06
+       16873           3.3333e-06
+       17067           1.6667e-06
+       17261           8.3333E-07
+       17374           5.5556E-07
+       17517           3.3333E-07
+       17711           1.6667E-07

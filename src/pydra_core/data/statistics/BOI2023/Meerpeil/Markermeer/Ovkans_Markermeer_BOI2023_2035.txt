@@ -1,0 +1,35 @@
+*
+* BOI2023-invoerbestand voor Hydra-NL met overschrijdingskansen van het piekmeerpeil
+* van het Markermeer zonder statistische onzekerheid voor zichtjaar 2035.
+*
+* Voor meer achtergrondinformatie over de inhoud van dit bestand wordt verwezen
+* naar het statistiek-rapport van BOI2023 (HKV lijn in water, project PR5612.10).
+*
+* Datum: 13 maart 2026
+*
+* Basisduur trapezia: B = 30 dagen
+*
+* Piekmeerpeil  Overschrijdingskans
+*      [m+NAP]                  [-]
+         -0.40            1.000E+00
+         -0.39            8.333E-01
+         -0.35            4.167E-01
+         -0.25            1.667E-01
+         -0.18            8.333E-02
+         -0.10            4.167E-02
+         -0.01            1.667E-02
+          0.06            8.333E-03
+          0.13            4.167E-03
+          0.22            1.667E-03
+          0.28            8.333E-04
+          0.34            4.167E-04
+          0.40            1.667E-04
+          0.45            8.333E-05
+          0.50            4.167E-05
+          0.56            1.667E-05
+          0.60            8.333E-06
+          0.64            4.167E-06
+          0.68            1.667E-06
+          0.72            8.333E-07
+          0.75            4.167E-07
+          0.79            1.667E-07

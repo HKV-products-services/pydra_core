@@ -1,0 +1,16 @@
+*
+* BOI2023-invoerbestand voor Hydra-NL met topduren van het IJsselmeer
+* voor trapeziumvormige meerpeilgolven.
+*
+* Voor meer achtergrondinformatie over de inhoud van dit bestand wordt verwezen
+* naar het statistiek-rapport van BOI2023 (HKV lijn in water, project PR5612.10).
+*
+* Datum: 13 maart 2026
+*
+* Basisduur B = 30 dagen
+*
+* Piekmeerpeil  Topduur
+*      [m+NAP]    [uur]
+         -0.40      720
+         -0.35       12
+          1.80       12
