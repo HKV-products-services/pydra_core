@@ -47,7 +47,7 @@ class HRDReaderFactory:
         # Volkerak-Zoommeer
         # TODO: WaterSystem.VOLKERAK_ZOOMMEER
         # Hollandsche IJssel
-        # TODO: WaterSystem.HOLLANDSCHE_IJSSEL
+        WaterSystem.HOLLANDSCHE_IJSSEL: HRDReaderWBI2017LowerRiver,
         # Other
         WaterSystem.COAST_DUNES: HRDReaderWBI2017Dunes,
         # WaterSystem.DIEFDIJK

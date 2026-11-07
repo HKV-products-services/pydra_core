@@ -1,6 +1,7 @@
 from .statistics import Statistics
 from .water_systems.statistics_coast import StatisticsCoast
 from .water_systems.statistics_eastern_scheldt import StatisticsEasternScheldt
+from .water_systems.statistics_hollandsche_ijssel import StatisticsHollandscheIJssel
 from .water_systems.statistics_ijssel_vechtdelta import StatisticsIJsselVechtdelta
 from .water_systems.statistics_lake import StatisticsLake
 from .water_systems.statistics_lower_river import StatisticsLowerRiver
@@ -49,7 +50,7 @@ class StatisticsFactory:
         # Volkerak-Zoommeer
         # TODO: WaterSystem.VOLKERAK_ZOOMMEER
         # Hollandsche IJssel
-        # TODO: WaterSystem.HOLLANDSCHE_IJSSEL
+        WaterSystem.HOLLANDSCHE_IJSSEL: StatisticsHollandscheIJssel,
         # Other
         # WaterSystem.COAST_DUNES
         # WaterSystem.DIEFDIJK

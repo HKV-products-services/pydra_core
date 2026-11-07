@@ -86,6 +86,10 @@ class Settings:
     # IJssel-Vechtdelta
     failure_probability_ramspol = None  # FAALKANSKERING
 
+    # Hollandsche IJssel
+    hollandsche_ijssel_barrier_alfa = None  # ALFA_HOIJK
+    hollandsche_ijssel_water_burden_probability = None  # KANS_WATERBEZWAAR
+
     # Model uncertainty
     model_uncertainty_water_level_steps = None  # WS_ONZ_AANTAL
     model_uncertainty_wave_height_steps = None  # GH_ONZ_AANTAL

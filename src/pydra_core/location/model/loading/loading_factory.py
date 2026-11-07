@@ -1,6 +1,7 @@
 from .loading import Loading
 from .water_systems.loading_coast import LoadingCoast
 from .water_systems.loading_eastern_scheldt import LoadingEasternScheldt
+from .water_systems.loading_hollandsche_ijssel import LoadingHollandscheIJssel
 from .water_systems.loading_ijssel_vechtdelta import LoadingIJsselVechtdelta
 from .water_systems.loading_lake import LoadingLake
 from .water_systems.loading_lower_rivier import LoadingLowerRiver
@@ -49,7 +50,7 @@ class LoadingFactory:
         # Volkerak-Zoommeer
         # TODO: WaterSystem.VOLKERAK_ZOOMMEER
         # Hollandsche IJssel
-        # TODO: WaterSystem.HOLLANDSCHE_IJSSEL
+        WaterSystem.HOLLANDSCHE_IJSSEL: LoadingHollandscheIJssel,
         # Other
         # WaterSystem.COAST_DUNES
         # WaterSystem.DIEFDIJK
