@@ -9,8 +9,8 @@ docstrings in the code only describe what a module, class or function does.
 
 ## Scenarios
 
-'calculation_settings.sqlite' holds a full set of settings per scenario: 'WBI2017' (the default), 'BOI2023_2035',
-'BOI2023_2075_Mn' and 'BOI2023_2125_Mn'. The choice is the argument 'scenario' of 'HRDatabase.get_settings' and
+'calculation_settings.sqlite' holds a full set of settings per scenario: 'BOI2023_2035' (the default),
+'BOI2023_2075_Mn', 'BOI2023_2125_Mn' and 'WBI2017'. The choice is the argument 'scenario' of 'HRDatabase.get_settings' and
 'HRDatabase.create_location'; an unknown name is an error. The statistics are in 'data/statistics/WBI2017' and
 'data/statistics/BOI2023', the paths in the settings carry the folder name, and the files keep their name from
 Hydra-NL. Per scenario the database also holds the sea level points of the coast, the Wadden Sea and the Western

@@ -24,11 +24,11 @@ def hrd():
     return HRDatabase(str(DATABASE))
 
 
-def test_the_default_scenario_is_wbi2017(hrd):
+def test_the_default_scenario_is_boi2023_2035(hrd):
     location_name = hrd.get_location_names()[0]
-    assert DEFAULT_SCENARIO == "WBI2017"
-    assert hrd.get_settings(location_name).scenario == "WBI2017"
-    assert hrd.create_location(location_name).get_settings().scenario == "WBI2017"
+    assert DEFAULT_SCENARIO == "BOI2023_2035"
+    assert hrd.get_settings(location_name).scenario == "BOI2023_2035"
+    assert hrd.create_location(location_name).get_settings().scenario == "BOI2023_2035"
 
 
 def test_the_scenario_is_passed_on(hrd):
@@ -73,7 +73,7 @@ def test_a_boi2023_location_has_its_own_statistics(hrd, scenario):
     assert settings.wind_speed_probability.startswith("BOI2023/")
     assert settings.lake_level_rise == {"BOI2023_2035": 0.0, "BOI2023_2075_Mn": 0.25, "BOI2023_2125_Mn": 0.3}[scenario]
     statistics = hrd.create_location(settings).get_model().get_statistics()
-    wbi2017 = hrd.create_location(location_name).get_model().get_statistics()
+    wbi2017 = hrd.create_location(location_name, scenario="WBI2017").get_model().get_statistics()
     assert not np.array_equal(statistics.get_lake_level().epapeak, wbi2017.get_lake_level().epapeak)
 
 
@@ -105,5 +105,5 @@ def test_a_settings_object_with_a_scenario_is_an_error(hrd):
 def test_the_scenario_is_in_the_label(hrd):
     settings = hrd.get_settings(hrd.get_location_names()[0])
     other = copy.deepcopy(settings)
-    other.scenario = "BOI2023_2035"
+    other.scenario = "WBI2017"
     assert Memory.label(settings) != Memory.label(other)

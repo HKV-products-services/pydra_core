@@ -57,7 +57,7 @@ def calculate(system: str, response: str, uncertainty: str) -> dict:
     path, level_h, level_hbn = SYSTEMS[system]
     statistical, model = UNCERTAINTIES[uncertainty]
     hrd = HRDatabase(path)
-    settings = hrd.get_settings(hrd.get_location_names()[0])
+    settings = hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
     level = level_hbn if response == "hbn" else level_h
     profile = None
     if response == "hbn":
@@ -114,7 +114,7 @@ def test_hydra_ijssel_vecht_delta_percentiles(system: str, response: str, uncert
 
 def test_refuses_a_lake():
     hrd = HRDatabase(DATA / "07_IJSSEL_LAKE" / "WBI2017_IJsselmeer_7-2_v02.sqlite")
-    settings = hrd.get_settings(hrd.get_location_names()[0])
+    settings = hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
     with pytest.raises(NotImplementedError):
         HydraIJsselVechtDeltaPercentiles(hrd, settings, hydra_ini_directory=HYDRA_INI)
 

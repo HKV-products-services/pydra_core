@@ -49,7 +49,7 @@ def calculate(system: str, response: str, uncertainty: str) -> dict:
     path, level_h, level_hbn = SYSTEMS[system]
     statistical, model = UNCERTAINTIES[uncertainty]
     hrd = HRDatabase(path)
-    settings = hrd.get_settings(hrd.get_location_names()[0])
+    settings = hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
     level = level_hbn if response == "hbn" else level_h
     qcrit = QCRIT if response == "hbn" else None
 
@@ -101,7 +101,7 @@ def test_hydra_rhine_meuse_delta_percentiles(system: str, response: str, uncerta
 
 def test_refinement_matrix_equals_refine():
     hrd = HRDatabase(SYSTEMS["lower_rhine"][0])
-    model = hrd.create_location(hrd.get_settings(hrd.get_location_names()[0])).get_model()
+    model = hrd.create_location(hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")).get_model()
     stats = model.get_statistics()
     grids = {**stats.stochastics_fast, **stats.stochastics_slow}
     for (r, k), m in model.get_loading().iter_models():
@@ -115,7 +115,7 @@ def test_refinement_matrix_equals_refine():
 
 def test_refuses_a_lake():
     hrd = HRDatabase(LAKE)
-    settings = hrd.get_settings(hrd.get_location_names()[0])
+    settings = hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
     with pytest.raises(NotImplementedError):
         HydraRhineMeuseDeltaPercentiles(hrd, settings)
     with pytest.raises(NotImplementedError):

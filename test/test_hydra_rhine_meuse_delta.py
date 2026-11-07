@@ -44,7 +44,7 @@ def calculate(system: str, response: str, uncertainty: str) -> dict:
     path, level_h, level_hbn = SYSTEMS[system]
     statistical, model = UNCERTAINTIES[uncertainty]
     hrd = HRDatabase(path)
-    settings = hrd.get_settings(hrd.get_location_names()[0])
+    settings = hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
     level = level_hbn if response == "hbn" else level_h
     profile = None
     if response == "hbn":
@@ -100,7 +100,7 @@ def test_recognises_the_rhine_meuse_delta():
         hrd = HRDatabase(path)
         assert (
             HydraRhineMeuseDeltaIllustrationPoint.is_rhine_meuse_delta(
-                hrd, hrd.get_settings(hrd.get_location_names()[0])
+                hrd, hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
             )
             is expected
         ), path.name
@@ -108,7 +108,7 @@ def test_recognises_the_rhine_meuse_delta():
 
 def test_refuses_a_lake():
     hrd = HRDatabase(LAKE)
-    settings = hrd.get_settings(hrd.get_location_names()[0])
+    settings = hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
     with pytest.raises(NotImplementedError):
         HydraRhineMeuseDeltaIllustrationPoint(hrd, settings)
 

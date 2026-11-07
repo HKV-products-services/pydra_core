@@ -42,7 +42,7 @@ def calculate(system: str, response: str, uncertainty: str) -> dict:
     path, direction, level_h, level_hbn = SYSTEMS[system]
     statistical, model = UNCERTAINTIES[uncertainty]
     hrd = HRDatabase(path)
-    settings = hrd.get_settings(hrd.get_location_names()[0])
+    settings = hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
     level = level_hbn if response == "hbn" else level_h
     profile = None
     if response == "hbn":

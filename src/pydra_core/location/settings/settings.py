@@ -9,13 +9,13 @@ from ...common.enum import WaterSystem
 from ...io.calculation_settings_reader import CalculationSettingsReader
 
 
-DEFAULT_SCENARIO = "WBI2017"
+DEFAULT_SCENARIO = "BOI2023_2035"
 
 
 class Settings:
     # Non Hydra-NL related
     watersystem = None
-    scenario = None  # The set of statistics and settings in 'calculation_settings.sqlite', e.g. 'WBI2017'
+    scenario = None  # The set of statistics and settings in 'calculation_settings.sqlite', e.g. 'BOI2023_2035'
 
     # Hydra-NL settings (Hydra-NL naming convention in comments)
     # Location-specific settings
