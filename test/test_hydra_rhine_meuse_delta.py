@@ -1,8 +1,12 @@
 """
 The Hydra-NL illustration point of the Rhine-Meuse delta ('hydra.illustration_points_3d' and 'hydra.rhine_meuse_delta')
-against frozen results in 'test/data/hydra/'. The frozen results come from these ports, made after they were found
-equal bit for bit to the implementation they were ported from. A relative tolerance of 1e-12 leaves room for rounding
-on another platform, not for a change in the calculation.
+against frozen results in 'test/data/hydra/'. The frozen results come from these ports with the default scenario
+BOI2023_2035, made after they were found equal bit for bit to the implementation they were ported from. On the lower
+Rhine the water level is close to Hydra-NL v2.9.2; on the lower Meuse the share of the westerly directions is lower,
+because the loading table is not extended below its lowest sea level, unlike Hydra-NL. A relative tolerance of 1e-12
+leaves room for rounding on another platform, not for a change in the calculation.
+
+The levels are those of Hydra-NL v2.9.2 at a return period of 10000 years, without uncertainties.
 
 Writing the frozen results again, after a deliberate change of the calculation:
 
@@ -25,8 +29,8 @@ LAKE = DATA / "07_IJSSEL_LAKE" / "WBI2017_IJsselmeer_7-2_v02.sqlite"
 
 # Database, level of the water level, level of the crest level
 SYSTEMS = {
-    "lower_rhine": (DATA / "03_RHINE_TIDAL" / "WBI2017_Benedenrijn_210_v04.sqlite", 5.08, 5.42),
-    "lower_meuse": (DATA / "04_MEUSE_TIDAL" / "WBI2017_Benedenmaas_37-1_v03.sqlite", 7.4, None),
+    "lower_rhine": (DATA / "03_RHINE_TIDAL" / "WBI2017_Benedenrijn_210_v04.sqlite", 3.43, 4.05),
+    "lower_meuse": (DATA / "04_MEUSE_TIDAL" / "WBI2017_Benedenmaas_37-1_v03.sqlite", 5.67, None),
 }
 UNCERTAINTIES = {"none": (False, False), "all": (True, True)}
 CASES = [
@@ -44,7 +48,7 @@ def calculate(system: str, response: str, uncertainty: str) -> dict:
     path, level_h, level_hbn = SYSTEMS[system]
     statistical, model = UNCERTAINTIES[uncertainty]
     hrd = HRDatabase(path)
-    settings = hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
+    settings = hrd.get_settings(hrd.get_location_names()[0])
     level = level_hbn if response == "hbn" else level_h
     profile = None
     if response == "hbn":
@@ -100,7 +104,7 @@ def test_recognises_the_rhine_meuse_delta():
         hrd = HRDatabase(path)
         assert (
             HydraRhineMeuseDeltaIllustrationPoint.is_rhine_meuse_delta(
-                hrd, hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
+                hrd, hrd.get_settings(hrd.get_location_names()[0])
             )
             is expected
         ), path.name
@@ -108,7 +112,7 @@ def test_recognises_the_rhine_meuse_delta():
 
 def test_refuses_a_lake():
     hrd = HRDatabase(LAKE)
-    settings = hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
+    settings = hrd.get_settings(hrd.get_location_names()[0])
     with pytest.raises(NotImplementedError):
         HydraRhineMeuseDeltaIllustrationPoint(hrd, settings)
 
