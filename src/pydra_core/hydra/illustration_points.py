@@ -41,23 +41,18 @@ class _SlowStochastic:
 
     'key' is the name of the axis in 'stochastics_slow' and in the loading table ('LoadingModel.<key>'), "a" for the
     lakes and "q" for the upper rivers. 'stat_attr' is the 'Statistics' attribute with the marginal probabilities,
-    'label' the name in the output.
-
-    'cdf(ep)' turns 'get_exceedance_probability()' into the non-exceedance probability F that the Rosenblatt
-    transformation needs. 'LakeLevel' returns the real (momentary) exceedance probability P(A > a), so F = 1 - ep;
-    'Discharge' returns the non-exceedance probability P(Q <= q), so F = ep. That mirrors what each water system feeds
-    to the probability density in its 'calculate_probability'.
+    'label' the name in the output. Both statistics return the instantaneous exceedance probability, so the
+    non-exceedance probability that the Rosenblatt transformation needs is 1 minus it.
     """
 
     key: str
     stat_attr: str
     label: str
-    cdf: Callable[[np.ndarray], np.ndarray]
 
 
 _SLOW: dict[str, _SlowStochastic] = {
-    "a": _SlowStochastic("a", "lake_level", "M", cdf=lambda ep: 1.0 - ep),
-    "q": _SlowStochastic("q", "discharge", "Q", cdf=lambda ep: ep),
+    "a": _SlowStochastic("a", "lake_level", "M"),
+    "q": _SlowStochastic("q", "discharge", "Q"),
 }
 
 
@@ -140,7 +135,7 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
         # Non-exceedance probability F_S of the slow stochastic and F_U|r of the wind speed
         slow_stat = getattr(stats, self._slow.stat_attr)
         self._s = np.asarray(slow_stat.get_discretisation(), dtype=float)
-        self._FS = np.asarray(self._slow.cdf(slow_stat.get_exceedance_probability()), dtype=float)
+        self._FS = 1.0 - np.asarray(slow_stat.get_exceedance_probability(), dtype=float)
         self._u_stat = np.asarray(stats.wind_speed.get_discretisation(), dtype=float)
         self._FU = 1.0 - np.asarray(stats.wind_speed.get_exceedance_probability(), dtype=float)
 

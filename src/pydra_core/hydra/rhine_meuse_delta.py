@@ -101,11 +101,11 @@ class HydraRhineMeuseDeltaIllustrationPoint(HydraIllustrationPoint3D):
             )
         )
 
-        # The density of the discharge that is in pydra's joint, and that 'bracket_umqk' divides out. Pydra's
-        # 'get_exceedance_probability' of the discharge is the non-exceedance probability, despite its name. Where the
-        # density is zero the mass is zero as well; dividing by infinity keeps those cells at zero.
-        fq_stat = np.asarray(self._stats.discharge.get_exceedance_probability(), float)
-        gq_stat = Grid.probability_density_raw(np.asarray(self._qstat, float), 1.0 - fq_stat)
+        # The density of the discharge that is in pydra's joint, and that 'bracket_umqk' divides out, from the
+        # instantaneous exceedance probability. Where the density is zero the mass is zero as well; dividing by infinity
+        # keeps those cells at zero.
+        epq_stat = np.asarray(self._stats.discharge.get_exceedance_probability(), float)
+        gq_stat = Grid.probability_density_raw(np.asarray(self._qstat, float), epq_stat)
         self._gq = np.interp(self._qblock, np.asarray(self._qstat, float), gq_stat)
         self._gq_safe = np.where(self._gq > 0.0, self._gq, np.inf)
 
@@ -135,9 +135,8 @@ class HydraRhineMeuseDeltaIllustrationPoint(HydraIllustrationPoint3D):
         fmq = np.zeros((nm, nq, 2))
         fumq = np.zeros((nu, nm, nq, 2))
 
-        # F(q) from the statistics grid to the block grid, as INTERP1D_D; pydra's 'get_exceedance_probability' of the
-        # discharge is the non-exceedance probability
-        fq_stat = np.asarray(self._stats.discharge.get_exceedance_probability(), float)
+        # F(q) from the statistics grid to the block grid, as INTERP1D_D
+        fq_stat = 1.0 - np.asarray(self._stats.discharge.get_exceedance_probability(), float)
         fq[:, 0] = np.interp(self._qblock, self._qstat, fq_stat)
 
         fmq[:, :, 0] = 0.5
