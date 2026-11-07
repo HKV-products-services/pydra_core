@@ -1,8 +1,11 @@
 """
 The Hydra-NL breakdown and percentiles of the IJssel-Vecht delta ('hydra.ijssel_vecht_delta_percentiles') against
-frozen results in 'test/data/hydra/'. The frozen results come from this port, made after it was found equal bit for
-bit to the implementation it was ported from. A relative tolerance of 1e-12 leaves room for rounding on another
-platform, not for a change in the calculation.
+frozen results in 'test/data/hydra/'. The frozen results come from this port with the default scenario BOI2023_2035,
+made after it was found equal bit for bit to the implementation it was ported from and close to Hydra-NL v2.9.2 on the
+same locations. A relative tolerance of 1e-12 leaves room for rounding on another platform, not for a change in the
+calculation.
+
+The levels are those of Hydra-NL v2.9.2 at a return period of 10000 years, without uncertainties.
 
 The test databases have no KeringUD table, so the calculation reads the KeringUD CSV from the folder 'data/ini' of a
 Hydra-NL installation. That folder is taken from the environment variable 'HYDRA_NL_INI', by default
@@ -32,8 +35,8 @@ HYDRA_INI = Path(os.environ.get("HYDRA_NL_INI", r"C:\Software\Hydra-NL_v292\data
 
 # Database, level of the water level, level of the crest level
 SYSTEMS = {
-    "ijssel_delta": (DATA / "05_IJSSEL_DELTA" / "WBI2023_IJsseldelta_206_v00_terBeoordeling.sqlite", 4.66, 5.48),
-    "vecht_delta": (DATA / "06_VECHT_DELTA" / "WBI2023_Vechtdelta_202_v00_terBeoordeling.sqlite", 1.83, None),
+    "ijssel_delta": (DATA / "05_IJSSEL_DELTA" / "WBI2023_IJsseldelta_206_v00_terBeoordeling.sqlite", 3.99, 4.13),
+    "vecht_delta": (DATA / "06_VECHT_DELTA" / "WBI2023_Vechtdelta_202_v00_terBeoordeling.sqlite", 1.49, None),
 }
 UNCERTAINTIES = {"none": (False, False), "all": (True, True)}
 CASES = [
@@ -57,7 +60,7 @@ def calculate(system: str, response: str, uncertainty: str) -> dict:
     path, level_h, level_hbn = SYSTEMS[system]
     statistical, model = UNCERTAINTIES[uncertainty]
     hrd = HRDatabase(path)
-    settings = hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
+    settings = hrd.get_settings(hrd.get_location_names()[0])
     level = level_hbn if response == "hbn" else level_h
     profile = None
     if response == "hbn":
@@ -114,7 +117,7 @@ def test_hydra_ijssel_vecht_delta_percentiles(system: str, response: str, uncert
 
 def test_refuses_a_lake():
     hrd = HRDatabase(DATA / "07_IJSSEL_LAKE" / "WBI2017_IJsselmeer_7-2_v02.sqlite")
-    settings = hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
+    settings = hrd.get_settings(hrd.get_location_names()[0])
     with pytest.raises(NotImplementedError):
         HydraIJsselVechtDeltaPercentiles(hrd, settings, hydra_ini_directory=HYDRA_INI)
 
