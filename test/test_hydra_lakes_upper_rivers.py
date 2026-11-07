@@ -1,8 +1,11 @@
 """
 The Hydra-NL percentiles and illustration points of the lakes and the upper rivers ('hydra.percentiles' and
-'hydra.illustration_points') against frozen results in 'test/data/hydra/'. The frozen results come from these ports,
-made after they were found equal bit for bit to the implementation they were ported from. A relative tolerance of
-1e-12 leaves room for rounding on another platform, not for a change in the calculation.
+'hydra.illustration_points') against frozen results in 'test/data/hydra/'. The frozen results come from these ports
+with the default scenario BOI2023_2035, made after they were found equal bit for bit to the implementation they were
+ported from and equal to Hydra-NL v2.9.2 within its rounding on the same location. A relative tolerance of 1e-12
+leaves room for rounding on another platform, not for a change in the calculation.
+
+The levels are those of Hydra-NL v2.9.2 at a return period of 10000 years, without uncertainties.
 
 Writing the frozen results again, after a deliberate change of the calculation:
 
@@ -24,8 +27,8 @@ EXPECTED = DATA / "hydra" / "lakes_upper_rivers.json"
 
 # Database, wind direction of the limit state field, level of the water level, level of the crest level
 SYSTEMS = {
-    "lake": (DATA / "07_IJSSEL_LAKE" / "WBI2017_IJsselmeer_7-2_v02.sqlite", 225.0, 2.29, 5.25),
-    "upper_river": (DATA / "01_RHINE_NON_TIDAL" / "WBI2017_Bovenrijn_213_v04.sqlite", 180.0, 7.72, None),
+    "lake": (DATA / "07_IJSSEL_LAKE" / "WBI2017_IJsselmeer_7-2_v02.sqlite", 225.0, 1.39, 5.06),
+    "upper_river": (DATA / "01_RHINE_NON_TIDAL" / "WBI2017_Bovenrijn_213_v04.sqlite", 180.0, 5.86, None),
 }
 UNCERTAINTIES = {"none": (False, False), "all": (True, True)}
 CASES = [
@@ -42,7 +45,7 @@ def calculate(system: str, response: str, uncertainty: str) -> dict:
     path, direction, level_h, level_hbn = SYSTEMS[system]
     statistical, model = UNCERTAINTIES[uncertainty]
     hrd = HRDatabase(path)
-    settings = hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
+    settings = hrd.get_settings(hrd.get_location_names()[0])
     level = level_hbn if response == "hbn" else level_h
     profile = None
     if response == "hbn":
