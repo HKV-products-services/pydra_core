@@ -52,7 +52,7 @@ def hrd():
 
 @pytest.fixture
 def settings(hrd):
-    return hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
+    return hrd.get_settings(hrd.get_location_names()[0])
 
 
 def profile() -> Profile:
@@ -113,7 +113,7 @@ def test_changed_database_gives_new_table_and_calculation(tmp_path):
     copied = tmp_path / DATABASE.name
     shutil.copyfile(DATABASE, copied)
     hrd = HRDatabase(copied)
-    settings = hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
+    settings = hrd.get_settings(hrd.get_location_names()[0])
     first_calculation = Calculation(hrd, settings)
     table(settings)
 
@@ -198,7 +198,7 @@ def test_tables_calculated_ahead_are_the_same(monkeypatch):
     monkeypatch.setattr(crest_level_tables, "MIN_POINTS_PARALLEL", 1)
     monkeypatch.setattr(memory, "processes", 2)
     lower_rhine = HRDatabase(DATA / "03_RHINE_TIDAL" / "WBI2017_Benedenrijn_210_v04.sqlite")
-    location_settings = lower_rhine.get_settings(lower_rhine.get_location_names()[0], scenario="WBI2017")
+    location_settings = lower_rhine.get_settings(lower_rhine.get_location_names()[0])
     crest_profile = profile()
     level = 5.42
 
