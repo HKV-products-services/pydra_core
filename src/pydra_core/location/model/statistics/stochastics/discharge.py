@@ -21,7 +21,9 @@ class Discharge:
         settings : Settings
             The Settings object
         """
-        # Read exceedance probability peak discharge
+        # Read exceedance probability peak discharge; Hydra-NL 2.9.2 has no discharge statistics of Olst for 2075 and 2125
+        if settings.discharge_probability is None:
+            raise ValueError(f"Scenario '{settings.scenario}' has no discharge statistics for water system {settings.watersystem.name}.")
         qpeak, epqeak = FileHydraNL.read_file_2columns(settings.discharge_probability)
 
         # Create grid for peak discharges

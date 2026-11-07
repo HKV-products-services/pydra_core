@@ -96,6 +96,13 @@ def test_an_unknown_scenario_is_an_error(hrd):
         hrd.create_location(location_name, scenario="wbi2017")
 
 
+@pytest.mark.parametrize("scenario", ["BOI2023_2075_Mn", "BOI2023_2125_Mn"])
+def test_a_scenario_without_discharge_statistics_is_an_error(scenario):
+    ijssel_delta = HRDatabase(str(next((Path(__file__).parent / "data" / "05_IJSSEL_DELTA").glob("*.sqlite"))))
+    with pytest.raises(ValueError, match=f"Scenario '{scenario}' has no discharge statistics for water system IJSSEL_DELTA"):
+        ijssel_delta.create_location(ijssel_delta.get_location_names()[0], scenario=scenario)
+
+
 def test_a_settings_object_with_a_scenario_is_an_error(hrd):
     settings = hrd.get_settings(hrd.get_location_names()[0])
     with pytest.raises(ValueError, match="carries its own scenario"):
