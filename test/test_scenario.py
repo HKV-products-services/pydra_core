@@ -53,6 +53,17 @@ def test_every_file_in_the_settings_exists():
     assert all(path.startswith(f"{scenario.split('_')[0]}/") for scenario, path in paths)
 
 
+def test_every_scenario_has_the_europoort_barrier_in_every_zone():
+    import fiona
+
+    with fiona.open(Path(FileHydraNL.PACKAGE_PATH).parent / "settings" / "lower_river_settings.shp") as shp:
+        zones = {feature["properties"]["number"] for feature in shp}
+    with CalculationSettingsReader() as database:
+        for scenario in database.get_scenarios():
+            assert {row[0] for row in database.con.execute("SELECT Zone FROM EuropoortBarrierZones WHERE Scenario = ?", (scenario,))} == zones
+            assert database.get_europoort_barrier_zone(8, scenario) == {"Mu": 0.5, "Sigma": 0.001, "Alfa": 0.0}
+
+
 def test_an_unknown_scenario_is_an_error(hrd):
     location_name = hrd.get_location_names()[0]
     with pytest.raises(ValueError, match="Unknown scenario 'BOI2023'"):

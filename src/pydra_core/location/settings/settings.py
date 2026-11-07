@@ -374,7 +374,8 @@ class Settings:
         # Supress GDAL error if fiona is not required
         import fiona as fn
 
-        # Read from shape (MSTAP, MU, SIGMA, ALFA, QSTAP_Maas, QSTAP_rijn)
+        # The zone and the steps (MSTAP, QSTAP_Maas, QSTAP_rijn) from the shape, MU, SIGMA and ALFA per zone and scenario
+        # from 'EuropoortBarrierZones'
         PATH = (Path(__file__).resolve().parent.parent / ".." / "data" / "settings" / "lower_river_settings.shp").resolve()
 
         with fn.open(PATH, "r") as shp:
@@ -390,9 +391,11 @@ class Settings:
                 if point.within(geometry):
                     # Read settings
                     self.m_step = feature["properties"]["m_step"]
-                    self.europoort_barrier_mu = feature["properties"]["ep_mu"]
-                    self.europoort_barrier_sigma = feature["properties"]["ep_sigma"]
-                    self.europoort_barrier_alfa = feature["properties"]["ep_alpha"]
+                    with CalculationSettingsReader() as database:
+                        epsilon = database.get_europoort_barrier_zone(feature["properties"]["number"], self.scenario)
+                    self.europoort_barrier_mu = epsilon["Mu"]
+                    self.europoort_barrier_sigma = epsilon["Sigma"]
+                    self.europoort_barrier_alfa = epsilon["Alfa"]
                     if self.watersystem in [
                         WaterSystem.RHINE_TIDAL,
                         WaterSystem.EUROPOORT,

@@ -62,6 +62,27 @@ class CalculationSettingsReader:
         # Return the settings
         return settings
 
+    def get_europoort_barrier_zone(self, zone: int, scenario: str) -> dict:
+        """
+        Return the distribution of the prediction error of the Europoort barrier in a zone of the lower rivers.
+
+        Parameters
+        ----------
+        zone : int
+            The zone, the field 'number' in 'lower_river_settings.shp'
+        scenario : str
+            The scenario, one of 'get_scenarios'
+
+        Returns
+        -------
+        dict
+            'Mu', 'Sigma' and 'Alfa' (MU, SIGMA, ALFA)
+        """
+        row = self.con.execute("SELECT Mu, Sigma, Alfa FROM EuropoortBarrierZones WHERE Scenario = ? AND Zone = ?", (scenario, zone)).fetchone()
+        if row is None:
+            raise ValueError(f"[ERROR] No Europoort barrier settings for zone {zone} in scenario '{scenario}'.")
+        return {"Mu": row[0], "Sigma": row[1], "Alfa": row[2]}
+
     def get_sea_level_statistic_points(self, watersystem: WaterSystem) -> pd.DataFrame:
         """
         Return the reference points for sea level statistics
