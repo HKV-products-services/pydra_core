@@ -1,10 +1,13 @@
 """
 The Hydra-NL breakdown, percentiles and illustration points of the coast ('hydra.coast_breakdown' and
 'hydra.coast_illustration_points') against frozen results in 'test/data/hydra/'. The frozen results come from these
-ports, made after they were found equal bit for bit to the implementation they were ported from. A relative tolerance
-of 1e-12 leaves room for rounding on another platform, not for a change in the calculation.
+ports with the default scenario BOI2023_2035, made after they were found equal bit for bit to the implementation they
+were ported from. On the same locations the water level equals Hydra-NL v2.9.2 within its rounding; Hs and the crest
+level differ more, because the sea level grid is 0.01 m here and 0.1 m in Hydra-NL. A relative tolerance of 1e-12
+leaves room for rounding on another platform, not for a change in the calculation.
 
-The Holland coast central has falling loading lines that the repair changes, the Holland coast south has none.
+The levels are those of Hydra-NL v2.9.2 at a return period of 10000 years, in the first case of each response. The
+Holland coast central has falling loading lines that the repair changes, the Holland coast south has none.
 
 Writing the frozen results again, after a deliberate change of the calculation:
 
@@ -29,12 +32,12 @@ SYSTEMS = {
     "central": (
         DATA / "12_COAST_CENTRAL" / "WBI2017_Hollandse_Kust_Midden_13-2_44-3_v04.sqlite",
         290.0,
-        {"h": 5.0, "hs": 4.57, "hbn": 17.38},
+        {"h": 4.41, "hs": 4.5, "hbn": 16.75},
     ),
     "south": (
         DATA / "13_COAST_SOUTH" / "WBI2017_Hollandse_Kust_Zuid_14-5_14-6_14-8_211_214_218_25-1_v04.sqlite",
         300.0,
-        {"h": 5.0, "hs": 2.98},
+        {"h": 4.8, "hs": 2.8},
     ),
 }
 UNCERTAINTIES = {"none": (False, False), "all": (True, True)}
@@ -53,7 +56,7 @@ def calculate(system: str, response: str, uncertainty: str) -> dict:
     path, orientation, levels = SYSTEMS[system]
     statistical, model = UNCERTAINTIES[uncertainty]
     hrd = HRDatabase(path)
-    settings = hrd.get_settings(hrd.get_location_names()[0], scenario="WBI2017")
+    settings = hrd.get_settings(hrd.get_location_names()[0])
     level = levels[response]
     profile = None
     if response == "hbn":
