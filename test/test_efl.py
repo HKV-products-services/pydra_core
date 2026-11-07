@@ -1,3 +1,11 @@
+"""
+Exceedance frequency lines of the water level, Hs and the crest level against Hydra-NL v2.9.2 with BOI2023 2035, the
+default scenario, in 'test/data/hydranl_results.xlsx': one location per water system, with and without model
+uncertainty, always with the statistical uncertainty and all repairs, as pydra_core calculates by default. The lake
+Markermeer uses 'DEMO_Markermeer_BOI2023.sqlite', because BOI2023 has wind statistics with 16 directions and the WBI2017
+database of the Markermeer has 12.
+"""
+
 import numpy as np
 import pandas as pd
 import platform
@@ -35,7 +43,7 @@ def test_exceedance_frequency_lines():
 
         # Load HRDatabase and location
         hrd = HRDatabase(path / "data" / ws / ws_df.iloc[0]["HRDatabase"])
-        settings = hrd.get_settings(ws_df.iloc[0]["HRLocation"], scenario="WBI2017")
+        settings = hrd.get_settings(ws_df.iloc[0]["HRLocation"])
         loc = hrd.create_location(settings)
 
         # Different calculations
