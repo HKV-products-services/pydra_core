@@ -29,7 +29,7 @@ class HRDReaderWBI2017LowerRiver(HRDReaderWBI2017):
         # Otherwise use the default functions
         except Exception as e:
             print(f"{e}: Using default functions")
-            PATH = Path(__file__).resolve().parent.parent / ".." / "data" / "statistics" / "Sluitpeilen"
+            PATH = Path(__file__).resolve().parent.parent / ".." / "data" / "statistics" / "WBI2017" / "Sluitpeilen"
             if self.get_water_system() in [
                 WaterSystem.RHINE_TIDAL,
                 WaterSystem.EUROPOORT,
