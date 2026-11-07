@@ -1,5 +1,4 @@
 import numbers
-import numpy as np
 import sqlite3
 
 from pathlib import Path
@@ -10,9 +9,13 @@ from ...common.enum import WaterSystem
 from ...io.calculation_settings_reader import CalculationSettingsReader
 
 
+DEFAULT_SCENARIO = "WBI2017"
+
+
 class Settings:
     # Non Hydra-NL related
     watersystem = None
+    scenario = None  # The set of statistics and settings in 'calculation_settings.sqlite', e.g. 'WBI2017'
 
     # Hydra-NL settings (Hydra-NL naming convention in comments)
     # Location-specific settings
@@ -134,7 +137,7 @@ class Settings:
     # Wind-Sea level probability (for lower rivers/VZM)
     wind_sea_level_probability = None  # PWINDWESTNM
 
-    def __init__(self, hrdlocation: str, database_path: str):
+    def __init__(self, hrdlocation: str, database_path: str, scenario: str = DEFAULT_SCENARIO):
         """
         Init a Settings object for a location and database
 
@@ -144,10 +147,19 @@ class Settings:
             The HRDLocation
         database_path : str
             Path to the database
+        scenario : str, optional
+            The scenario of the statistics and settings, one of the scenarios in 'calculation_settings.sqlite'
         """
+        # An unknown scenario would give a Settings without statistics, so it is an error
+        with CalculationSettingsReader() as database:
+            scenarios = database.get_scenarios()
+        if scenario not in scenarios:
+            raise ValueError(f"[ERROR] Unknown scenario '{scenario}', choose one of {scenarios}.")
+
         # Save info
         self.location = hrdlocation
         self.database_path = database_path
+        self.scenario = scenario
 
         # Obtain the x, y coordinates and the water system
         con = sqlite3.connect(database_path)
@@ -166,7 +178,7 @@ class Settings:
 
         # Obtain and set settings
         with CalculationSettingsReader() as database:
-            settings = database.get_settings(self.watersystem)
+            settings = database.get_settings(self.watersystem, self.scenario)
 
         # Loop through settings
         for _, row in settings.iterrows():
@@ -187,7 +199,7 @@ class Settings:
         if sub_area is not self.watersystem:
             self.watersystem = sub_area
             with CalculationSettingsReader() as database:
-                settings = database.get_settings(self.watersystem)
+                settings = database.get_settings(self.watersystem, self.scenario)
             for _, row in settings.iterrows():
                 key = row["SettingName"]
                 if isinstance(key, str) and key.lower() in ["wind_speed_probability", "sigma_function"]:
@@ -252,7 +264,7 @@ class Settings:
             # Obtain table
             with CalculationSettingsReader() as database:
                 refpoints = database.get_sea_level_statistic_points(self.watersystem)
-                subsystems = database.get_sea_level_sub_systems(self.watersystem)
+                subsystems = database.get_sea_level_sub_systems(self.watersystem, self.scenario)
 
             # Determine the subregion
             if CommonFunctions.position_from_line(
@@ -286,7 +298,7 @@ class Settings:
             # Obtain table
             with CalculationSettingsReader() as database:
                 refpoints = database.get_sea_level_statistic_points(self.watersystem)
-                subsystems = database.get_sea_level_sub_systems(self.watersystem)
+                subsystems = database.get_sea_level_sub_systems(self.watersystem, self.scenario)
 
             # Determine the subregion
             if CommonFunctions.position_from_line(
@@ -335,14 +347,10 @@ class Settings:
 
         # Western scheldt
         elif self.watersystem in [WaterSystem.WESTERN_SCHELDT]:
-            # Set sea level points
-            subsystem = np.array(
-                [
-                    "WBI2017/Zeewaterstand/Vlissingen/CondPovVlissingen_12u_zichtjaar2017_metOnzHeid.txt",
-                    "WBI2017/Zeewaterstand/Hansweert/CondPovHansweert_12u_zichtjaar2017_metOnzHeid.txt",
-                    "WBI2017/Zeewaterstand/Vlissingen virtueel/CondPovVlissingen-Additional_12u_zichtjaar2017_metOnzHeid.txt",
-                ]
-            )
+            # One subsystem for the whole Western Scheldt
+            with CalculationSettingsReader() as database:
+                subsystems = database.get_sea_level_sub_systems(self.watersystem, self.scenario)
+            subsystem = subsystems.loc[1].to_numpy()
 
         # Not implemented
         else:

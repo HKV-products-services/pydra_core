@@ -6,7 +6,7 @@ from typing import List, Union
 from ..common.enum import WaterSystem
 from ..io.hrdatabase_reader import HRDReader
 from ..location.location import Location
-from ..location.settings.settings import Settings
+from ..location.settings.settings import DEFAULT_SCENARIO, Settings
 
 
 class HRDatabase:
@@ -62,7 +62,7 @@ class HRDatabase:
         else:
             raise StopIteration
 
-    def get_settings(self, hrdlocation: str) -> Settings:
+    def get_settings(self, hrdlocation: str, scenario: str = DEFAULT_SCENARIO) -> Settings:
         """
         Returns the Settings class of a hrdlocation
         Useful for when you manually want to adjust the settings
@@ -72,6 +72,8 @@ class HRDatabase:
         ----------
         hrdlocation : str
             The hrdlocation (uitvoerpunt)
+        scenario : str, optional
+            The scenario of the statistics and settings, one of the scenarios in 'calculation_settings.sqlite'
 
         Returns
         -------
@@ -81,13 +83,13 @@ class HRDatabase:
         # Check if the hrdlocation exists
         if self.check_location(hrdlocation):
             # Return the settings
-            return Settings(hrdlocation, self.database_path)
+            return Settings(hrdlocation, self.database_path, scenario)
 
         # Otherwise, raise an exception
         else:
             raise ValueError(f"[ERROR] HRDLocation '{hrdlocation}' not found in the database.")
 
-    def create_location(self, settings_or_str: Union[Settings, str]) -> Location:
+    def create_location(self, settings_or_str: Union[Settings, str], scenario: str | None = None) -> Location:
         """
         Creates a location based upon the Settings object
 
@@ -95,6 +97,9 @@ class HRDatabase:
         ----------
         settings : Settings
             The Settings object of a location or a string of the hrdlocation (uitvoerpunt)
+        scenario : str, optional
+            The scenario of the statistics and settings, only with the name of a hrdlocation; a Settings object
+            already carries its scenario. Without it the default scenario is used.
 
         Returns
         -------
@@ -105,6 +110,8 @@ class HRDatabase:
         # Always create a new location: a cached location would share its (mutable) model with earlier calls,
         # and a location with adjusted settings would be returned for a later call with only the name
         if isinstance(settings_or_str, Settings):
+            if scenario is not None:
+                raise ValueError("[ERROR] A Settings object carries its own scenario; give the scenario to 'get_settings'.")
             return Location(settings_or_str)
 
         # If the object is a string
@@ -112,7 +119,7 @@ class HRDatabase:
             # Check if the hrdlocation exists
             if self.check_location(settings_or_str):
                 # Default settings and create location
-                return Location(self.get_settings(settings_or_str))
+                return Location(self.get_settings(settings_or_str, DEFAULT_SCENARIO if scenario is None else scenario))
 
             # Otherwise, raise an exception
             else:

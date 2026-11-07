@@ -23,7 +23,18 @@ class CalculationSettingsReader:
         # Close the connection
         self.con.close()
 
-    def get_settings(self, watersystem: WaterSystem) -> pd.DataFrame:
+    def get_scenarios(self) -> list[str]:
+        """
+        Return the names of the scenarios in the database.
+
+        Returns
+        -------
+        list[str]
+            The scenario names, sorted
+        """
+        return [row[0] for row in self.con.execute("SELECT DISTINCT Scenario FROM CalculationSettings ORDER BY Scenario")]
+
+    def get_settings(self, watersystem: WaterSystem, scenario: str) -> pd.DataFrame:
         """
         Return all settings from the database
 
@@ -31,6 +42,8 @@ class CalculationSettingsReader:
         ----------
         watersystem : WaterSystem
             WaterSystem to get the settings for
+        scenario : str
+            The scenario, one of 'get_scenarios'
 
         Returns
         -------
@@ -38,8 +51,8 @@ class CalculationSettingsReader:
             A DataFrame with settings
         """
         # Query
-        sql = f"SELECT SettingName, SettingValue FROM CalculationSettings WHERE WaterSystem = {watersystem.value}"
-        settings = pd.read_sql(sql, self.con)
+        sql = "SELECT SettingName, SettingValue FROM CalculationSettings WHERE Scenario = ? AND WaterSystem = ? ORDER BY SettingId"
+        settings = pd.read_sql(sql, self.con, params=(scenario, watersystem.value))
         settings["SettingValue"] = settings["SettingValue"].astype("object")
 
         # Parse to int and float if possible
@@ -81,14 +94,16 @@ class CalculationSettingsReader:
         # Return data
         return data
 
-    def get_sea_level_sub_systems(self, watersystem: WaterSystem) -> pd.DataFrame:
+    def get_sea_level_sub_systems(self, watersystem: WaterSystem, scenario: str) -> pd.DataFrame:
         """
-        Return all subsystems of the coast or Wadden sea.
+        Return all subsystems of the coast, the Wadden Sea or the Western Scheldt.
 
         Parameters
         ----------
         watersystem : WaterSystem
             Watersystem for which to return the reference points
+        scenario : str
+            The scenario, one of 'get_scenarios'
 
         Returns
         -------
@@ -104,13 +119,16 @@ class CalculationSettingsReader:
             tablename = "CoastSubSystems"
         elif watersystem in [WaterSystem.WADDEN_SEA_WEST, WaterSystem.WADDEN_SEA_EAST]:
             tablename = "WaddenSeaSubSystems"
+        elif watersystem == WaterSystem.WESTERN_SCHELDT:
+            tablename = "WesternScheldtSubSystems"
         else:
             raise NotImplementedError(f"[ERROR] No sea level reference points implemented for {watersystem}.")
 
         # SQL
         data = pd.read_sql(
-            f"SELECT SubSystemId, Point1, Point2, Point3 FROM {tablename}",
+            f"SELECT SubSystemId, Point1, Point2, Point3 FROM {tablename} WHERE Scenario = ? ORDER BY SubSystemId",
             self.con,
+            params=(scenario,),
             index_col="SubSystemId",
         )
 
