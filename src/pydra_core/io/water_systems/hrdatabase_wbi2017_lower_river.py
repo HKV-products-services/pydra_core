@@ -1,9 +1,7 @@
 import pandas as pd
 
-from pathlib import Path
-
 from .hrdatabase_wbi2017_generic import HRDReaderWBI2017
-from ...common.enum import WaterSystem
+from ..file_hydranl import FileHydraNL
 
 
 class HRDReaderWBI2017LowerRiver(HRDReaderWBI2017):
@@ -12,9 +10,16 @@ class HRDReaderWBI2017LowerRiver(HRDReaderWBI2017):
     Extends HRDReaderWBI2017 with Europoort barrier closing levels.
     """
 
-    def get_closing_levels_table_europoort(self) -> pd.DataFrame:
+    def get_closing_levels_table_europoort(self, closing_function: str | None) -> pd.DataFrame:
         """
-        Read the closing levels for the Europoort barrier.
+        Read the closing levels for the Europoort barrier: the table in the database if there is one, otherwise the
+        closing function of the scenario.
+
+        Parameters
+        ----------
+        closing_function : str | None
+            The closing function of the scenario, relative to 'data/statistics' ('europoort_barrier_closing_function');
+            None if the scenario has none for this water system
 
         Returns
         -------
@@ -26,19 +31,12 @@ class HRDReaderWBI2017LowerRiver(HRDReaderWBI2017):
             # Read the table
             table = pd.read_sql("SELECT * FROM [Sluitfunctie Europoortkering]", con=self.con)
 
-        # Otherwise use the default functions
+        # Otherwise use the closing function of the scenario
         except Exception as e:
             print(f"{e}: Using default functions")
-            PATH = Path(__file__).resolve().parent.parent / ".." / "data" / "statistics" / "WBI2017" / "Sluitpeilen"
-            if self.get_water_system() in [
-                WaterSystem.RHINE_TIDAL,
-                WaterSystem.EUROPOORT,
-            ]:
-                table = pd.read_csv(PATH / "Sluitfunctie Europoortkering Rijn 2017.csv", delimiter=";")
-            elif self.get_water_system() == WaterSystem.MEUSE_TIDAL:
-                table = pd.read_csv(PATH / "Sluitfunctie Europoortkering Maas 2017.csv", delimiter=";")
-            else:
-                raise (f"[ERROR] No closing levels for water system '{self.get_water_system().name}'.")
+            if closing_function is None:
+                raise ValueError(f"[ERROR] No closing levels for water system '{self.get_water_system().name}'.") from e
+            table = pd.read_csv(FileHydraNL.PACKAGE_PATH / closing_function, delimiter=";")
 
         # All columns to lower
         table.columns = table.columns.str.lower()

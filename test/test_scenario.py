@@ -12,6 +12,7 @@ import pytest
 from pydra_core import HRDatabase
 from pydra_core.core.memory import Memory
 from pydra_core.io.calculation_settings_reader import CalculationSettingsReader
+from pydra_core.io.file_hydranl import FileHydraNL
 from pydra_core.location.settings.settings import DEFAULT_SCENARIO
 
 DATABASE = Path(__file__).parent / "data" / "07_IJSSEL_LAKE" / "WBI2017_IJsselmeer_7-2_v02.sqlite"
@@ -38,6 +39,18 @@ def test_the_scenario_is_passed_on(hrd):
 def test_wbi2017_is_one_of_the_scenarios():
     with CalculationSettingsReader() as database:
         assert "WBI2017" in database.get_scenarios()
+
+
+def test_every_file_in_the_settings_exists():
+    statistics = FileHydraNL.PACKAGE_PATH
+    with CalculationSettingsReader() as database:
+        paths = list(database.con.execute("SELECT Scenario, SettingValue FROM CalculationSettings WHERE SettingValue LIKE '%/%'"))
+        for table in ["CoastSubSystems", "WaddenSeaSubSystems", "WesternScheldtSubSystems"]:
+            for scenario, *points in database.con.execute(f"SELECT Scenario, Point1, Point2, Point3 FROM {table}"):
+                paths += [(scenario, point) for point in points]
+    missing = [(scenario, path) for scenario, path in paths if not (statistics / path).is_file()]
+    assert paths and not missing
+    assert all(path.startswith(f"{scenario.split('_')[0]}/") for scenario, path in paths)
 
 
 def test_an_unknown_scenario_is_an_error(hrd):

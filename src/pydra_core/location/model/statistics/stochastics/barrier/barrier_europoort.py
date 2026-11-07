@@ -43,7 +43,7 @@ class BarrierEuropoort(Barrier):
         with HRDReader.from_settings(settings) as database:
             # Closing levels
             self.closing_levels = LoadingModel(None, None, ["u", "q", "r"], ["m"])
-            self.closing_levels.initialise(database.get_closing_levels_table_europoort())
+            self.closing_levels.initialise(database.get_closing_levels_table_europoort(self.settings.europoort_barrier_closing_function))
 
         # Extend
         self.closing_levels.extend("q", [self.settings.q_min, self.settings.q_max])

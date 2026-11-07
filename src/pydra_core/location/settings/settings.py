@@ -64,6 +64,7 @@ class Settings:
     europoort_barrier_mu = None  # MU
     europoort_barrier_sigma = None  # SIGMA
     europoort_barrier_alfa = None  # ALFA
+    europoort_barrier_closing_function = None  # Sluitfunctie keringen, used when the database has no closing function
 
     # Wave form (discharge (q) and lake level (a))
     base_duration = None  # BASISDUUR
