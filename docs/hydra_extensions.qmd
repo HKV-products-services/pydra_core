@@ -7,6 +7,28 @@ breakdown of the frequency per water system, plus compiled loops and caches that
 holds the background of these modules: the Hydra-NL routines they follow and the choices made in the port. The
 docstrings in the code only describe what a module, class or function does.
 
+## Scenarios
+
+'calculation_settings.sqlite' holds a full set of settings per scenario: 'WBI2017' (the default), 'BOI2023_2035',
+'BOI2023_2075_Mn' and 'BOI2023_2125_Mn'. The choice is the argument 'scenario' of 'HRDatabase.get_settings' and
+'HRDatabase.create_location'; an unknown name is an error. The statistics are in 'data/statistics/WBI2017' and
+'data/statistics/BOI2023', the paths in the settings carry the folder name, and the files keep their name from
+Hydra-NL. Per scenario the database also holds the sea level points of the coast, the Wadden Sea and the Western
+Scheldt, the closing function of the Europoort barrier ('europoort_barrier_closing_function'; a closing function in
+the HRD comes first) and the prediction error of the Europoort barrier per zone of 'lower_river_settings.shp'
+('EuropoortBarrierZones').
+
+The BOI2023 scenarios are made by 'tools/import_hydranl_statistics.py' from an installation of Hydra-NL; its docstring
+says where each value comes from. What it reports for Hydra-NL 2.9.2:
+
+* The Meuse tidal is measured at Borgharen (river 4) instead of Lith (river 3).
+* Hydra-NL 2.9.2 has no discharge statistics of Olst for 2075 and 2125 (a dummy file), so the IJssel delta has no
+  'discharge_probability' in those scenarios.
+* 'm_step' of the sea stays 0.01 as in WBI2017: Hydra-NL has 0.1 in both versions, the coarser grid is a choice of the
+  caller per quantity.
+* The Hollandsche IJssel has no river index in pydra_core; its discharge numbers are looked up with river 2 (Rhine)
+  of Hydra-NL.
+
 ## core/memory.py
 
 Memory of calculations within one Python process, so that a second question on the same location is fast.
