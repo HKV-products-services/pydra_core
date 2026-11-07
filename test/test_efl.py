@@ -1,13 +1,10 @@
 """
 Exceedance frequency lines of the water level, Hs and the crest level against Hydra-NL v2.9.2 with BOI2023 2035, the
 default scenario, in 'test/data/hydranl_results.xlsx': one location per water system, with and without model
-uncertainty, always with the statistical uncertainty and all repairs, as pydra_core calculates by default. The lake
+uncertainty, always with the statistical uncertainty and the repairs of the Hydra-NL user interface, as pydra_core
+calculates by default: all repairs, except along the sea level in the Eastern Scheldt (REP_ALLEEN_U = JA). The lake
 Markermeer uses 'DEMO_Markermeer_BOI2023.sqlite', because BOI2023 has wind statistics with 16 directions and the WBI2017
 database of the Markermeer has 12.
-
-The Eastern Scheldt lies 10 to 32 cm below Hydra-NL. The loading table is not extended below its lowest sea level
-(1.5 m), so the probability below it is dropped, while the BOI2023 sea level statistics start at 1.4 m. How Hydra-NL
-treats that part still has to be looked up in its source; pydra_core is probably wrong here.
 """
 
 import numpy as np
