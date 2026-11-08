@@ -11,6 +11,7 @@ from scipy.interpolate import RegularGridInterpolator
 
 from .illustration_points_3d import HydraIllustrationPoint3D
 from .library import Grid, HydraInterpolate
+from ..location.model.statistics.water_systems.statistics_hollandsche_ijssel import StatisticsHollandscheIJssel
 
 # The column of the sea level in 'HydroDynamicInputData' (HRDInputColumnId 4, 'Waterlevel HvH')
 _SEA_LEVEL_COLUMN = 4
@@ -163,6 +164,24 @@ class HydraRhineMeuseDeltaIllustrationPoint(HydraIllustrationPoint3D):
         """
         return None if HydraIllustrationPoint3D.sector_west(r) else self._m_east
 
+    def europoort_probability(self, r: float, closing_situation: int) -> np.ndarray:
+        """
+        Return pydra's probability mass of a state of the Europoort barrier, on the statistics grids.
+
+        Parameters
+        ----------
+        r : float
+            The wind direction
+        closing_situation : int
+            1 (open) or 2 (closed)
+
+        Returns
+        -------
+        np.ndarray
+            The probability mass on the statistics grids (u, q, m)
+        """
+        return self._stats.calculate_probability(r, closing_situation=closing_situation)
+
     def joint_umqk(self, ir: int) -> np.ndarray:
         """
         Calculate the joint probability density over (u, m, q) per barrier state, from pydra, for a westerly direction.
@@ -188,7 +207,7 @@ class HydraRhineMeuseDeltaIllustrationPoint(HydraIllustrationPoint3D):
             return self._joint_cache[ir]
         joint = np.empty((len(self._ublock), len(self._mblock), len(self._qblock), 2))
         for ik, closing_situation in ((0, 1), (1, 2)):
-            mass = np.asarray(self._stats.calculate_probability(r, closing_situation=closing_situation), float)
+            mass = np.asarray(self.europoort_probability(r, closing_situation), float)
             density = np.transpose(mass, (0, 2, 1)) / self._cell_volume
             joint[..., ik] = self.to_block_grids(density)
         self._joint_cache[ir] = joint
@@ -343,6 +362,10 @@ class HydraRhineMeuseDeltaIllustrationPoint(HydraIllustrationPoint3D):
         """
         barrier = getattr(stats, "barrier", None)
         if barrier is None:
+            return False
+        # The Hollandsche IJssel has the same stochastics and Europoort barrier, but its statistics weigh a second
+        # barrier into every closing situation; its illustration point is in 'hollandsche_ijssel'
+        if isinstance(stats, StatisticsHollandscheIJssel):
             return False
         k = sorted(round(float(x)) for x in barrier.k)
         return set(stats.stochastics_slow) == {"q"} and k == [0, 11]

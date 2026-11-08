@@ -105,6 +105,19 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
         """
         raise NotImplementedError("[ERROR] A subclass must fill 'joint_umqk'.")
 
+    def loading_tables(self) -> dict[int, int]:
+        """
+        Return the closing situation of the loading table per barrier state of this module: 1 (open) and 2 (closed).
+        The same numbers by default. A water system with more tables per barrier state, such as a second barrier,
+        chooses here which two are calculated.
+
+        Returns
+        -------
+        dict[int, int]
+            The closing situation of the database per barrier state
+        """
+        return {1: 1, 2: 2}
+
     def loading_relevant(self, r: float, k: int) -> bool:
         """
         Determine whether the loading table (r, k) is loaded. Everything by default.
@@ -265,8 +278,14 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
         # The response tables of 'response_table', keyed on (id(loading), delta, f_hs, f_ts) without the level: the
         # table does not depend on it. 'id' is safe, every loading dict lives in '_loading' as long as this cache.
         self._response_cache: dict[tuple[int, float, float, float], np.ndarray] = {}
+        tables = self.loading_tables()
+        state_of_table = {table: state for state, table in tables.items()}
+        # The reference for the block grids is a table with its own level axis: a broadened 2D table borrowed its axis
+        # and says nothing about the range
+        loading0 = None
         for (r, k), lm in loading.model.items():
-            if not self.loading_relevant(float(r), int(k)):
+            state = state_of_table.get(int(k))
+            if state is None or not self.loading_relevant(float(r), int(k)):
                 continue
             iv = list(lm.input_variables)
             wanted = ["h"] if response == "h" else (["h", "hs"] if response == "hs" else ["h", "hs", "tspec", "dir"])
@@ -289,18 +308,11 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
             u_ext, arrays = HydraIllustrationPoint3D.extend_u(np.asarray(lm.u, float), arrays, self._u_max)
             if self._hydra_repairs:
                 arrays["h"] = HydraIllustrationPoint3D.repair_3d(arrays["h"])
-            self._loading[(float(r), int(k))] = {"u": u_ext, "m": level_axis, "q": np.asarray(lm.q, float), **arrays}
+            self._loading[(float(r), state)] = {"u": u_ext, "m": level_axis, "q": np.asarray(lm.q, float), **arrays}
+            if loading0 is None and self._level_axis in iv:
+                loading0 = self._loading[(float(r), state)]
 
-        # Block grids (DEELVECTOR of the statistics grids within the range of the loading). The reference is a table
-        # with its own level axis: a broadened 2D table borrowed its axis and says nothing about the range.
-        loading0 = next(
-            (
-                b
-                for (r, k), b in self._loading.items()
-                if self._level_axis in list(loading.model[(r, k)].input_variables)
-            ),
-            None,
-        )
+        # Block grids (DEELVECTOR of the statistics grids within the range of the loading)
         if loading0 is None:
             loading0 = next(iter(self._loading.values()))
         self._ublock = Grid.sub_vector(self._u_stat, float(loading0["u"][0]), float(loading0["u"][-1]))
@@ -312,7 +324,7 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
         # deltas shift, the distances and 'comps' do not depend on sigma; that is checked here so that it shows if it
         # ever changes.
         self._combinations_k = [
-            HydraIllustrationPoint.uncertainty_combinations_by_distance(stats, response, model_uncertainty, k)
+            HydraIllustrationPoint.uncertainty_combinations_by_distance(stats, response, model_uncertainty, tables[k])
             for k in (1, 2)
         ]
         for a, b in zip(*self._combinations_k, strict=True):
@@ -326,7 +338,7 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
         # Taken at once: pydra_core keeps the model uncertainties in class attributes, so a location built later would
         # change them
         self._combinations_with_probability = [
-            Scaling.uncertainty_combinations(stats, response, model_uncertainty, k) for k in (1, 2)
+            Scaling.uncertainty_combinations(stats, response, model_uncertainty, tables[k]) for k in (1, 2)
         ]
         self._conditional_cache: dict[int, tuple] = {}
         self._barrier_probability_cache: dict[int, np.ndarray] = {}

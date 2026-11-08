@@ -17,6 +17,9 @@ With model uncertainty of both the water level and the waves, Rekenhart_HIJ coup
 probability of another water level (MODELONZ_WS_HIJ). 'hbn_model' therefore comes from Rekenhart_HIJ built from the
 source with that order repaired; unrepaired it lies 5.5 to 6.5 cm higher.
 
+'ip_hbn_none.txt' holds the illustration points of 'hbn_none' per state of the EPK and the HIJK, as Rekenhart_HIJ prints
+them (sea level, Rhine discharge and wind speed, at the crest level of each return period).
+
 pydra_core uses its own settings and statistics of the scenario BOI2023_2035; they are equal to those of the demo
 calculation. The tolerance is 5 mm at the return periods of the demo calculation, except the water level without
 uncertainties at T = 100 (+11 mm, where the Hydra-NL line has a kink).
@@ -28,6 +31,7 @@ import numpy as np
 import pytest
 
 from pydra_core import HBN, ExceedanceFrequencyLine, HRDatabase, Location, Profile
+from pydra_core.hydra.hollandsche_ijssel import HydraHollandscheIJsselIllustrationPoint
 from pydra_core.location.model.statistics.water_systems.statistics_lower_river import (
     StatisticsLowerRiver,
 )
@@ -40,6 +44,25 @@ STEP_SIZE = 0.02
 RETURN_PERIODS = [10, 30, 100, 300, 1000, 3000, 10000, 30000, 100000, 300000, 1000000]
 TOLERANCE = 0.005
 TOLERANCE_KINK = {("h_none", 100): 0.015}
+
+# One grid step of the illustration point: sea level, discharge, wind speed (with a margin for the rounding of Hydra-NL)
+ONE_STEP = {"M": 0.105, "Q": 205.0, "U": 1.05}
+
+# Illustration points more than one grid step from Hydra-NL: (return period, EPK state, HIJK state, wind direction).
+# The near ties verified with beta are (3000, 2, 3, 225.0), (10000, 2, 2, 315.0) and (300000, 2, 3, 270.0).
+BEYOND_ONE_STEP = {
+    (10, 2, 1, 360.0),
+    (30, 2, 1, 337.5),
+    (3000, 2, 3, 225.0),
+    (10000, 1, 3, 225.0),
+    (10000, 2, 2, 315.0),
+    (10000, 2, 3, 247.5),
+    (30000, 2, 2, 315.0),
+    (100000, 1, 1, 225.0),
+    (100000, 2, 3, 337.5),
+    (300000, 1, 3, 337.5),
+    (300000, 2, 3, 270.0),
+}
 
 # Reference, result variable, statistical uncertainty, model uncertainty of the water level, of the waves
 CASES = [
@@ -112,3 +135,36 @@ def test_barrier_states_sum_to_rhine_meuse_delta():
             total = sum(statistics.calculate_probability(wind_direction, k) for k in states)
             expected = StatisticsLowerRiver.calculate_probability(statistics, wind_direction, europoort_state)
             np.testing.assert_allclose(total, expected, rtol=1e-12, atol=0.0)
+
+
+def test_illustration_points():
+    """
+    The illustration points of the crest level without uncertainties, per state of the EPK and the HIJK, against the
+    hydraulic loading tables of Rekenhart_HIJ ('ip_hbn_none.txt'). Every point lies within one grid step of
+    Hydra-NL (MSTAP, QSTAP, 1 m/s), except the points in 'BEYOND_ONE_STEP'. Three of those are verified near ties: two
+    places on the limit state with a beta within 0.04, where pydra_core and Hydra-NL choose differently.
+    """
+    hrd = HRDatabase(DATABASE)
+    settings = hrd.get_settings(LOCATION)
+    points = {
+        state: HydraHollandscheIJsselIllustrationPoint(
+            hrd, settings, statistical_uncertainty=False, model_uncertainty=False, response="hbn",
+            profile=dike_profile(), qcrit=QCRIT, hollandsche_ijssel_state=state,
+        )
+        for state in (1, 2, 3)
+    }
+    reference = np.loadtxt(DATA / "hydranl" / "ip_hbn_none.txt", skiprows=1)
+
+    beyond_one_step = set()
+    for return_period, level, epk, hijk, wind_direction, sea_level, discharge, wind_speed in reference:
+        key = (int(return_period), int(epk), int(hijk), float(wind_direction))
+        design_point = points[int(hijk)].design_point(wind_direction, level, int(epk))
+        assert design_point is not None, f"no illustration point for {key}"
+        design = design_point["design"]
+        if (
+            abs(design["M"] - sea_level) > ONE_STEP["M"]
+            or abs(design["Q"] - discharge) > ONE_STEP["Q"]
+            or abs(design["U"] - wind_speed) > ONE_STEP["U"]
+        ):
+            beyond_one_step.add(key)
+    assert beyond_one_step == BEYOND_ONE_STEP

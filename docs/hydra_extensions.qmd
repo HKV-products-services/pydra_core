@@ -49,7 +49,8 @@ the water level on the grid of the database before extending, and does not repai
 'test_hollandsche_ijssel.py' compares with Rekenhart_HIJ of Hydra-NL v2.9.2 on the demo database. With model
 uncertainty of both the water level and the waves, Rekenhart_HIJ couples a water level value to the probability of
 another water level (MODELONZ_WS_HIJ); that reference comes from Rekenhart_HIJ built from the source with the order
-repaired. Unrepaired, Hydra-NL lies 5.5 to 6.5 cm higher.
+repaired. Unrepaired, Hydra-NL lies 5.5 to 6.5 cm higher. The same test compares the illustration points of the crest
+level without uncertainties per state of the EPK and the HIJK; see 'hydra/hollandsche_ijssel.py'.
 
 ## Waves and crest level of the Eastern Scheldt
 
@@ -436,6 +437,7 @@ and how the barrier works is only in these methods of the subclass:
 | Method | Purpose |
 |---|---|
 | '_level_axis' | the name of the level axis in the loading table |
+| 'loading_tables' | which closing situations of the database are the open and the closed barrier state |
 | 'loading_relevant' | which (r, k) tables are loaded |
 | 'check' | whether this water system is accepted |
 | 'statistics_grids' | the statistics grids of the level and the discharge |
@@ -585,6 +587,62 @@ As in Hydra-NL's ONDKANSEN_ILLU_B, the Rosenblatt chain is then built directly: 
 F(m|q) a constant 0.5 (Phi^-1(0.5) = 0, the sea level adds nothing to beta), F(u|m,q) = 1 - G(u|r), and no mass in the
 closed state. The sea level of the design point is the spring tide level of the database (SPRINGTIJ): the unique sea
 level over all loading rows with an easterly direction.
+
+A location at the Hollandsche IJssel has the same stochastics and the same Europoort barrier (EPK), but its statistics
+weigh the Hollandsche IJssel barrier (HIJK) into every closing situation. It is refused here and calculated by
+'hollandsche_ijssel'.
+
+## hydra/hollandsche_ijssel.py
+
+The Hydra-NL illustration point for the Hollandsche IJssel: a port of IPPUNTEN_HIJ and ONDKANSEN_HIJ
+('illustratiepunt_HIJ.f90'). The search on the isolines (ILLU_PUNTQ, ILLU_PUNTM, ILLU_PUNTU) is the same as in
+'illustratiepunt_Zoet.f90' and comes from 'illustration_points_3d'.
+
+### Six states, one object per HIJK state
+
+The database has six closing situations: the EPK (open, closed) times the HIJK (open, closed without water burden,
+closed with water burden). One object covers one HIJK state ('hollandsche_ijssel_state', 1 to 3) and both EPK states,
+so that the machinery keeps its two barrier states: 'loading_tables' maps EPK open and closed to the closing
+situations s and s + 3 of the database.
+
+### The HIJK in the Rosenblatt chain
+
+The chain is that of the Rhine-Meuse delta, F(q|k), F(m|q,k), F(u|m,q,k), with a weight for the HIJK on the block
+grids. The weight comes from the table 'Sluitfunctie HOIJK': the water level at the HIJK ('Zmax HOIJK') per (u, m, q),
+EPK state and direction, against the closing level ('Sluitwaterstand', one value). Where that water level stays below
+the closing level the HIJK is open; elsewhere it is closed unless it fails, with probability ALFA_HOIJK. Both closed
+states have the same weight: the water burden only chooses the loading table. At the easterly directions the EPK is
+open and the sea level is no stochastic, but the HIJK can close; F(q) and F(u|q) then come from the densities of the
+discharge and the wind speed times the weight.
+
+Before use the water level at the HIJK is made non-decreasing in (u, m, q) per EPK state and direction
+(REPAREER_SLUITF, 'repareer_HIJ.f90'), always, also when the repairs of the loading are switched off. The table falls
+with the sea level when the EPK is closed; without the repair the HIJK closed in 46 % of the mass at the EPK closed
+and west, against 99.5 % in Rekenhart_HIJ, and the design points with the EPK closed lay up to 0.33 m in the sea level
+and 1645 m³/s in the discharge away from Hydra-NL.
+
+### Grids and repair of the loading
+
+Three differences with the Rhine-Meuse delta, each from Rekenhart_HIJ:
+
+* the wind speed grid is that of the statistics file (0.5 m/s up to 42 m/s, then steps of 1 m/s to UMAX), not the
+  USTAP grid of the frequency line; on the 1 m/s grid the design point shifts up to 0.5 m/s;
+* the loading is extended down to MMIN in the sea level, with a copy of the lowest layer ('LoadingHollandscheIJssel',
+  UITBREIDING_WIND in 'uitbreiding_HIJ.f90'), so that the sea level block grid starts at MMIN;
+* after the extension to UMAX the water level is made non-decreasing again ('_hydra_repairs', "Repareer uitgebreide
+  waterstanden" in 'database_uitlezen_HIJ.f90'). Within the range of the database the table is already
+  non-decreasing. The extension continues every (m, q) line from the last two wind speeds (42 and 47 m/s) with its own
+  slope, so at 50 m/s a higher discharge or sea level can end up below a lower one: in the demo database in 34 of the
+  48 tables, up to 14 cm, never along the wind speed. Without the repair the water level in the design points at
+  T = 30000 lay up to 4 cm below that of Hydra-NL.
+
+### Comparison with Rekenhart_HIJ
+
+On the demo location, crest level without uncertainties, all eleven return periods, 372 design points: 301 within
+0.015 m sea level, 75 m³/s discharge and 0.15 m/s wind speed of Hydra-NL. The rest are steps of the grids and a few
+near ties: two places on the limit state with almost the same beta, where pydra_core and Hydra-NL choose differently
+(up to 5800 m³/s and 4 m/s apart, beta within 0.04). The water level, wave height and wave period of the loading in
+the design points of Hydra-NL are within the rounding of its output (0.01).
 
 ## hydra/rhine_meuse_delta_percentiles.py
 
