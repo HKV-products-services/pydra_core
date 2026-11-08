@@ -92,8 +92,9 @@ class Coupling:
 
 # The coupling of HyBPo ('hydra_instellingen.py'), confirmed there by the WBI2017 values of pydra_core coming out of
 # Hydra-NL 2.8.2. 'IFHM' and 'FU' are percentages: the Volkerak-Zoommeer has 'IFHM = 10' and 'ifh_a = 0.1'.
-# 'm_step' of the sea is not coupled: Hydra-NL has 'MSTAP = 0.1' in WBI2017 and BOI2023 alike, pydra_core 0.01; the
-# coarser grid is a choice per quantity of the caller, not a change of BOI2023.
+# 'm_step' of the sea is not coupled: Hydra-NL has 'MSTAP = 0.1' in WBI2017 and BOI2023 alike, pydra_core 0.01 except
+# for the Eastern Scheldt (0.1, see 'docs/hydra_extensions.qmd'); the coarser grid is a choice per quantity of the
+# caller, not a change of BOI2023.
 COUPLING = (
     Coupling("base_duration", "zoet", "BASISDUUR", "lake", (0,), 24.0),
     Coupling("periods_base_duration", "zoet", "NGEGEVENSBLOK", "lake", (0,)),

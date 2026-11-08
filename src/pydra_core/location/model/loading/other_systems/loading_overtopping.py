@@ -5,6 +5,7 @@ from itertools import product
 
 from ..loading import Loading
 from ..loading_model.loading_model import LoadingModel
+from ..water_systems.loading_eastern_scheldt import LoadingEasternScheldt
 from ....location import Location
 from ....profile.profile import Profile
 
@@ -35,15 +36,24 @@ class LoadingOvertopping(Loading):
         """
         Read the HR and create Loading Models
         """
+        # Oosterschelde: de kruinhoogtes op de waterstanden van de golftabel, zoals Hydra-NL
+        golftabel = isinstance(self.ws_loading, LoadingEasternScheldt)
+
         # Bepaal bij welke waterstanden de golfcondities afgeleid moeten worden
         # Wanneer het aantal unieke waterstanden kleiner is dan het aantal waterstanden
         # in het opgegeven bereik, worden de unieke waterstanden gebruikt
-        ws_per_r = self.bepaal_kh_waterstanden(self.ws_loading, self.ws_range)
+        if golftabel:
+            ws_per_r = dict.fromkeys(self.ws_loading.r)
+        else:
+            ws_per_r = self.bepaal_kh_waterstanden(self.ws_loading, self.ws_range)
 
         # Bepaal de golfcondities bij deze waterstanden
         for richting, waterstanden in ws_per_r.items():
             # Leidt golfcondities af voor een bepaalde richting
-            golfcond_r, windsnelheden = self.ws_loading.get_wave_conditions(richting, waterstanden, extrapolate=True)
+            if golftabel:
+                waterstanden, golfcond_r, windsnelheden = self.ws_loading.get_wave_table_conditions(richting)
+            else:
+                golfcond_r, windsnelheden = self.ws_loading.get_wave_conditions(richting, waterstanden, extrapolate=True)
 
             # Create a DataFrame
             df = pd.DataFrame(columns=["wlev", "u"] + list(golfcond_r.keys()))
