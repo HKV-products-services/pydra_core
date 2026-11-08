@@ -717,7 +717,8 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
         beta2 : float
             The squared distance of the design point
         response : str
-            The response; it decides which model uncertainty terms count (h: delta_h; hs: f_Hm0; hbn: all three)
+            The response; it decides which model uncertainty terms count (h: delta_h; hs: f_Hm0; tspec: f_Hm0 and
+            f_Tspec; hbn: all three)
         model_uncertainty : bool
             Without model uncertainty there are no model uncertainty terms
 
@@ -732,9 +733,9 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
             terms = []
             if response in ("h", "hbn"):
                 terms.append(("h", comps[0]))
-            if response in ("hs", "hbn"):
+            if response in ("hs", "tspec", "hbn"):
                 terms.append(("hs", comps[1]))
-            if response == "hbn":
+            if response in ("tspec", "hbn"):
                 terms.append(("tspec", comps[2]))
             out += [
                 {"key": k, "label": _MODEL_LABEL[k], "kind": "model", "alpha2": float(e2) / b2} for (k, e2) in terms
@@ -766,7 +767,7 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
         stats : Statistics
             The statistics of the location
         response : str
-            "h", "hs" or "hbn"
+            "h", "hs", "tspec" or "hbn"
         model_uncertainty : bool
             False gives one combination without distance
         closing_situation : int, optional
@@ -777,7 +778,8 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
         list[tuple[float, float, float, float, float, tuple[float, float, float]]]
             Per combination (delta_h, f_Hm0, f_Tm-1,0, f_Tp, distance^2, (eps_h^2, eps_Hm0^2, eps_Tspec^2)). The last
             element splits distance^2 over the three model uncertainty terms, for the influence factor alpha^2 per term;
-            which terms are not zero depends on the response (h: only eps_h; hs: only eps_Hm0; hbn: all three).
+            which terms are not zero depends on the response (h: only eps_h; hs: only eps_Hm0; tspec: eps_Hm0 and
+            eps_Tspec; hbn: all three).
         """
         if not model_uncertainty:
             return [(0.0, 1.0, 1.0, 1.0, 0.0, (0.0, 0.0, 0.0))]
@@ -799,9 +801,10 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
             return combinations
 
         # Water level, with the coordinate eps = (delta - mu) / sigma. Not every HRD has a water level uncertainty; the
-        # coastal databases have none, and then delta_h = 0, as in 'Scaling.uncertainty_combinations'.
+        # coastal databases have none, and then delta_h = 0, as in 'Scaling.uncertainty_combinations'. The wave period
+        # does not depend on the water level, so for 'tspec' delta_h = 0 as well.
         mu_h = model_uncertainties.get_model_uncertainty("h", closing_situation)
-        if mu_h is None:
+        if mu_h is None or response == "tspec":
             dh, eps_h = np.array([0.0]), np.array([0.0])
         else:
             dh = np.atleast_1d(mu_h.discretise(model_uncertainties.step_size["h"])[0]).astype(float)
@@ -817,8 +820,8 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
             combinations.sort(key=lambda c: c[4])
             return combinations
 
-        # Crest level: the wave uncertainties. Tspec and Tp are conditional on the bin of Hs through the correlation, so
-        # their grid is built with 'onzwaarden_vector'
+        # Crest level and wave period: the wave uncertainties. Tspec and Tp are conditional on the bin of Hs through the
+        # correlation, so their grid is built with 'onzwaarden_vector'
         mu_hs = model_uncertainties.get_model_uncertainty("hs")
         mu_ts = model_uncertainties.get_model_uncertainty("tspec")
         mu_tp = model_uncertainties.get_model_uncertainty("tp")

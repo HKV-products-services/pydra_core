@@ -17,10 +17,13 @@ With model uncertainty of both the water level and the waves, Rekenhart_HIJ coup
 probability of another water level (MODELONZ_WS_HIJ). 'hbn_model' therefore comes from Rekenhart_HIJ built from the
 source with that order repaired; unrepaired it lies 5.5 to 6.5 cm higher.
 
-'ip_hbn_none.txt', 'ip_hbn_statistical.txt' and 'ip_hbn_model.txt' hold the illustration points of 'hbn_none',
-'hbn_statistical' and 'hbn_model' per state of the EPK and the HIJK, as Rekenhart_HIJ prints them (sea level, Rhine
-discharge and wind speed, at the crest level of each return period). 'ip_hbn_model.txt' also holds the uncertainty
-values in each point (water level, factor on Hm0 and on Tm-1,0); it comes from the repaired build as well.
+'ip_<result>_<case>.txt' hold the illustration points per state of the EPK and the HIJK, as Rekenhart_HIJ prints them
+(sea level, Rhine discharge and wind speed, at the level of each return period), for the water level ('h': none, all),
+the wave height ('hs'), the wave period Tm-1,0 ('tm10') and the crest level ('hbn'), the last three without
+uncertainties ('none'), with statistical uncertainty ('statistical') and with all model uncertainty ('model'). The files
+with model uncertainty also hold the uncertainty values in each point (water level, factor on Hm0 and on Tm-1,0); for
+the wave parameters and the crest level they come from the repaired build. Apart from the result variable, the input
+of each illustration point calculation equals that of the frequency line with the same uncertainties.
 
 pydra_core uses its own settings and statistics of the scenario BOI2023_2035; they are equal to those of the demo
 calculation. The tolerance is 5 mm at the return periods of the demo calculation, except the water level without
@@ -51,12 +54,80 @@ TOLERANCE_KINK = {("h_none", 100): 0.015}
 ONE_STEP = {"M": 0.105, "Q": 205.0, "U": 1.05}
 
 # Illustration points more than one grid step from Hydra-NL: (return period, EPK state, HIJK state, wind direction).
-# Without uncertainties the near ties verified with beta are (3000, 2, 3, 225.0), (10000, 2, 2, 315.0) and
+# Crest level: without uncertainties the near ties verified with beta are (3000, 2, 3, 225.0), (10000, 2, 2, 315.0) and
 # (300000, 2, 3, 270.0). With statistical uncertainty the beta in the point of Hydra-NL is within 0.1 of that of
 # pydra_core, except (30000, 2, 2, 247.5), where the limit state touches UMAX: 0.5 mm lower, pydra_core chooses the
 # point of Hydra-NL. With model uncertainty the total beta (with the uncertainty combination of Hydra-NL) is within 0.06.
+# Water level, wave height and wave period: the point of Hydra-NL lies on the limit state of pydra_core (within 2 mm)
+# and its total beta lies between 0.03 below and 0.12 above that of pydra_core, except the wave height with model
+# uncertainty at T = 30, west, HIJK closed (0.19 above): pydra_core finds a more probable point there.
 BEYOND_ONE_STEP = {
-    "none": {
+    ("h", "none"): {
+        (10, 2, 3, 315.0),
+        (30, 1, 1, 360.0),
+        (100, 1, 1, 202.5),
+        (100, 1, 2, 225.0),
+        (300, 2, 2, 270.0),
+        (1000, 2, 2, 225.0),
+    },
+    ("h", "all"): {
+        (30, 1, 2, 247.5),
+        (1000, 1, 1, 225.0),
+        (10000, 1, 3, 225.0),
+        (100000, 1, 1, 247.5),
+        (300000, 1, 1, 225.0),
+        (1000000, 1, 1, 225.0),
+        (1000000, 1, 1, 337.5),
+    },
+    ("hs", "none"): {
+        (1000000, 1, 1, 337.5),
+    },
+    ("hs", "statistical"): {
+        (3000, 1, 3, 247.5),
+        (1000000, 1, 1, 337.5),
+    },
+    ("hs", "model"): {
+        (30, 1, 2, 270.0),
+        (30, 1, 2, 292.5),
+        (30, 1, 3, 270.0),
+        (100, 2, 2, 225.0),
+        (300, 1, 1, 292.5),
+        (300, 1, 3, 292.5),
+        (10000, 1, 1, 225.0),
+        (100000, 1, 2, 225.0),
+        (100000, 1, 3, 225.0),
+        (100000, 2, 1, 225.0),
+        (100000, 2, 2, 225.0),
+        (100000, 2, 3, 225.0),
+    },
+    ("tm10", "none"): {
+        (10, 2, 3, 225.0),
+        (30, 1, 3, 360.0),
+        (1000, 1, 2, 225.0),
+        (1000, 1, 3, 225.0),
+        (1000, 2, 2, 225.0),
+        (1000, 2, 3, 225.0),
+        (1000000, 1, 1, 270.0),
+        (1000000, 1, 1, 337.5),
+        (1000000, 2, 2, 337.5),
+        (1000000, 2, 3, 337.5),
+    },
+    ("tm10", "statistical"): {
+        (1000, 1, 2, 225.0),
+        (1000, 1, 3, 225.0),
+        (1000000, 1, 1, 270.0),
+        (1000000, 1, 1, 337.5),
+    },
+    ("tm10", "model"): {
+        (100, 2, 2, 360.0),
+        (3000, 1, 3, 225.0),
+        (30000, 2, 2, 225.0),
+        (30000, 2, 3, 225.0),
+        (300000, 1, 2, 225.0),
+        (300000, 1, 2, 292.5),
+        (300000, 1, 3, 225.0),
+    },
+    ("hbn", "none"): {
         (10, 2, 1, 360.0),
         (30, 2, 1, 337.5),
         (3000, 2, 3, 225.0),
@@ -69,7 +140,7 @@ BEYOND_ONE_STEP = {
         (300000, 1, 3, 337.5),
         (300000, 2, 3, 270.0),
     },
-    "statistical": {
+    ("hbn", "statistical"): {
         (10, 1, 3, 225.0),
         (300, 2, 2, 292.5),
         (3000, 1, 2, 225.0),
@@ -86,7 +157,7 @@ BEYOND_ONE_STEP = {
         (1000000, 1, 3, 270.0),
         (1000000, 2, 3, 315.0),
     },
-    "model": {
+    ("hbn", "model"): {
         (10, 1, 1, 225.0),
         (10, 2, 2, 292.5),
         (30, 1, 2, 292.5),
@@ -193,28 +264,46 @@ def test_barrier_states_sum_to_rhine_meuse_delta():
             np.testing.assert_allclose(total, expected, rtol=1e-12, atol=0.0)
 
 
+# Result in the file name, response of pydra_core, case, statistical uncertainty, model uncertainty
+ILLUSTRATION_POINT_CASES = [
+    ("h", "h", "none", False, False),
+    ("h", "h", "all", True, True),
+    ("hs", "hs", "none", False, False),
+    ("hs", "hs", "statistical", True, False),
+    ("hs", "hs", "model", False, True),
+    ("tm10", "tspec", "none", False, False),
+    ("tm10", "tspec", "statistical", True, False),
+    ("tm10", "tspec", "model", False, True),
+    ("hbn", "hbn", "none", False, False),
+    ("hbn", "hbn", "statistical", True, False),
+    ("hbn", "hbn", "model", False, True),
+]
+
+
 @pytest.mark.parametrize(
-    "case, statistical, model_uncertainty",
-    [("none", False, False), ("statistical", True, False), ("model", False, True)],
+    "result, response, case, statistical, model_uncertainty",
+    ILLUSTRATION_POINT_CASES,
+    ids=[f"{c[0]}_{c[2]}" for c in ILLUSTRATION_POINT_CASES],
 )
-def test_illustration_points(case, statistical, model_uncertainty):
+def test_illustration_points(result, response, case, statistical, model_uncertainty):
     """
-    The illustration points of the crest level per state of the EPK and the HIJK, without uncertainties, with
-    statistical uncertainty and with all model uncertainty, against Rekenhart_HIJ ('ip_hbn_<case>.txt'). Every point
-    lies within one grid step of Hydra-NL (MSTAP, QSTAP, 1 m/s), except the points in 'BEYOND_ONE_STEP': near ties,
-    places on the limit state with almost the same beta where pydra_core and Hydra-NL choose differently. With model
-    uncertainty every point within one grid step also has the uncertainty combination of Hydra-NL.
+    The illustration points per state of the EPK and the HIJK against Rekenhart_HIJ ('ip_<result>_<case>.txt'). Every
+    point lies within one grid step of Hydra-NL (MSTAP, QSTAP, 1 m/s), except the points in 'BEYOND_ONE_STEP': near
+    ties, places on the limit state with almost the same beta where pydra_core and Hydra-NL choose differently. With
+    model uncertainty every point within one grid step also has the uncertainty values of Hydra-NL that count for the
+    result: the water level for 'h', the factor on Hm0 for 'hs', both wave factors for 'tm10' and all three for 'hbn'.
     """
     hrd = HRDatabase(DATABASE)
     settings = hrd.get_settings(LOCATION)
+    crest_level = {"profile": dike_profile(), "qcrit": QCRIT} if response == "hbn" else {}
     points = {
         state: HydraHollandscheIJsselIllustrationPoint(
-            hrd, settings, statistical_uncertainty=statistical, model_uncertainty=model_uncertainty, response="hbn",
-            profile=dike_profile(), qcrit=QCRIT, hollandsche_ijssel_state=state,
+            hrd, settings, statistical_uncertainty=statistical, model_uncertainty=model_uncertainty, response=response,
+            hollandsche_ijssel_state=state, **crest_level,
         )
         for state in (1, 2, 3)
     }
-    reference = np.loadtxt(DATA / "hydranl" / f"ip_hbn_{case}.txt", skiprows=1)
+    reference = np.loadtxt(DATA / "hydranl" / f"ip_{result}_{case}.txt", skiprows=1)
 
     beyond_one_step = set()
     for row in reference:
@@ -230,7 +319,16 @@ def test_illustration_points(case, statistical, model_uncertainty):
         ):
             beyond_one_step.add(key)
         elif model_uncertainty:
-            uncertainty = design_point["uncertainty"]
-            pydra = np.array([uncertainty["h"], uncertainty["f_hs"], uncertainty["f_tspec"]])
-            assert np.all(np.abs(pydra - row[8:11]) < UNCERTAINTY_ROUNDING), f"other uncertainty combination at {key}"
-    assert beyond_one_step == BEYOND_ONE_STEP[case]
+            # Hydra-NL prints all three values; only those of the result count
+            if response == "h":
+                pydra, hydranl = [design_point["dh"]], row[8:9]
+            elif response == "hs":
+                pydra, hydranl = [design_point["f_hs"]], row[9:10]
+            elif response == "tspec":
+                pydra, hydranl = [design_point["f_hs"], design_point["f_tspec"]], row[9:11]
+            else:
+                uncertainty = design_point["uncertainty"]
+                pydra, hydranl = [uncertainty["h"], uncertainty["f_hs"], uncertainty["f_tspec"]], row[8:11]
+            deviation = np.abs(np.array(pydra) - hydranl)
+            assert np.all(deviation < UNCERTAINTY_ROUNDING), f"other uncertainty values at {key}"
+    assert beyond_one_step == BEYOND_ONE_STEP[(result, case)]

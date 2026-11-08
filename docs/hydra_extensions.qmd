@@ -393,6 +393,11 @@ the waves)] and a distance contribution AFSTONZ(IONZ) = eps_h^2 + eps_Hm0^2 + ep
 is Y^2 + Z^2 + AFSTONZ, and the illustration point is the combination (over IONZ and the isoline) with the smallest
 total distance ('uitsplitsingen_VIJ.f90').
 
+Which terms count depends on the result variable: the water level only has delta_h, the wave height only f_Hm0, the
+wave period Tm-1,0 f_Hm0 and the conditional f_Tm-1,0 (without the water level, which does not change the period), and
+the crest level all three. In the illustration points of Rekenhart_HIJ for Tm-1,0 every point has a factor on Hm0 as
+well, and the water level uncertainty is zero.
+
 The grids of the water level and the wave height come from 'DistributionUncertainty.discretise'. For the waves the
 grid is built around 1.0 with sigma and only then multiplied with the bias mu (f = mu * (1 + sigma * eps)).
 
@@ -427,8 +432,8 @@ module per water system ('ijssel_vecht_delta' for the IJssel-Vecht delta).
 * the loading table is extended in the wind speed to UMAX (UITBREIDING, linear with the last slope of the table), as
   Hydra-NL does before it calculates the illustration point;
 * model uncertainty: the combinations of 'uncertainty_combinations_by_distance', with distance^2 = X^2 + Y^2 + Z^2 +
-  AFSTONZ and the level shifted per combination (water level: level - delta; wave height: level / f_Hm0; crest
-  level: a crest level table per combination).
+  AFSTONZ and the level shifted per combination (water level: level - delta; wave height: level / f_Hm0; wave period
+  Tm-1,0, response 'tspec': level / f_Tm-1,0; crest level: a crest level table per combination).
 
 ### The seams
 
@@ -637,6 +642,12 @@ Three differences with the Rhine-Meuse delta, each from Rekenhart_HIJ:
   48 tables, up to 14 cm, never along the wind speed. Without the repair the water level in the design points at
   T = 30000 lay up to 4 cm below that of Hydra-NL.
 
+For a wave parameter (BERTYPE 6 and 7) Rekenhart_HIJ puts the wave height or the wave period in the table of the water
+level and repairs that table in the same way, before and after the extension. 'illustration_points_3d' therefore
+repairs the table of the response as well. Without the repair after the extension the wave height in the design points
+of Hydra-NL lay 13 to 15 mm below the level at wind speeds of 43 to 49 m/s, and 9 instead of 1 point lay more than one
+grid step away.
+
 ### Comparison with Rekenhart_HIJ
 
 On the demo location, crest level without uncertainties, all eleven return periods, 372 design points: 301 within
@@ -650,6 +661,25 @@ Hydra-NL is within 0.1 of that of pydra_core, except one place where the limit s
 lower, pydra_core chooses the point of Hydra-NL. With all model uncertainty (the repaired build, see "Hollandsche
 IJssel"), 428 design points: 401 within one grid step, all with the uncertainty combination of Hydra-NL; for the rest
 the total beta, with the uncertainty combination of Hydra-NL, is within 0.06.
+
+The water level, the wave height and the wave period Tm-1,0, the same location and settings, the wave parameters with
+model uncertainty from the repaired build:
+
+| result | case | design points | within one grid step |
+|---|---|---|---|
+| water level | none | 293 | 287 |
+| water level | all uncertainties | 366 | 359 |
+| wave height | none | 424 | 423 |
+| wave height | statistical | 426 | 424 |
+| wave height | model | 473 | 461 |
+| wave period | none | 384 | 374 |
+| wave period | statistical | 381 | 377 |
+| wave period | model | 465 | 458 |
+
+With model uncertainty every point within one grid step has the uncertainty values of Hydra-NL that count for the
+result. Every other point of Hydra-NL lies on the limit state of pydra_core (within 2 mm), and its total beta lies
+between 0.03 below and 0.12 above that of pydra_core, except the wave height with model uncertainty at T = 30, west,
+HIJK closed (0.19 above): there pydra_core finds a more probable point.
 
 ## hydra/rhine_meuse_delta_percentiles.py
 
