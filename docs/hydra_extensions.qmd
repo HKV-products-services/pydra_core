@@ -29,6 +29,28 @@ says where each value comes from. What it reports for Hydra-NL 2.9.2:
 * The Hollandsche IJssel has no river index in pydra_core; its discharge numbers are looked up with river 2 (Rhine)
   of Hydra-NL.
 
+## Model uncertainty of the waves
+
+'ModelUncertainty.iterate_model_uncertainty_wave_conditions' follows ONZWAARDEN ('modelonzekerheden.f90'), which all
+calculation kernels of Hydra-NL use. With a correlation rho between the uncertainty of the wave height and that of the
+wave period, the period is discretised per wave height value: a normal distribution with mean
+1 + rho * sigma_t * z_hs and standard deviation sigma_t * sqrt(1 - rho^2) (at least 0.001), on the same standardised
+grid, multiplied by the bias. The probability of a combination is that of the wave height times that of the
+standardised grid. One period grid for all wave heights with bivariate normal probabilities gives a crest level up to
+13 mm lower at T = 10^6 (Hollandsche IJssel, rho = 0.5); in 'test_efl' only the Markermeer location has a correlation.
+
+## Hollandsche IJssel
+
+'StatisticsHollandscheIJssel' is the statistics of the Rhine-Meuse delta with a weight per state of the Hollandsche
+IJssel barrier (ALFA_HOIJK and KANS_WATERBEZWAAR in 'calculation_settings.sqlite'); 'LoadingHollandscheIJssel' repairs
+the water level on the grid of the database before extending, and does not repair the waves
+('database_uitlezen_HIJ.f90').
+
+'test_hollandsche_ijssel.py' compares with Rekenhart_HIJ of Hydra-NL v2.9.2 on the demo database. With model
+uncertainty of both the water level and the waves, Rekenhart_HIJ couples a water level value to the probability of
+another water level (MODELONZ_WS_HIJ); that reference comes from Rekenhart_HIJ built from the source with the order
+repaired. Unrepaired, Hydra-NL lies 5.5 to 6.5 cm higher.
+
 ## Waves and crest level of the Eastern Scheldt
 
 The Eastern Scheldt calculates the crest level frequency line as Hydra-NL Zout ('Berekenbelasting_Zout.f90'), with the
