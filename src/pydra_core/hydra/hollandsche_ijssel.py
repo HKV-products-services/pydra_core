@@ -109,6 +109,7 @@ class HydraHollandscheIJsselIllustrationPoint(HydraRhineMeuseDeltaIllustrationPo
         )
         self._weight_cache: dict[int, np.ndarray] = {}
         self._weighted_joint_cache: dict[int, np.ndarray] = {}
+        self._weighted_bracket_east_cache: dict[int, np.ndarray] = {}
 
     def europoort_probability(self, r: float, closing_situation: int) -> np.ndarray:
         """
@@ -147,6 +148,29 @@ class HydraHollandscheIJsselIllustrationPoint(HydraRhineMeuseDeltaIllustrationPo
         if ir not in self._weighted_joint_cache:
             self._weighted_joint_cache[ir] = super().joint_umqk(ir) * self.hollandsche_ijssel_weight(ir)
         return self._weighted_joint_cache[ir]
+
+    def bracket_umqk(self, ir: int) -> np.ndarray:
+        """
+        Calculate KANS_UMQKDR without the density of the discharge for this state of the Hollandsche IJssel barrier, as
+        'HydraRhineMeuseDeltaIllustrationPoint.bracket_umqk'. The westerly branch has the weight of the state through
+        'joint_umqk'; the easterly branch gets it here, because the barrier can close there as well
+        (VERWERK_FALEN_HOIJK).
+
+        Parameters
+        ----------
+        ir : int
+            The index of the wind direction
+
+        Returns
+        -------
+        np.ndarray
+            KANS_UMQKDR without the density of the discharge, with the shape (nu, nm, nq, 2)
+        """
+        if HydraIllustrationPoint3D.sector_west(float(self._directions[ir])):
+            return super().bracket_umqk(ir)
+        if ir not in self._weighted_bracket_east_cache:
+            self._weighted_bracket_east_cache[ir] = super().bracket_umqk(ir) * self.hollandsche_ijssel_weight(ir)
+        return self._weighted_bracket_east_cache[ir]
 
     def conditional_probabilities_direct(self, ir: int) -> tuple | None:
         """

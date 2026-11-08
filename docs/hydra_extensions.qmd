@@ -650,17 +650,19 @@ grid step away.
 
 ### Comparison with Rekenhart_HIJ
 
-On the demo location, crest level without uncertainties, all eleven return periods, 372 design points: 301 within
-0.015 m sea level, 75 m³/s discharge and 0.15 m/s wind speed of Hydra-NL. The rest are steps of the grids and a few
-near ties: two places on the limit state with almost the same beta, where pydra_core and Hydra-NL choose differently
-(up to 5800 m³/s and 4 m/s apart, beta within 0.04). The water level, wave height and wave period of the loading in
-the design points of Hydra-NL are within the rounding of its output (0.01).
+On the demo location, crest level, all eleven return periods: without uncertainties 363 of 372 design points within one
+grid step of Hydra-NL, with statistical uncertainty 368 of 378, and with all model uncertainty (the repaired build, see
+"Hollandsche IJssel") 406 of 428, all with the uncertainty combination of Hydra-NL. Every other point of Hydra-NL lies
+on the limit state of pydra_core (within 9 mm) and its beta, with model uncertainty the total beta with the uncertainty
+combination of Hydra-NL, lies between 0.03 below and 0.12 above that of pydra_core; above 0.09 only without
+uncertainties at T = 10000, south-west, where pydra_core finds a more probable point. The water level, wave height and
+wave period of the loading in the design points of Hydra-NL are within the rounding of its output (0.01).
 
-With statistical uncertainty, 378 design points: 363 within one grid step. Of the rest, the beta in the point of
-Hydra-NL is within 0.1 of that of pydra_core, except one place where the limit state touches UMAX: half a millimetre
-lower, pydra_core chooses the point of Hydra-NL. With all model uncertainty (the repaired build, see "Hollandsche
-IJssel"), 428 design points: 401 within one grid step, all with the uncertainty combination of Hydra-NL; for the rest
-the total beta, with the uncertainty combination of Hydra-NL, is within 0.06.
+The crest level table is made non-decreasing in (u, m, q) after it is calculated, as Hydra-NL does with the loading of
+the dike (REPAREREN_HIJ after DIJKBELASTING_HIJ, REPAREREN_ZOET after DIJKBELASTING_ZOET); 'response_table' in
+'illustration_points_3d' does that for the Rhine-Meuse delta as well. Without it the crest level at the demo location
+lay up to 18 mm below that of Rekenhart_HIJ where it falls with the sea level (the EPK closed, low discharge), and
+11, 15 and 27 points lay beyond one grid step.
 
 The water level, the wave height and the wave period Tm-1,0, the same location and settings, the wave parameters with
 model uncertainty from the repaired build:
@@ -680,6 +682,51 @@ With model uncertainty every point within one grid step has the uncertainty valu
 result. Every other point of Hydra-NL lies on the limit state of pydra_core (within 2 mm), and its total beta lies
 between 0.03 below and 0.12 above that of pydra_core, except the wave height with model uncertainty at T = 30, west,
 HIJK closed (0.19 above): there pydra_core finds a more probable point.
+
+## hydra/hollandsche_ijssel_percentiles.py
+
+The Hydra-NL breakdown and percentiles for the Hollandsche IJssel: a port of FREQ_HIJ ('freqdichtheid_HIJ.f90'), per
+state of the EPK and the HIJK. It builds on 'hydra/hollandsche_ijssel.py' as 'rhine_meuse_delta_percentiles.py' builds
+on the illustration point of the Rhine-Meuse delta: one illustration point per HIJK state, with its loading tables,
+block grids and the bracket of KANS_UMQKDR with the weight of the HIJK.
+
+### Two closing types
+
+Rekenhart_HIJ calculates the breakdown twice, once per closing type of the HIJK: without water burden, with weight
+1 - KANS_WATERBEZWAAR, and with water burden, with weight KANS_WATERBEZWAAR. Each closing type has its own block
+probability p(q), from the open state and the closed state of that type (BLOKKENREKENEN_HIJ), and with it its own
+f_Q(q) (FREQDICHTH_Q). The open state of the HIJK therefore gets a contribution from both types; the output knows six
+states (TRANSF_DT_V): the EPK open or closed times the HIJK open, closed without and closed with water burden.
+
+The weight of the HIJK state (VERWERK_FALEN_HOIJK) applies at the easterly directions as well, where the EPK is open
+but the HIJK can close; 'HydraHollandscheIJsselIllustrationPoint.bracket_umqk' puts it there.
+
+### Grids
+
+The breakdown uses the block grids of the illustration point. Rekenhart_HIJ splits on a wind speed grid of 0.5 m/s from
+0 to UMAX, finer above 42 m/s. Interpolating the bracket linearly to that grid left the percentages and nearly all
+percentiles of the states with at least 1 % of the frequency unchanged, and it is not what Rekenhart_HIJ does (it
+calculates the density in every point), so it is not done. The discharge
+grid of Rekenhart_HIJ ends with 21750 and 22000, pydra_core has 21950 as well.
+
+### Comparison with Rekenhart_HIJ
+
+On the demo location, crest level without uncertainties, all eleven return periods ('test_breakdown'): the
+percentages per state and per wind direction within 0.2 percentage point, and the percentiles of discharge, sea level
+and wind speed within one grid step for every state with at least 1 % of the frequency, with two exceptions, both with
+the EPK closed:
+
+* T = 300000, the HIJK open (4.4 %): the cumulative discharge lies 0.002 to 0.003 from that of Hydra-NL, where it is
+  almost flat between 5750 and 6950 m³/s, so the 5 % percentile shifts 1500 m³/s;
+* T = 30000, the HIJK closed with water burden (2.2 %): for a low discharge the limit state lies at 45 to 50 m/s,
+  where the wind speed density of pydra_core, derived from its probability masses on the 1 m/s grid, is 12 to 40 %
+  higher than the density Rekenhart_HIJ calculates in every point (KANSWINDSNELHEID). Below 3000 m³/s the state gets
+  29 % more mass, and the discharge percentiles shift up to 300 m³/s.
+
+Measured with dumps of a build of Rekenhart_HIJ: f_Q(q) per closing type within 0.9 %, the weight of the HIJK and the
+mask equal, and the crest level tables within 0.4 mm once the table is repaired (see "hydra/hollandsche_ijssel.py").
+The breakdown leaves NGEGEVENSBLOK out, as in the Rhine-Meuse delta; the absolute numbers are 1/6 of those of
+Rekenhart_HIJ.
 
 ## hydra/rhine_meuse_delta_percentiles.py
 

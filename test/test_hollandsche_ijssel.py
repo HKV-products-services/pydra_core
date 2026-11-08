@@ -25,10 +25,16 @@ with model uncertainty also hold the uncertainty values in each point (water lev
 the wave parameters and the crest level they come from the repaired build. Apart from the result variable, the input
 of each illustration point calculation equals that of the frequency line with the same uncertainties.
 
+'breakdown_hbn_none.json' holds the breakdown of the crest level without uncertainties as Rekenhart_HIJ prints it with
+UITRKD, UITQKD, UITMKD and UITUKD on: per return period the level, the percentages per state of the EPK and the HIJK
+and per wind direction, and the percentiles of discharge, sea level and wind speed per state and for all states.
+
 pydra_core uses its own settings and statistics of the scenario BOI2023_2035; they are equal to those of the demo
 calculation. The tolerance is 5 mm at the return periods of the demo calculation, except the water level without
 uncertainties at T = 100 (+11 mm, where the Hydra-NL line has a kink).
 """
+
+import json
 
 from pathlib import Path
 
@@ -37,6 +43,7 @@ import pytest
 
 from pydra_core import HBN, ExceedanceFrequencyLine, HRDatabase, Location, Profile
 from pydra_core.hydra.hollandsche_ijssel import HydraHollandscheIJsselIllustrationPoint
+from pydra_core.hydra.hollandsche_ijssel_percentiles import HydraHollandscheIJsselPercentiles
 from pydra_core.location.model.statistics.water_systems.statistics_lower_river import (
     StatisticsLowerRiver,
 )
@@ -54,10 +61,10 @@ TOLERANCE_KINK = {("h_none", 100): 0.015}
 ONE_STEP = {"M": 0.105, "Q": 205.0, "U": 1.05}
 
 # Illustration points more than one grid step from Hydra-NL: (return period, EPK state, HIJK state, wind direction).
-# Crest level: without uncertainties the near ties verified with beta are (3000, 2, 3, 225.0), (10000, 2, 2, 315.0) and
-# (300000, 2, 3, 270.0). With statistical uncertainty the beta in the point of Hydra-NL is within 0.1 of that of
-# pydra_core, except (30000, 2, 2, 247.5), where the limit state touches UMAX: 0.5 mm lower, pydra_core chooses the
-# point of Hydra-NL. With model uncertainty the total beta (with the uncertainty combination of Hydra-NL) is within 0.06.
+# Crest level: the point of Hydra-NL lies on the limit state of pydra_core (within 9 mm) and its beta lies between 0.03
+# below and 0.12 above that of pydra_core, with model uncertainty the total beta with the uncertainty combination of
+# Hydra-NL. Above 0.09 only without uncertainties at T = 10000, south-west (2, 2, 225.0), (2, 3, 225.0) and
+# (1, 3, 225.0): pydra_core finds a more probable point there.
 # Water level, wave height and wave period: the point of Hydra-NL lies on the limit state of pydra_core (within 2 mm)
 # and its total beta lies between 0.03 below and 0.12 above that of pydra_core, except the wave height with model
 # uncertainty at T = 30, west, HIJK closed (0.19 above): pydra_core finds a more probable point there.
@@ -130,28 +137,21 @@ BEYOND_ONE_STEP = {
     ("hbn", "none"): {
         (10, 2, 1, 360.0),
         (30, 2, 1, 337.5),
-        (3000, 2, 3, 225.0),
         (10000, 1, 3, 225.0),
-        (10000, 2, 2, 315.0),
+        (10000, 2, 2, 225.0),
+        (10000, 2, 3, 225.0),
         (10000, 2, 3, 247.5),
-        (30000, 2, 2, 315.0),
         (100000, 1, 1, 225.0),
         (100000, 2, 3, 337.5),
         (300000, 1, 3, 337.5),
-        (300000, 2, 3, 270.0),
     },
     ("hbn", "statistical"): {
         (10, 1, 3, 225.0),
-        (300, 2, 2, 292.5),
-        (3000, 1, 2, 225.0),
-        (3000, 2, 2, 337.5),
         (10000, 1, 1, 270.0),
         (10000, 1, 3, 225.0),
         (30000, 1, 1, 225.0),
         (30000, 2, 1, 247.5),
-        (30000, 2, 2, 247.5),
         (30000, 2, 3, 247.5),
-        (100000, 2, 2, 270.0),
         (100000, 2, 3, 270.0),
         (300000, 2, 3, 270.0),
         (1000000, 1, 3, 270.0),
@@ -160,29 +160,24 @@ BEYOND_ONE_STEP = {
     ("hbn", "model"): {
         (10, 1, 1, 225.0),
         (10, 2, 2, 292.5),
-        (30, 1, 2, 292.5),
         (30, 1, 3, 225.0),
         (30, 1, 3, 315.0),
         (100, 1, 2, 225.0),
-        (300, 2, 3, 270.0),
         (1000, 1, 3, 247.5),
-        (3000, 2, 2, 270.0),
         (10000, 1, 1, 247.5),
-        (10000, 2, 2, 225.0),
         (10000, 2, 3, 225.0),
         (100000, 1, 1, 292.5),
-        (100000, 1, 2, 270.0),
         (100000, 1, 2, 337.5),
         (100000, 2, 2, 225.0),
+        (100000, 2, 2, 337.5),
         (100000, 2, 3, 225.0),
         (300000, 1, 2, 225.0),
         (300000, 1, 2, 337.5),
         (300000, 1, 3, 225.0),
+        (300000, 2, 2, 337.5),
         (1000000, 1, 1, 225.0),
         (1000000, 1, 2, 225.0),
         (1000000, 1, 3, 225.0),
-        (1000000, 2, 2, 292.5),
-        (1000000, 2, 2, 315.0),
         (1000000, 2, 2, 337.5),
         (1000000, 2, 3, 337.5),
     },
@@ -190,6 +185,18 @@ BEYOND_ONE_STEP = {
 
 # Uncertainty values in the output of Hydra-NL are rounded to 0.01
 UNCERTAINTY_ROUNDING = 0.006
+
+# Breakdown: percentages in percentage points (Hydra-NL prints one decimal), and one grid step of the percentiles
+PERCENTAGE_TOLERANCE = 0.3
+BREAKDOWN_ONE_STEP = {"discharge": 205.0, "sea_level": 0.105, "wind_speed": 1.05}
+# Percentiles beyond one grid step: (return period, stochastic, EPK and HIJK state). At T = 300000 the cumulative
+# discharge of the EPK closed and the HIJK open lies 0.002 to 0.003 from that of Hydra-NL, where it is almost flat
+# between 5750 and 6950 m3/s; the 5 % percentile shifts 1500 m3/s. At T = 30000 with the EPK closed and the HIJK
+# closed with water burden the limit state lies at 45 to 50 m/s for a low discharge, where the wind speed density of
+# pydra_core (from its probability masses on the 1 m/s grid) is 12 to 40 % higher than the density that Rekenhart_HIJ
+# calculates in every point; below 3000 m3/s the state gets 29 % more mass and the discharge percentiles shift up to
+# 300 m3/s.
+BREAKDOWN_BEYOND_ONE_STEP = {(30000, "discharge", "2,3"), (300000, "discharge", "2,1")}
 
 # Reference, result variable, statistical uncertainty, model uncertainty of the water level, of the waves
 CASES = [
@@ -332,3 +339,50 @@ def test_illustration_points(result, response, case, statistical, model_uncertai
             deviation = np.abs(np.array(pydra) - hydranl)
             assert np.all(deviation < UNCERTAINTY_ROUNDING), f"other uncertainty values at {key}"
     assert beyond_one_step == BEYOND_ONE_STEP[(result, case)]
+
+
+def test_breakdown():
+    """
+    The breakdown of the crest level without uncertainties against Rekenhart_HIJ ('breakdown_hbn_none.json'): the
+    percentages per state of the EPK and the HIJK and per wind direction within 0.3 percentage point, and the
+    percentiles of discharge, sea level and wind speed within one grid step for every state with at least 1 % of the
+    frequency, except those in 'BREAKDOWN_BEYOND_ONE_STEP'.
+    """
+    hrd = HRDatabase(DATABASE)
+    breakdown = HydraHollandscheIJsselPercentiles(
+        hrd, hrd.get_settings(LOCATION), statistical_uncertainty=False, model_uncertainty=False, response="hbn",
+        profile=dike_profile(), qcrit=QCRIT,
+    )
+    reference = json.loads((DATA / "hydranl" / "breakdown_hbn_none.json").read_text())
+
+    beyond_one_step = set()
+    for return_period, hydranl in reference.items():
+        contributions = breakdown.state_contributions(hydranl["level"])
+        percentiles = breakdown.percentiles(hydranl["level"])
+
+        # Percentages per state and per wind direction
+        for column, percentage in hydranl["states"].items():
+            epk, hijk = (int(x) for x in column.split(","))
+            pydra = contributions["states"][epk - 1, hijk - 1]
+            assert abs(pydra - percentage) <= PERCENTAGE_TOLERANCE, f"T = {return_period}, state {column}"
+        for direction, columns in hydranl["directions"].items():
+            jr = int(np.argmin(np.abs(contributions["r"] - float(direction))))
+            for column, percentage in columns.items():
+                if column == "all":
+                    pydra = contributions["directions"][jr].sum()
+                else:
+                    epk, hijk = (int(x) for x in column.split(","))
+                    pydra = contributions["directions"][jr, epk - 1, hijk - 1]
+                assert abs(pydra - percentage) <= PERCENTAGE_TOLERANCE, f"T = {return_period}, r = {direction}"
+
+        # Percentiles of the states with at least 1 % of the frequency
+        for stochastic, step in BREAKDOWN_ONE_STEP.items():
+            for column, values in hydranl[stochastic].items():
+                share = 100.0 if column == "all" else hydranl["states"][column]
+                if share < 1.0:
+                    continue
+                key = "all" if column == "all" else tuple(int(x) for x in column.split(","))
+                deviation = np.max(np.abs(np.array(percentiles[stochastic][key]) - np.array(values)))
+                if deviation > step:
+                    beyond_one_step.add((int(return_period), stochastic, column))
+    assert beyond_one_step == BREAKDOWN_BEYOND_ONE_STEP

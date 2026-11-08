@@ -709,6 +709,11 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
                     f_hs, f_ts,
                 )
             )
+            # Hydra-NL repairs the crest level table itself after calculating it (REPAREREN_ZOET after
+            # DIJKBELASTING_ZOET, REPAREREN_HIJ after DIJKBELASTING_HIJ); without it the crest level in the
+            # Hollandsche IJssel lay up to 18 mm below that of Rekenhart_HIJ where it falls with the sea level
+            if self._hydra_repairs:
+                crest = HydraIllustrationPoint3D.repair_3d(crest)
             crest.setflags(write=False)
             self._response_cache[key] = crest
         return crest
