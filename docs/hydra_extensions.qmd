@@ -29,7 +29,7 @@ says where each value comes from. What it reports for Hydra-NL 2.9.2:
 * The Hollandsche IJssel has no river index in pydra_core; its discharge numbers are looked up with river 2 (Rhine)
   of Hydra-NL.
 
-## Crest level of the Eastern Scheldt
+## Waves and crest level of the Eastern Scheldt
 
 The Eastern Scheldt calculates the crest level frequency line as Hydra-NL Zout ('Berekenbelasting_Zout.f90'), with the
 route of the coast in 'HBN' ('__calculate_sea'):
@@ -59,7 +59,8 @@ crest level on classes of the water level. That goes wrong in two places:
   the waves at the unrepaired water level. Where the repair lifts a water level from a dry to a wet level, Hs is
   repaired but Tspec and the direction stay those of the dry point. At the same location h 2.04 → 3.34 m gives Hs
   0.54 m with Tspec 0 to 0.6 s, where wet points at that water level have about 2.2 s. Hydra-NL repairs the water
-  level and then reads all wave parameters together from the wave table at the repaired water level.
+  level and then reads all wave parameters together from the wave table at the repaired water level. The loading
+  models now do the same, see "Order of repair and reading the waves" below.
 
 Checked on OS_3_kw07-00004 with the input equal to Hydra-NL (orientation 80, slope 1:3, crest 10 m, q = 10 l/s/m,
 'm_step' 0.1 as MSTAP, only repairs along u): the crest level per point of the statistics grid is equal to that of
@@ -74,7 +75,49 @@ The probability of every grid point counts on its own, as in Hydra-NL, so the ca
 2.0 GiB. The crest level is calculated on 29 water levels per wind direction instead of 365 to 2430, and the levels
 of the frequency line are calculated in a first pass, so only one grid of crest levels is in memory at a time.
 
-The frequency lines of h and Hs do not use this route; the wave table only serves the crest level.
+The frequency lines of h and Hs do not use this route.
+
+### Order of repair and reading the waves
+
+The loading models of the Eastern Scheldt ('LoadingEasternScheldt.read_loading') repair the water level along u
+first, then read Hs, Tp and Tspec from the wave table at the repaired water level (bilinear in u and h with linear
+extrapolation, as 'INEXTRP2D'), and only then repair the waves along u (Hs and Tp; Tspec is not repaired while
+reading, as in the other water systems). This is the order of Hydra-NL Zout: 'PLAATS_GOLFPARAMETER', then
+'REPAREREN_ZOUT'. The base version 0.0.13 reads the waves at the unrepaired water level and then repairs Hs along u
+on its own.
+
+Why this order:
+
+* **The waves belong to the water level that is used.** Hs depends strongly on the water depth. The repair of the
+  water level along u corrects the water level; from then on the repaired water level is the best estimate, and the
+  waves at that water level are the best estimate of the waves.
+* **The wave parameters stay consistent.** Hs, Tp and Tspec come from the same point of the wave table. In the order
+  of 0.0.13 a water level lifted from dry to wet keeps Hs, Tspec and direction of the dry point; the repair of Hs then
+  lifts Hs to that of a lower wind speed, but Tspec stays 0 to 0.6 s (see above).
+* **The repair of the waves only does what it is meant for.** It now only removes noise in the wave model itself
+  (Hs decreasing with the wind speed). In the order of 0.0.13 it also fills the gap caused by reading at the wrong
+  water level, by taking over Hs of a lower wind speed.
+* **The same as the crest level.** The crest level route also reads the waves at the water level of each grid point,
+  so the frequency lines of Hs and of the crest level now rest on the same waves.
+
+Checked on OS_3_kw07-00004 (WBI2017, 'm_step' 0.1): the water level per point of the database grid is equal to the
+grid of Hydra-NL 2.8.2 (written out from a patched 'Rekenhart_Zout'), Hs differs by at most 2 mm, in the order of
+0.0.13 by up to 0.30 m. The frequency line of Hs against Hydra-NL, T = 10 to 100,000 years, in cm:
+
+| | 0.0.13 | this order |
+|---|---|---|
+| WBI2017 without model uncertainty | +0.0, −0.0, −1.1, −3.3, −0.4 | +0.1, +0.5, −0.2, −2.5, +0.1 |
+| WBI2017 with model uncertainty | +0.8, −0.3, −0.6, −1.9, −0.5 | +0.9, +0.3, +0.3, −0.6, −0.1 |
+| BOI2023 2035 without model uncertainty | −0.7, +0.1, −0.4, −1.0, +0.1 | −0.1, +0.3, −0.2, −0.3, +0.2 |
+
+The −2.5 cm at T = 10,000 years (WBI2017) is not a difference in the calculation. Hydra-NL calculates the frequency
+line of Hs only at 0.01, 0.1, 0.2, ... m ('hsfreq.txt') and interpolates between them, here over a bend of the line
+between 0.1 m (1.23e-3 per year) and 0.2 m (3.68e-5). pydra_core gives 1.14e-3 and 3.73e-5 at these levels; read on
+the same levels, its line differs by at most 0.2 cm.
+
+The wave direction of the loading models is still interpolated at the unrepaired water level, linearly in degrees. It
+is not used by the crest level of the Eastern Scheldt or by the frequency lines; Hydra-NL places no wave direction on
+this grid.
 
 ## core/memory.py
 

@@ -112,24 +112,23 @@ class LoadingEasternScheldt(Loading):
         for param in ["hs", "tp", "tspec", "dir"]:
             waveconditions[param] = data[:, icol[param]]
 
-        # Interpoleer de golfcondities op de waterstanden, alvorens ze aan de belastingmodellen toe te voegen
+        # Interpoleer de golfrichting op de (nog niet gerepareerde) waterstanden. Hs, Tp en Tspec worden pas na de
+        # reparatie van de waterstand afgelezen, zie hieronder.
         waterlevel_rows = waterlevels.groupby(["r", "u"]).indices
         h = waterlevels["h"].to_numpy()
-        results = {param: np.full(len(waterlevels), np.nan) for param in ["hs", "tp", "tspec", "dir"]}
+        direction_at_h = np.full(len(waterlevels), np.nan)
         for comb, rows in waveconditions.groupby(["r", "u"]).indices.items():
             idx = waterlevel_rows.get(comb)
             if idx is None:
                 continue
 
-            # Maak een interpolatiestructuur voor de windrichting en windsnelheid
+            # Geen extrapolatie buiten het golfmodel grid
             intstr = InterpStruct(x=h[idx], xp=data[rows, icol["h"]])
-
-            # Interpoleer voor elk van de golfparameters (geen extrapolatie buiten het golfmodel grid)
-            for param in ["hs", "tp", "tspec", "dir"]:
-                fp = data[rows, icol[param]]
-                results[param][idx] = intstr.interp(fp=fp, extrapolate=False, left=fp[0], right=fp[-1])
-        for param in ["hs", "tp", "tspec", "dir"]:
-            waterlevels[param] = results[param]
+            fp = data[rows, icol["dir"]]
+            direction_at_h[idx] = intstr.interp(fp=fp, extrapolate=False, left=fp[0], right=fp[-1])
+        waterlevels["dir"] = direction_at_h
+        for param in ["hs", "tp", "tspec"]:
+            waterlevels[param] = np.nan
 
         # Init LoadingModels for each combination of wind direction (r) and closing situation (k)
         for comb, deeltabel in waterlevels.groupby(["r", "k"]):
@@ -142,9 +141,16 @@ class LoadingEasternScheldt(Loading):
             # Add model to the models dictionary
             self.model[comb] = model
 
-        # Breidt het belastingmodel uit op basis van de invoergegevens
+        # Breidt het belastingmodel uit op basis van de invoergegevens en repareer de waterstand
         self._extend_loadingmodels()
-        self.repair_loadingmodels(rvids)
+        self.repair_loadingmodels(["h"])
+
+        # Lees Hs, Tp en Tspec uit de golftabel bij de gerepareerde waterstand en repareer daarna de golven, zoals
+        # Hydra-NL Zout ('PLAATS_GOLFPARAMETER', dan 'REPAREREN_ZOUT'). Zo horen de golven bij de waterstand waarmee
+        # gerekend wordt; de onderbouwing staat in 'docs/hydra_extensions.qmd'.
+        for (direction, _), model in self.iter_models():
+            self.__read_waves_at_water_level(direction, model)
+        self.repair_loadingmodels([rv for rv in rvids if rv != "h"])
 
     def get_wave_table_conditions(self, direction: float) -> tuple[np.ndarray, dict, np.ndarray]:
         """
@@ -181,6 +187,29 @@ class LoadingEasternScheldt(Loading):
         wave_conditions["dir"] = np.degrees(angle[i] * (1 - w) + angle[i + 1] * w).T % 360.0
         wave_conditions["h"] = np.repeat(waterlevels[:, None], len(u), axis=1)
         return waterlevels, {param: values.astype(np.float32) for param, values in wave_conditions.items()}, u
+
+    def __read_waves_at_water_level(self, direction: float, model: LoadingModel) -> None:
+        """Hs, Tp and Tspec of the loading model from the wave table at its water levels, bilinear with linear
+        extrapolation along u and h ('INEXTRP2D')."""
+        table_u, table_h, table = self.wave_table[direction]
+        axis_u = model.input_variables.index("u")
+        h = np.moveaxis(model.h, axis_u, 0)
+
+        ih = np.clip(np.searchsorted(table_h, h, side="right") - 1, 0, len(table_h) - 2)
+        wh = (h - table_h[ih]) / (table_h[ih + 1] - table_h[ih])
+        shape_u = (-1,) + (1,) * (h.ndim - 1)
+        iu = np.clip(np.searchsorted(table_u, model.u, side="right") - 1, 0, len(table_u) - 2)
+        wu = ((model.u - table_u[iu]) / (table_u[iu + 1] - table_u[iu])).reshape(shape_u)
+        iu = iu.reshape(shape_u)
+
+        for param in ["hs", "tp", "tspec"]:
+            if param not in model.result_variables:
+                continue
+            fp = table[param]
+            at_lower_u = fp[iu, ih] * (1 - wh) + fp[iu, ih + 1] * wh
+            at_upper_u = fp[iu + 1, ih] * (1 - wh) + fp[iu + 1, ih + 1] * wh
+            values = np.maximum(0.0, at_lower_u * (1 - wu) + at_upper_u * wu)
+            setattr(model, param, np.moveaxis(values, 0, axis_u).astype(getattr(model, param).dtype))
 
     @staticmethod
     def __interp_extrapolate(x: float, xp: np.ndarray, fp: np.ndarray) -> float:
