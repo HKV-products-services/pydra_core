@@ -2,9 +2,11 @@
 Exceedance frequency lines of the water level, Hs and the crest level against Hydra-NL v2.9.2 with BOI2023 2035, the
 default scenario, in 'test/data/hydranl_results.xlsx': one location per water system, with and without model
 uncertainty, always with the statistical uncertainty and the repairs of the Hydra-NL user interface, as pydra_core
-calculates by default: all repairs, except along the sea level in the Eastern Scheldt (REP_ALLEEN_U = JA). The lake
-Markermeer uses 'DEMO_Markermeer_BOI2023.sqlite', because BOI2023 has wind statistics with 16 directions and the WBI2017
-database of the Markermeer has 12.
+calculates by default. The crest level uses one dike profile for every location, as in the Hydra-NL runs: slope 1:3,
+toe -10 m, crest 10 m, the orientation and overtopping discharge from the reference. Repairs: all repairs, except
+along the sea level in the Eastern Scheldt (REP_ALLEEN_U = JA). The lake Markermeer uses
+'DEMO_Markermeer_BOI2023.sqlite', because BOI2023 has wind statistics with 16 directions and the WBI2017 database of
+the Markermeer has 12.
 """
 
 import numpy as np
@@ -62,10 +64,10 @@ def test_exceedance_frequency_lines():
 
             # HBN
             elif result_variable in ["hbn"]:
-                # Create a Profile
+                # The profile of the Hydra-NL reference: slope 1:3 from the toe at -10 m to the crest at 10 m
                 prof = Profile(
                     "Profile",
-                    crest_level=2,
+                    crest_level=10,
                     orientation=calc_df.iloc[0]["Orientation"],
                     cota_slope=3,
                 )
