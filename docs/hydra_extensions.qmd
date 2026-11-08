@@ -50,7 +50,8 @@ the water level on the grid of the database before extending, and does not repai
 uncertainty of both the water level and the waves, Rekenhart_HIJ couples a water level value to the probability of
 another water level (MODELONZ_WS_HIJ); that reference comes from Rekenhart_HIJ built from the source with the order
 repaired. Unrepaired, Hydra-NL lies 5.5 to 6.5 cm higher. The same test compares the illustration points of the crest
-level without uncertainties per state of the EPK and the HIJK; see 'hydra/hollandsche_ijssel.py'.
+level per state of the EPK and the HIJK, without uncertainties, with statistical uncertainty and with all model
+uncertainty; see 'hydra/hollandsche_ijssel.py'.
 
 ## Waves and crest level of the Eastern Scheldt
 
@@ -643,6 +644,12 @@ On the demo location, crest level without uncertainties, all eleven return perio
 near ties: two places on the limit state with almost the same beta, where pydra_core and Hydra-NL choose differently
 (up to 5800 m³/s and 4 m/s apart, beta within 0.04). The water level, wave height and wave period of the loading in
 the design points of Hydra-NL are within the rounding of its output (0.01).
+
+With statistical uncertainty, 378 design points: 363 within one grid step. Of the rest, the beta in the point of
+Hydra-NL is within 0.1 of that of pydra_core, except one place where the limit state touches UMAX: half a millimetre
+lower, pydra_core chooses the point of Hydra-NL. With all model uncertainty (the repaired build, see "Hollandsche
+IJssel"), 428 design points: 401 within one grid step, all with the uncertainty combination of Hydra-NL; for the rest
+the total beta, with the uncertainty combination of Hydra-NL, is within 0.06.
 
 ## hydra/rhine_meuse_delta_percentiles.py
 

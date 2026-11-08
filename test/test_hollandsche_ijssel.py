@@ -17,8 +17,10 @@ With model uncertainty of both the water level and the waves, Rekenhart_HIJ coup
 probability of another water level (MODELONZ_WS_HIJ). 'hbn_model' therefore comes from Rekenhart_HIJ built from the
 source with that order repaired; unrepaired it lies 5.5 to 6.5 cm higher.
 
-'ip_hbn_none.txt' holds the illustration points of 'hbn_none' per state of the EPK and the HIJK, as Rekenhart_HIJ prints
-them (sea level, Rhine discharge and wind speed, at the crest level of each return period).
+'ip_hbn_none.txt', 'ip_hbn_statistical.txt' and 'ip_hbn_model.txt' hold the illustration points of 'hbn_none',
+'hbn_statistical' and 'hbn_model' per state of the EPK and the HIJK, as Rekenhart_HIJ prints them (sea level, Rhine
+discharge and wind speed, at the crest level of each return period). 'ip_hbn_model.txt' also holds the uncertainty
+values in each point (water level, factor on Hm0 and on Tm-1,0); it comes from the repaired build as well.
 
 pydra_core uses its own settings and statistics of the scenario BOI2023_2035; they are equal to those of the demo
 calculation. The tolerance is 5 mm at the return periods of the demo calculation, except the water level without
@@ -49,20 +51,74 @@ TOLERANCE_KINK = {("h_none", 100): 0.015}
 ONE_STEP = {"M": 0.105, "Q": 205.0, "U": 1.05}
 
 # Illustration points more than one grid step from Hydra-NL: (return period, EPK state, HIJK state, wind direction).
-# The near ties verified with beta are (3000, 2, 3, 225.0), (10000, 2, 2, 315.0) and (300000, 2, 3, 270.0).
+# Without uncertainties the near ties verified with beta are (3000, 2, 3, 225.0), (10000, 2, 2, 315.0) and
+# (300000, 2, 3, 270.0). With statistical uncertainty the beta in the point of Hydra-NL is within 0.1 of that of
+# pydra_core, except (30000, 2, 2, 247.5), where the limit state touches UMAX: 0.5 mm lower, pydra_core chooses the
+# point of Hydra-NL. With model uncertainty the total beta (with the uncertainty combination of Hydra-NL) is within 0.06.
 BEYOND_ONE_STEP = {
-    (10, 2, 1, 360.0),
-    (30, 2, 1, 337.5),
-    (3000, 2, 3, 225.0),
-    (10000, 1, 3, 225.0),
-    (10000, 2, 2, 315.0),
-    (10000, 2, 3, 247.5),
-    (30000, 2, 2, 315.0),
-    (100000, 1, 1, 225.0),
-    (100000, 2, 3, 337.5),
-    (300000, 1, 3, 337.5),
-    (300000, 2, 3, 270.0),
+    "none": {
+        (10, 2, 1, 360.0),
+        (30, 2, 1, 337.5),
+        (3000, 2, 3, 225.0),
+        (10000, 1, 3, 225.0),
+        (10000, 2, 2, 315.0),
+        (10000, 2, 3, 247.5),
+        (30000, 2, 2, 315.0),
+        (100000, 1, 1, 225.0),
+        (100000, 2, 3, 337.5),
+        (300000, 1, 3, 337.5),
+        (300000, 2, 3, 270.0),
+    },
+    "statistical": {
+        (10, 1, 3, 225.0),
+        (300, 2, 2, 292.5),
+        (3000, 1, 2, 225.0),
+        (3000, 2, 2, 337.5),
+        (10000, 1, 1, 270.0),
+        (10000, 1, 3, 225.0),
+        (30000, 1, 1, 225.0),
+        (30000, 2, 1, 247.5),
+        (30000, 2, 2, 247.5),
+        (30000, 2, 3, 247.5),
+        (100000, 2, 2, 270.0),
+        (100000, 2, 3, 270.0),
+        (300000, 2, 3, 270.0),
+        (1000000, 1, 3, 270.0),
+        (1000000, 2, 3, 315.0),
+    },
+    "model": {
+        (10, 1, 1, 225.0),
+        (10, 2, 2, 292.5),
+        (30, 1, 2, 292.5),
+        (30, 1, 3, 225.0),
+        (30, 1, 3, 315.0),
+        (100, 1, 2, 225.0),
+        (300, 2, 3, 270.0),
+        (1000, 1, 3, 247.5),
+        (3000, 2, 2, 270.0),
+        (10000, 1, 1, 247.5),
+        (10000, 2, 2, 225.0),
+        (10000, 2, 3, 225.0),
+        (100000, 1, 1, 292.5),
+        (100000, 1, 2, 270.0),
+        (100000, 1, 2, 337.5),
+        (100000, 2, 2, 225.0),
+        (100000, 2, 3, 225.0),
+        (300000, 1, 2, 225.0),
+        (300000, 1, 2, 337.5),
+        (300000, 1, 3, 225.0),
+        (1000000, 1, 1, 225.0),
+        (1000000, 1, 2, 225.0),
+        (1000000, 1, 3, 225.0),
+        (1000000, 2, 2, 292.5),
+        (1000000, 2, 2, 315.0),
+        (1000000, 2, 2, 337.5),
+        (1000000, 2, 3, 337.5),
+    },
 }
+
+# Uncertainty values in the output of Hydra-NL are rounded to 0.01
+UNCERTAINTY_ROUNDING = 0.006
 
 # Reference, result variable, statistical uncertainty, model uncertainty of the water level, of the waves
 CASES = [
@@ -137,26 +193,32 @@ def test_barrier_states_sum_to_rhine_meuse_delta():
             np.testing.assert_allclose(total, expected, rtol=1e-12, atol=0.0)
 
 
-def test_illustration_points():
+@pytest.mark.parametrize(
+    "case, statistical, model_uncertainty",
+    [("none", False, False), ("statistical", True, False), ("model", False, True)],
+)
+def test_illustration_points(case, statistical, model_uncertainty):
     """
-    The illustration points of the crest level without uncertainties, per state of the EPK and the HIJK, against the
-    hydraulic loading tables of Rekenhart_HIJ ('ip_hbn_none.txt'). Every point lies within one grid step of
-    Hydra-NL (MSTAP, QSTAP, 1 m/s), except the points in 'BEYOND_ONE_STEP'. Three of those are verified near ties: two
-    places on the limit state with a beta within 0.04, where pydra_core and Hydra-NL choose differently.
+    The illustration points of the crest level per state of the EPK and the HIJK, without uncertainties, with
+    statistical uncertainty and with all model uncertainty, against Rekenhart_HIJ ('ip_hbn_<case>.txt'). Every point
+    lies within one grid step of Hydra-NL (MSTAP, QSTAP, 1 m/s), except the points in 'BEYOND_ONE_STEP': near ties,
+    places on the limit state with almost the same beta where pydra_core and Hydra-NL choose differently. With model
+    uncertainty every point within one grid step also has the uncertainty combination of Hydra-NL.
     """
     hrd = HRDatabase(DATABASE)
     settings = hrd.get_settings(LOCATION)
     points = {
         state: HydraHollandscheIJsselIllustrationPoint(
-            hrd, settings, statistical_uncertainty=False, model_uncertainty=False, response="hbn",
+            hrd, settings, statistical_uncertainty=statistical, model_uncertainty=model_uncertainty, response="hbn",
             profile=dike_profile(), qcrit=QCRIT, hollandsche_ijssel_state=state,
         )
         for state in (1, 2, 3)
     }
-    reference = np.loadtxt(DATA / "hydranl" / "ip_hbn_none.txt", skiprows=1)
+    reference = np.loadtxt(DATA / "hydranl" / f"ip_hbn_{case}.txt", skiprows=1)
 
     beyond_one_step = set()
-    for return_period, level, epk, hijk, wind_direction, sea_level, discharge, wind_speed in reference:
+    for row in reference:
+        return_period, level, epk, hijk, wind_direction, sea_level, discharge, wind_speed = row[:8]
         key = (int(return_period), int(epk), int(hijk), float(wind_direction))
         design_point = points[int(hijk)].design_point(wind_direction, level, int(epk))
         assert design_point is not None, f"no illustration point for {key}"
@@ -167,4 +229,8 @@ def test_illustration_points():
             or abs(design["U"] - wind_speed) > ONE_STEP["U"]
         ):
             beyond_one_step.add(key)
-    assert beyond_one_step == BEYOND_ONE_STEP
+        elif model_uncertainty:
+            uncertainty = design_point["uncertainty"]
+            pydra = np.array([uncertainty["h"], uncertainty["f_hs"], uncertainty["f_tspec"]])
+            assert np.all(np.abs(pydra - row[8:11]) < UNCERTAINTY_ROUNDING), f"other uncertainty combination at {key}"
+    assert beyond_one_step == BEYOND_ONE_STEP[case]
