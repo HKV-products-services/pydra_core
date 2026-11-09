@@ -20,10 +20,13 @@ _REPAIR_EPS = 1.0e-6
 # Contour values at or below this are the separators between the parts of a contour
 _SENTINEL = -9999.0
 
-_RESPONSES = ("h", "hs", "tspec", "hbn")
+_RESPONSES = ("h", "hs", "tspec", "tp", "hbn")
 
 # Responses whose loading field Hydra-NL places on the grid of the statistics (PLAATS_GOLFPARAMETER)
-_STATISTICS_GRID_RESPONSES = ("hs", "tspec")
+_STATISTICS_GRID_RESPONSES = ("hs", "tspec", "tp")
+
+# The wave periods; for these Hydra-NL Zout switches off the uncertainty of Hm0 (invoer_Zout.f90)
+_WAVE_PERIODS = ("tspec", "tp")
 
 
 class HydraCoastBreakdown(metaclass=RememberedCalculation):
@@ -57,8 +60,8 @@ class HydraCoastBreakdown(metaclass=RememberedCalculation):
         model_uncertainty : bool
             Whether the model uncertainty of the waves is integrated out
         response : str
-            "h" (water level), "hs" (significant wave height), "tspec" (spectral wave period) or "hbn" (required crest
-            level; needs 'profile' and 'qcrit')
+            "h" (water level), "hs" (significant wave height), "tspec" (spectral wave period), "tp" (peak period) or
+            "hbn" (required crest level; needs 'profile' and 'qcrit')
         profile : Profile
             The profile for the crest level
         qcrit : float
@@ -124,17 +127,17 @@ class HydraCoastBreakdown(metaclass=RememberedCalculation):
                     self._loading.model[self._keys[r]], self.response, self.u_stat, self.m_stat
                 )
                 base_fields[r] = (u, m, HydraCoastBreakdown.repair_coast(field))
-            for f_hs, f_tspec, _probability in self.combinations:
-                factor = f_hs if self.response == "hs" else f_tspec
+            for f_hs, f_period, _probability in self.combinations:
+                factor = f_hs if self.response == "hs" else f_period
                 self._fields.append({r: (u, m, factor * field) for r, (u, m, field) in base_fields.items()})
             return self._fields
 
-        for f_hs, f_tspec, _probability in self.combinations:
+        for f_hs, f_period, _probability in self.combinations:
             # The crest level on the raw waves of the combination, then the repair. The water level is already in the
             # model.
             if self.response == "hbn":
                 for _, loading_model in self._loading.iter_models():
-                    loading_model.calculate_hbn(self._profile, self._qcrit, f_hs, f_tspec)
+                    loading_model.calculate_hbn(self._profile, self._qcrit, f_hs, f_period)
             fields = {}
             for r in directions:
                 u, m, field = HydraCoastBreakdown.loading_field(self._loading.model[self._keys[r]], self.response)
@@ -168,7 +171,7 @@ class HydraCoastBreakdown(metaclass=RememberedCalculation):
         freq_r = np.zeros(n_r)
         routes: list[set[str]] = [set() for _ in range(n_r)]
 
-        for (_f_hs, _f_tspec, probability), fields in zip(self.combinations, self.repaired_fields(), strict=True):
+        for (_f_hs, _f_period, probability), fields in zip(self.combinations, self.repaired_fields(), strict=True):
             for ir, r in enumerate(self.directions):
                 if self._kansr[ir] <= 0.0:
                     routes[ir].add("zero probability")
@@ -364,16 +367,19 @@ class HydraCoastBreakdown(metaclass=RememberedCalculation):
         Returns
         -------
         list[tuple[float, float, float]]
-            The combinations (f_Hm0, f_Tm-1,0, KANSONZ)
+            The combinations (f_Hm0, f_T, KANSONZ), with f_T the factor of the wave period: of Tp for the response
+            "tp", of Tm-1,0 otherwise
         """
         # Hydra-NL Zout switches off the uncertainty of Hm0 for a wave period (invoer_Zout.f90), so ONZWAARDEN
-        # discretises Tm-1,0 on its own, without the correlation with Hm0
-        if model_uncertainty and response == "tspec":
+        # discretises the wave period on its own, without the correlation with Hm0. Tp takes the column ONZ_GP(:,2),
+        # on the same standard normal grid as Tm-1,0, and without an uncertainty of Tp in the database that of Tm-1,0
+        # (KIES_ONZ_ZEE).
+        if model_uncertainty and response in _WAVE_PERIODS:
             uncertainties = stats.get_model_uncertainties()
-            uncertainty = uncertainties.get_model_uncertainty("tspec")
+            uncertainty = uncertainties.get_model_uncertainty(response)
             if uncertainty is None:
                 return [(1.0, 1.0, 1.0)]
-            factors, edges = uncertainty.discretise(uncertainties.step_size["tspec"])
+            factors, edges = uncertainty.discretise(uncertainties.step_size[response])
             probabilities = np.diff(norm.cdf(edges))
             return [
                 (1.0, max(0.0, float(f)), float(p))

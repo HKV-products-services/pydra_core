@@ -31,7 +31,7 @@ _BIG = 40.0
 _KEUZERESTKANS = 0.05
 
 # Labels of the model uncertainty terms (Hydra-NL notation) per grid key
-_MODEL_LABEL = {"h": "δh", "hs": "f_Hm0", "tspec": "f_Tspec"}
+_MODEL_LABEL = {"h": "δh", "hs": "f_Hm0", "tspec": "f_Tspec", "tp": "f_Tp"}
 
 
 @dataclass(frozen=True)
@@ -713,12 +713,13 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
             The physical stochastics as (key, label, squared coordinate): [slow stochastic, wind U] in 2D, [Q, M, U] in
             3D
         comps : tuple[float, float, float]
-            (eps_h^2, eps_Hm0^2, eps_Tspec^2) from 'uncertainty_combinations_by_distance'
+            (eps_h^2, eps_Hm0^2, eps_T^2) from 'uncertainty_combinations_by_distance', with eps_T the coordinate of the
+            wave period (Tp for the response "tp", Tm-1,0 otherwise)
         beta2 : float
             The squared distance of the design point
         response : str
             The response; it decides which model uncertainty terms count (h: delta_h; hs: f_Hm0; tspec: f_Hm0 and
-            f_Tspec; hbn: all three)
+            f_Tspec; tp: f_Hm0 and f_Tp; hbn: delta_h, f_Hm0 and f_Tspec)
         model_uncertainty : bool
             Without model uncertainty there are no model uncertainty terms
 
@@ -733,10 +734,12 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
             terms = []
             if response in ("h", "hbn"):
                 terms.append(("h", comps[0]))
-            if response in ("hs", "tspec", "hbn"):
+            if response in ("hs", "tspec", "tp", "hbn"):
                 terms.append(("hs", comps[1]))
             if response in ("tspec", "hbn"):
                 terms.append(("tspec", comps[2]))
+            if response == "tp":
+                terms.append(("tp", comps[2]))
             out += [
                 {"key": k, "label": _MODEL_LABEL[k], "kind": "model", "alpha2": float(e2) / b2} for (k, e2) in terms
             ]

@@ -1,5 +1,5 @@
 """
-The illustration points of the waves at the coast ('HydraCoastIllustrationPoints' for Hm0 and Tm-1,0) against
+The illustration points of the waves at the coast ('HydraCoastIllustrationPoints' for Hm0, Tm-1,0 and Tp) against
 Hydra-NL v2.9.2, BOI2023 2035, on the nine locations of the Hydra-NL demo database 'DEMO_HollandseKust'.
 
 The reference 'test/data/DEMO_HOLLANDSE_KUST/hydranl/wave_illustration_points.json' comes from 'uitvoer.html' of the
@@ -36,7 +36,7 @@ LOCATIONS = [
     "HK_3_hy01-00006",
     "HK_3_kw03-00044",
 ]
-CASES = [("hs", False), ("tspec", False), ("hs", True), ("tspec", True)]
+CASES = [("hs", False), ("tspec", False), ("tp", False), ("hs", True), ("tspec", True), ("tp", True)]
 SEA_LEVEL_TOLERANCE = 0.015
 WIND_SPEED_TOLERANCE = 0.11
 FACTOR_TOLERANCE = 0.006
@@ -52,7 +52,7 @@ def test_coast_wave_illustration_points(location_name: str, response: str, model
     points = HydraCoastIllustrationPoints(
         hrd, hrd.get_settings(location_name), model_uncertainty=model_uncertainty, response=response
     )
-    factor_key = "f_hs" if response == "hs" else "f_tspec"
+    factor_key = f"f_{response}"
     for case in cases:
         result = points.illustration_points(case["level"])
         message = f"return period {case['return_period']}"

@@ -30,10 +30,13 @@ _INFINITE = float(np.iinfo(np.int32).max)
 # Contour values at or below this are the separators between the parts of a contour
 _SENTINEL = -9999.0
 
-_RESPONSES = ("h", "hs", "tspec", "hbn")
+_RESPONSES = ("h", "hs", "tspec", "tp", "hbn")
 
 # Responses whose loading field is a wave parameter, multiplied by the factor of the uncertainty combination
-_WAVE_RESPONSES = ("hs", "tspec")
+_WAVE_RESPONSES = ("hs", "tspec", "tp")
+
+# The wave periods; for these Hydra-NL Zout switches off the uncertainty of Hm0 (invoer_Zout.f90)
+_WAVE_PERIODS = ("tspec", "tp")
 
 
 class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
@@ -66,8 +69,8 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
         model_uncertainty : bool
             Whether the model uncertainty of the waves adds to the distance
         response : str
-            "h" (water level), "hs" (significant wave height), "tspec" (spectral wave period) or "hbn" (required crest
-            level; needs 'profile' and 'qcrit')
+            "h" (water level), "hs" (significant wave height), "tspec" (spectral wave period), "tp" (peak period) or
+            "hbn" (required crest level; needs 'profile' and 'qcrit')
         profile : Profile
             The profile for the crest level
         qcrit : float
@@ -112,7 +115,7 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
         ]
         self._keys = {key[0]: key for key in self._loading.model}
 
-        # (f_Hm0, f_Tm-1,0, AFSTONZ, (eps_h^2, eps_Hm0^2, eps_Tspec^2)) per combination, sorted on distance
+        # (f_Hm0, f_Tm-1,0, f_Tp, AFSTONZ, (eps_h^2, eps_Hm0^2, eps_T^2)) per combination, sorted on distance
         self.combinations = HydraCoastIllustrationPoints.coast_combinations_by_distance(
             stats, response, model_uncertainty
         )
@@ -141,7 +144,7 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
         key = (ic, float(r))
         if key in self._fields:
             return self._fields[key]
-        f_hs, f_tspec, _distance2, _comps = self.combinations[ic]
+        f_hs, f_tspec, f_tp, _distance2, _comps = self.combinations[ic]
         if self.response in _WAVE_RESPONSES:
             # Hydra-NL multiplies the waves before PLAATS_GOLFPARAMETER; the refinement, the cut-off at 0 and the
             # repair commute with a positive factor, so the repaired field without factor is calculated once
@@ -151,7 +154,7 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
                     self._loading.model[self._keys[r]], self.response, self.u_stat, self.m_stat
                 )
                 self._fields[base_key] = HydraCoastBreakdown.repair_coast(base)
-            factor = f_hs if self.response == "hs" else f_tspec
+            factor = {"hs": f_hs, "tspec": f_tspec, "tp": f_tp}[self.response]
             self._fields[key] = factor * self._fields[base_key]
             return self._fields[key]
         if self.response == "h":
@@ -193,7 +196,7 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
             return
         self._ahead_done = True
         directions = [float(r) for ir, r in enumerate(self.directions) if self._kansr[ir] > 0.0]
-        combinations = [(0.0, f_hs, f_tspec) for f_hs, f_tspec, _distance2, _comps in self.combinations]
+        combinations = [(0.0, f_hs, f_tspec) for f_hs, f_tspec, _f_tp, _distance2, _comps in self.combinations]
         work = [(self.refined_loading(r), combinations) for r in directions]
         n_points = sum(loading[0].size * len(combinations) for loading, _ in work)
         n_processes = memory.processes if memory.processes is not None else CrestLevelTables.default_processes()
@@ -218,9 +221,9 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
         dict
             The keys 'level', 'points' and 'main' (the point of the direction with the largest contribution, None if no
             contribution is positive). Every point has 'r', the design point 'm' (sea level) and 'u' (wind speed), the
-            loading at it ('h', 'hs', 'tspec', 'wave_direction'), 'distance' (beta^2), 'beta', 'contribution' (the
-            frequency of the direction), 'percentage', 'reason' ("zero probability" or "no contour" for a direction
-            without a point), 'alpha2' and the winning combination 'f_hs' and 'f_tspec'.
+            loading at it ('h', 'hs', 'tspec', 'tp', 'wave_direction'), 'distance' (beta^2), 'beta', 'contribution'
+            (the frequency of the direction), 'percentage', 'reason' ("zero probability" or "no contour" for a
+            direction without a point), 'alpha2' and the winning combination 'f_hs', 'f_tspec' and 'f_tp'.
         """
         level = float(level)
         freq_r = np.asarray(self.breakdown.breakdown(level)["freq_r"], float)
@@ -229,7 +232,7 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
 
         # Per direction the best point so far: (total distance^2, u, m, conditions, terms of the distance)
         best: list[tuple] = [(_INFINITE, -1.0, -1.0, None, None) for _ in self.directions]
-        for ic, (f_hs, f_tspec, distance2, comps) in enumerate(self.combinations):
+        for ic, (f_hs, f_tspec, f_tp, distance2, comps) in enumerate(self.combinations):
             for ir, r in enumerate(self.directions):
                 if self._kansr[ir] <= 0.0:
                     continue
@@ -246,9 +249,9 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
                 total_distance = distance + distance2
                 if total_distance < best[ir][0]:
                     conditions = HydraCoastIllustrationPoints.conditions_at_point(
-                        self._loading.model[self._keys[r]], u, m, f_hs, f_tspec
+                        self._loading.model[self._keys[r]], u, m, f_hs, f_tspec, f_tp
                     )
-                    conditions.update(f_hs=float(f_hs), f_tspec=float(f_tspec))
+                    conditions.update(f_hs=float(f_hs), f_tspec=float(f_tspec), f_tp=float(f_tp))
                     best[ir] = (total_distance, u, m, conditions, (x2, y2, comps))
 
         points = []
@@ -268,7 +271,10 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
             }
             point.update(
                 conditions
-                or {"h": None, "hs": None, "tspec": None, "wave_direction": None, "f_hs": None, "f_tspec": None}
+                or {
+                    "h": None, "hs": None, "tspec": None, "tp": None, "wave_direction": None,
+                    "f_hs": None, "f_tspec": None, "f_tp": None,
+                }
             )
             points.append(point)
 
@@ -289,7 +295,7 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
         distance2 : float
             The total squared distance of the design point
         terms : tuple
-            (X^2, Y^2, (eps_h^2, eps_Hm0^2, eps_Tspec^2))
+            (X^2, Y^2, (eps_h^2, eps_Hm0^2, eps_T^2))
 
         Returns
         -------
@@ -305,52 +311,60 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
         return [
             f
             for f in factors
-            if not (f["key"] == "h" and f["alpha2"] == 0.0) and not (self.response == "tspec" and f["key"] == "hs")
+            if not (f["key"] == "h" and f["alpha2"] == 0.0) and not (self.response in _WAVE_PERIODS and f["key"] == "hs")
         ]
 
     @staticmethod
     def coast_combinations_by_distance(
         stats, response: str, model_uncertainty: bool
-    ) -> list[tuple[float, float, float, tuple[float, float, float]]]:
+    ) -> list[tuple[float, float, float, float, tuple[float, float, float]]]:
         """
         Return the uncertainty combinations of the coast with their distance contribution, sorted on distance^2.
 
-        Hydra-NL Zout switches off the uncertainty of Hm0 for a wave period (invoer_Zout.f90), so for Tm-1,0 ONZWAARDEN
-        discretises Tm-1,0 on its own, without the correlation with Hm0, with the coordinate eps = (f / mu - 1) / sigma.
-        The other responses take the combinations of 'HydraIllustrationPoint.uncertainty_combinations_by_distance'.
+        Hydra-NL Zout switches off the uncertainty of Hm0 for a wave period (invoer_Zout.f90), so for Tm-1,0 and Tp
+        ONZWAARDEN discretises the wave periods on their own, without the correlation with Hm0: Tm-1,0 (ONZ_GP(:,1)) and
+        Tp (ONZ_GP(:,2)) on the same standard normal grid, with the coordinate eps = (f / mu - 1) / sigma. Without an
+        uncertainty of Tp in the database Tp takes that of Tm-1,0 (KIES_ONZ_ZEE). The other responses take the
+        combinations of 'HydraIllustrationPoint.uncertainty_combinations_by_distance'.
 
         Parameters
         ----------
         stats : Statistics
             The statistics of the location
         response : str
-            "h", "hs", "tspec" or "hbn"
+            "h", "hs", "tspec", "tp" or "hbn"
         model_uncertainty : bool
             False gives one combination without distance
 
         Returns
         -------
-        list[tuple[float, float, float, tuple[float, float, float]]]
-            Per combination (f_Hm0, f_Tm-1,0, distance^2, (eps_h^2, eps_Hm0^2, eps_Tspec^2))
+        list[tuple[float, float, float, float, tuple[float, float, float]]]
+            Per combination (f_Hm0, f_Tm-1,0, f_Tp, distance^2, (eps_h^2, eps_Hm0^2, eps_T^2)), with eps_T the
+            coordinate of the wave period
         """
-        if model_uncertainty and response == "tspec":
+        if model_uncertainty and response in _WAVE_PERIODS:
             uncertainties = stats.get_model_uncertainties()
-            uncertainty = uncertainties.get_model_uncertainty("tspec")
+            uncertainty = uncertainties.get_model_uncertainty(response)
             if uncertainty is None:
-                return [(1.0, 1.0, 0.0, (0.0, 0.0, 0.0))]
-            factors = np.atleast_1d(uncertainty.discretise(uncertainties.step_size["tspec"])[0]).astype(float)
-            eps = (factors / uncertainty.mu - 1.0) / uncertainty.sigma
+                return [(1.0, 1.0, 1.0, 0.0, (0.0, 0.0, 0.0))]
+            factors = {
+                period: np.atleast_1d(
+                    uncertainties.get_model_uncertainty(period).discretise(uncertainties.step_size[period])[0]
+                ).astype(float)
+                for period in _WAVE_PERIODS
+            }
+            eps = (factors[response] / uncertainty.mu - 1.0) / uncertainty.sigma
             combinations = [
-                (1.0, float(max(0.0, f)), float(e * e), (0.0, 0.0, float(e * e)))
-                for f, e in zip(factors, eps, strict=True)
+                (1.0, float(max(0.0, f_tspec)), float(max(0.0, f_tp)), float(e * e), (0.0, 0.0, float(e * e)))
+                for f_tspec, f_tp, e in zip(factors["tspec"], factors["tp"], eps, strict=True)
             ]
-            combinations.sort(key=lambda c: c[2])
+            combinations.sort(key=lambda c: c[3])
             return combinations
 
         by_distance = HydraIllustrationPoint.uncertainty_combinations_by_distance(stats, response, model_uncertainty)
         return [
-            (float(f_hs), float(f_tspec), float(distance2), comps)
-            for _dh, f_hs, f_tspec, _f_tp, distance2, comps in by_distance
+            (float(f_hs), float(f_tspec), float(f_tp), float(distance2), comps)
+            for _dh, f_hs, f_tspec, f_tp, distance2, comps in by_distance
         ]
 
     @staticmethod
@@ -583,7 +597,7 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
         return (float(wind_speed[i]), float(sea_level[i]), float(distance[i]), float(x[i] * x[i]), float(y[i] * y[i]))
 
     @staticmethod
-    def conditions_at_point(loading_model, u: float, m: float, f_hs: float, f_tspec: float) -> dict:
+    def conditions_at_point(loading_model, u: float, m: float, f_hs: float, f_tspec: float, f_tp: float) -> dict:
         """
         Interpolate the loading at the design point, with the waves of the winning uncertainty combination.
 
@@ -599,16 +613,18 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
             The factor for the significant wave height
         f_tspec : float
             The factor for the spectral wave period
+        f_tp : float
+            The factor for the peak period
 
         Returns
         -------
         dict
-            The four columns that Hydra-NL prints next to the design point: 'h' (at the coast equal to the sea level),
-            'hs', 'tspec' and 'wave_direction'
+            The columns that Hydra-NL prints next to the design point: 'h' (at the coast equal to the sea level), 'hs',
+            'tspec', 'tp' and 'wave_direction'
         """
         grid = {"u": np.array([float(u)]), "m": np.array([float(m)])}
-        factor = {"h": 1.0, "hs": float(f_hs), "tspec": float(f_tspec), "wave_direction": 1.0}
+        factor = {"h": 1.0, "hs": float(f_hs), "tspec": float(f_tspec), "tp": float(f_tp), "wave_direction": 1.0}
         return {
             name: factor[name] * float(np.ravel(loading_model.refine(source, grid))[0])
-            for name, source in (("h", "h"), ("hs", "hs"), ("tspec", "tspec"), ("wave_direction", "dir"))
+            for name, source in (("h", "h"), ("hs", "hs"), ("tspec", "tspec"), ("tp", "tp"), ("wave_direction", "dir"))
         }
