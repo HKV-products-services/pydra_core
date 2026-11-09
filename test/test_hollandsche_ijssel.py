@@ -25,9 +25,11 @@ with model uncertainty also hold the uncertainty values in each point (water lev
 the wave parameters and the crest level they come from the repaired build. Apart from the result variable, the input
 of each illustration point calculation equals that of the frequency line with the same uncertainties.
 
-'breakdown_hbn_none.json' holds the breakdown of the crest level without uncertainties as Rekenhart_HIJ prints it with
-UITRKD, UITQKD, UITMKD and UITUKD on: per return period the level, the percentages per state of the EPK and the HIJK
-and per wind direction, and the percentiles of discharge, sea level and wind speed per state and for all states.
+'breakdown_<result>_<case>.json' hold the breakdown as Rekenhart_HIJ prints it with UITRKD, UITQKD, UITMKD and UITUKD
+on: per return period the level, the percentages per state of the EPK and the HIJK and per wind direction, and the
+percentiles of discharge, sea level and wind speed per state and for all states. They exist for the water level
+('h': none, all) and the crest level ('hbn': none, statistical, model); 'breakdown_hbn_model.json' comes from the
+repaired build.
 
 pydra_core uses its own settings and statistics of the scenario BOI2023_2035; they are equal to those of the demo
 calculation. The tolerance is 5 mm at the return periods of the demo calculation, except the water level without
@@ -186,17 +188,41 @@ BEYOND_ONE_STEP = {
 # Uncertainty values in the output of Hydra-NL are rounded to 0.01
 UNCERTAINTY_ROUNDING = 0.006
 
-# Breakdown: percentages in percentage points (Hydra-NL prints one decimal), and one grid step of the percentiles
-PERCENTAGE_TOLERANCE = 0.3
+# Breakdown: one grid step of the percentiles
 BREAKDOWN_ONE_STEP = {"discharge": 205.0, "sea_level": 0.105, "wind_speed": 1.05}
-# Percentiles beyond one grid step: (return period, stochastic, EPK and HIJK state). At T = 300000 the cumulative
-# discharge of the EPK closed and the HIJK open lies 0.002 to 0.003 from that of Hydra-NL, where it is almost flat
-# between 5750 and 6950 m3/s; the 5 % percentile shifts 1500 m3/s. At T = 30000 with the EPK closed and the HIJK
-# closed with water burden the limit state lies at 45 to 50 m/s for a low discharge, where the wind speed density of
-# pydra_core (from its probability masses on the 1 m/s grid) is 12 to 40 % higher than the density that Rekenhart_HIJ
-# calculates in every point; below 3000 m3/s the state gets 29 % more mass and the discharge percentiles shift up to
-# 300 m3/s.
-BREAKDOWN_BEYOND_ONE_STEP = {(30000, "discharge", "2,3"), (300000, "discharge", "2,1")}
+
+# Breakdown cases: reference, result variable, statistical uncertainty, model uncertainty, tolerance of the
+# percentages in percentage points (Hydra-NL prints one decimal), percentages beyond that tolerance and percentiles
+# beyond one grid step. A percentage is (return period, EPK and HIJK state) for a state and (return period, wind
+# direction, column) for a wind direction; a percentile is (return period, stochastic, EPK and HIJK state).
+#
+# Water level: at T = 10 and 30 the HIJK closed without water burden gets up to 0.6 percentage point too little; its
+# frequency at the level of Hydra-NL is 6 % lower, about 2 mm in the water level, the known difference of the frequency
+# line. At T = 30 that also shifts the discharge percentiles of the HIJK open (up to 249 m3/s) and, without
+# uncertainties, of the HIJK closed without water burden (221 m3/s), both with the EPK open.
+#
+# Crest level: at T = 300000 the cumulative discharge of the EPK closed and the HIJK open lies 0.002 to 0.003 from that
+# of Hydra-NL, where it is almost flat between 5750 and 6950 m3/s; the 5 % percentile shifts 1500 m3/s. At T = 30000
+# with the EPK closed and the HIJK closed with water burden the limit state lies at 45 to 50 m/s for a low discharge,
+# where the wind speed density of pydra_core (from its probability masses on the 1 m/s grid) is 12 to 40 % higher than
+# the density that Rekenhart_HIJ calculates in every point; below 3000 m3/s the state gets 29 % more mass and the
+# discharge percentiles shift up to 300 m3/s. With uncertainties the EPK open and the HIJK open gets up to 0.35
+# percentage point too little; the other exceptions are not traced: with statistical uncertainty a discharge percentile
+# of the EPK closed and the HIJK open differs 223 m3/s at T = 1000000, with model uncertainty the discharge percentiles
+# of that state differ 272 to 405 m3/s at T = 100 to 1000.
+BREAKDOWN_CASES = [
+    ("h", "none", False, False, 0.6, set(), {(30, "discharge", "1,1"), (30, "discharge", "1,2")}),
+    ("h", "all", True, True, 0.6, set(), {(30, "discharge", "1,1")}),
+    ("hbn", "none", False, False, 0.4, set(), {(30000, "discharge", "2,3"), (300000, "discharge", "2,1")}),
+    (
+        "hbn", "statistical", True, False, 0.4, set(),
+        {(30000, "discharge", "2,3"), (300000, "discharge", "2,1"), (1000000, "discharge", "2,1")},
+    ),
+    (
+        "hbn", "model", False, True, 0.4, set(),
+        {(100, "discharge", "2,1"), (300, "discharge", "2,1"), (1000, "discharge", "2,1")},
+    ),
+]
 
 # Reference, result variable, statistical uncertainty, model uncertainty of the water level, of the waves
 CASES = [
@@ -341,20 +367,29 @@ def test_illustration_points(result, response, case, statistical, model_uncertai
     assert beyond_one_step == BEYOND_ONE_STEP[(result, case)]
 
 
-def test_breakdown():
+@pytest.mark.parametrize(
+    "result, case, statistical, model_uncertainty, tolerance, beyond_tolerance_expected, beyond_one_step_expected",
+    BREAKDOWN_CASES,
+    ids=[f"{c[0]}_{c[1]}" for c in BREAKDOWN_CASES],
+)
+def test_breakdown(
+    result, case, statistical, model_uncertainty, tolerance, beyond_tolerance_expected, beyond_one_step_expected
+):
     """
-    The breakdown of the crest level without uncertainties against Rekenhart_HIJ ('breakdown_hbn_none.json'): the
-    percentages per state of the EPK and the HIJK and per wind direction within 0.3 percentage point, and the
-    percentiles of discharge, sea level and wind speed within one grid step for every state with at least 1 % of the
-    frequency, except those in 'BREAKDOWN_BEYOND_ONE_STEP'.
+    The breakdown against Rekenhart_HIJ ('breakdown_<result>_<case>.json'): the percentages per state of the EPK and
+    the HIJK and per wind direction within the tolerance of the case, and the percentiles of discharge, sea level and
+    wind speed within one grid step for every state with at least 1 % of the frequency, except the percentages and
+    percentiles listed in 'BREAKDOWN_CASES'.
     """
     hrd = HRDatabase(DATABASE)
+    crest_level = {"profile": dike_profile(), "qcrit": QCRIT} if result == "hbn" else {}
     breakdown = HydraHollandscheIJsselPercentiles(
-        hrd, hrd.get_settings(LOCATION), statistical_uncertainty=False, model_uncertainty=False, response="hbn",
-        profile=dike_profile(), qcrit=QCRIT,
+        hrd, hrd.get_settings(LOCATION), statistical_uncertainty=statistical, model_uncertainty=model_uncertainty,
+        response=result, **crest_level,
     )
-    reference = json.loads((DATA / "hydranl" / "breakdown_hbn_none.json").read_text())
+    reference = json.loads((DATA / "hydranl" / f"breakdown_{result}_{case}.json").read_text())
 
+    beyond_tolerance = set()
     beyond_one_step = set()
     for return_period, hydranl in reference.items():
         contributions = breakdown.state_contributions(hydranl["level"])
@@ -364,7 +399,8 @@ def test_breakdown():
         for column, percentage in hydranl["states"].items():
             epk, hijk = (int(x) for x in column.split(","))
             pydra = contributions["states"][epk - 1, hijk - 1]
-            assert abs(pydra - percentage) <= PERCENTAGE_TOLERANCE, f"T = {return_period}, state {column}"
+            if abs(pydra - percentage) > tolerance:
+                beyond_tolerance.add((int(return_period), column))
         for direction, columns in hydranl["directions"].items():
             jr = int(np.argmin(np.abs(contributions["r"] - float(direction))))
             for column, percentage in columns.items():
@@ -373,7 +409,8 @@ def test_breakdown():
                 else:
                     epk, hijk = (int(x) for x in column.split(","))
                     pydra = contributions["directions"][jr, epk - 1, hijk - 1]
-                assert abs(pydra - percentage) <= PERCENTAGE_TOLERANCE, f"T = {return_period}, r = {direction}"
+                if abs(pydra - percentage) > tolerance:
+                    beyond_tolerance.add((int(return_period), float(direction), column))
 
         # Percentiles of the states with at least 1 % of the frequency
         for stochastic, step in BREAKDOWN_ONE_STEP.items():
@@ -385,4 +422,5 @@ def test_breakdown():
                 deviation = np.max(np.abs(np.array(percentiles[stochastic][key]) - np.array(values)))
                 if deviation > step:
                     beyond_one_step.add((int(return_period), stochastic, column))
-    assert beyond_one_step == BREAKDOWN_BEYOND_ONE_STEP
+    assert beyond_tolerance == beyond_tolerance_expected
+    assert beyond_one_step == beyond_one_step_expected

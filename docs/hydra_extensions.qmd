@@ -711,10 +711,15 @@ grid of Rekenhart_HIJ ends with 21750 and 22000, pydra_core has 21950 as well.
 
 ### Comparison with Rekenhart_HIJ
 
-On the demo location, crest level without uncertainties, all eleven return periods ('test_breakdown'): the
-percentages per state and per wind direction within 0.2 percentage point, and the percentiles of discharge, sea level
-and wind speed within one grid step for every state with at least 1 % of the frequency, with two exceptions, both with
-the EPK closed:
+'test_breakdown' compares five cases on the demo location, all eleven return periods: the water level without and
+with all uncertainties, and the crest level without uncertainties, with statistical uncertainty and with all model
+uncertainty (the last against the repaired build, see "hydra/hollandsche_ijssel.py"). The percentages per state and per
+wind direction must lie within 0.6 percentage point for the water level and 0.4 for the crest level, and the
+percentiles of discharge, sea level and wind speed within one grid step for every state with at least 1 % of the
+frequency, with the exceptions below.
+
+Crest level without uncertainties: the percentages within 0.2 percentage point; two percentiles beyond one grid step,
+both with the EPK closed:
 
 * T = 300000, the HIJK open (4.4 %): the cumulative discharge lies 0.002 to 0.003 from that of Hydra-NL, where it is
   almost flat between 5750 and 6950 m³/s, so the 5 % percentile shifts 1500 m³/s;
@@ -722,6 +727,20 @@ the EPK closed:
   where the wind speed density of pydra_core, derived from its probability masses on the 1 m/s grid, is 12 to 40 %
   higher than the density Rekenhart_HIJ calculates in every point (KANSWINDSNELHEID). Below 3000 m³/s the state gets
   29 % more mass, and the discharge percentiles shift up to 300 m³/s.
+
+Crest level with uncertainties: the EPK open and the HIJK open gets up to 0.35 percentage point too little (statistical
+uncertainty at T = 100000, model uncertainty at T = 10 and 30), every other percentage lies within 0.3. With statistical
+uncertainty the same two percentiles lie beyond one grid step as without uncertainties, plus the discharge of the EPK
+closed and the HIJK open at T = 1000000 (223 m³/s). With model uncertainty only the discharge of the EPK closed and the
+HIJK open lies beyond one grid step, at T = 100, 300 and 1000 (405, 368 and 272 m³/s; 1.6 to 4.9 % of the frequency).
+These differences are not traced.
+
+Water level: at T = 10 and 30 the HIJK closed without water burden gets up to 0.6 percentage point too little, without
+uncertainties and with all uncertainties. A dump of a build of Rekenhart_HIJ shows that the frequency of that state at
+the level of Hydra-NL is 6 % lower, about 2 mm in the water level, the known difference of the frequency line. At
+T = 30 the discharge percentiles of the EPK open and the HIJK open lie beyond one grid step (249 m³/s without
+uncertainties, 228 m³/s with), and without uncertainties also those of the EPK open and the HIJK closed without water
+burden (221 m³/s).
 
 Measured with dumps of a build of Rekenhart_HIJ: f_Q(q) per closing type within 0.9 %, the weight of the HIJK and the
 mask equal, and the crest level tables within 0.4 mm once the table is repaired (see "hydra/hollandsche_ijssel.py").
