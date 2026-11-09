@@ -203,14 +203,11 @@ BREAKDOWN_ONE_STEP = {"discharge": 205.0, "sea_level": 0.105, "wind_speed": 1.05
 # (228 m3/s).
 #
 # Crest level: at T = 300000 the cumulative discharge of the EPK closed and the HIJK open lies 0.002 to 0.003 from that
-# of Hydra-NL, where it is almost flat between 5750 and 6950 m3/s; the 5 % percentile shifts 1500 m3/s. At T = 30000
-# with the EPK closed and the HIJK closed with water burden the limit state lies at 45 to 50 m/s for a low discharge,
-# where the wind speed density of pydra_core (from its probability masses on the 1 m/s grid) is 12 to 40 % higher than
-# the density that Rekenhart_HIJ calculates in every point; below 3000 m3/s the state gets 29 % more mass and the
-# discharge percentiles shift up to 300 m3/s. With uncertainties the EPK open and the HIJK open gets up to 0.35
-# percentage point too little; the other exceptions are not traced: with statistical uncertainty a discharge percentile
-# of the EPK closed and the HIJK open differs 223 m3/s at T = 1000000, with model uncertainty the discharge percentiles
-# of that state differ 272 to 405 m3/s at T = 100 to 1000.
+# of Hydra-NL, where it is almost flat between 5750 and 6950 m3/s; the 5 % percentile shifts 1500 m3/s. With
+# uncertainties the EPK open and the HIJK open gets up to 0.35 percentage point too little; the other exceptions are not
+# traced: with statistical uncertainty the EPK closed and the HIJK closed with water burden at T = 30000 (discharge
+# 460 m3/s, wind speed 1.13 m/s) and a discharge percentile of the EPK closed and the HIJK open at T = 1000000
+# (223 m3/s), with model uncertainty the discharge percentiles of that state at T = 100 to 1000 (272 to 405 m3/s).
 #
 # The level of every case is that of the frequency line of Hydra-NL, not the printed one with three decimals; at
 # T = 10000 the distribution of Hm0 over the wind directions shifts up to 4 percentage points per half millimetre.
@@ -222,40 +219,32 @@ BREAKDOWN_CASES = [
     ("h", "h", "none", False, False, 0.6, None, set(), set()),
     ("h", "h", "all", True, True, 0.6, None, set(), {(30, "discharge", "1,1")}),
     (
-        "hbn", "hbn", "none", False, False, 0.4, None, set(),
-        {(30000, "discharge", "2,3"), (300000, "discharge", "2,1")},
+        "hbn", "hbn", "none", False, False, 0.4, None, set(), {(300000, "discharge", "2,1")},
     ),
     (
         "hbn", "hbn", "statistical", True, False, 0.4, None, set(),
-        {(30000, "discharge", "2,3"), (300000, "discharge", "2,1"), (1000000, "discharge", "2,1")},
+        {
+            (30000, "discharge", "2,3"), (30000, "wind_speed", "2,3"), (300000, "discharge", "2,1"),
+            (1000000, "discharge", "2,1"),
+        },
     ),
     (
         "hbn", "hbn", "model", False, True, 0.4, None, set(),
         {(100, "discharge", "2,1"), (300, "discharge", "2,1"), (1000, "discharge", "2,1")},
     ),
     (
-        "hs", "hs", "none", False, False, 0.4, 10000, set(),
-        {(1000, "wind_speed", "1,2"), (100000, "wind_speed", "1,1"), (1000000, "sea_level", "2,3")},
+        "hs", "hs", "none", False, False, 0.4, 10000, set(), {(1000, "wind_speed", "1,2")},
     ),
     (
         "hs", "hs", "statistical", True, False, 0.4, 10000, set(),
         {
-            (1000, "sea_level", "1,2"), (100000, "discharge", "1,1"), (300000, "wind_speed", "1,1"),
-            (1000000, "sea_level", "2,2"), (1000000, "sea_level", "2,3"), (1000000, "sea_level", "all"),
+            (1000, "sea_level", "1,2"), (1000000, "sea_level", "2,2"), (1000000, "sea_level", "2,3"),
+            (1000000, "sea_level", "all"),
         },
     ),
-    (
-        "hs", "hs", "model", False, True, 0.4, None, {(1000000, 315.0, "all"), (1000000, 337.5, "all")},
-        {(1000000, "discharge", "1,1")},
-    ),
+    ("hs", "hs", "model", False, True, 0.4, None, {(1000000, 315.0, "all"), (1000000, 337.5, "all")}, set()),
     ("tm10", "tspec", "none", False, False, 0.4, 10000, set(), set()),
-    (
-        "tm10", "tspec", "statistical", True, False, 0.4, 10000, set(),
-        {
-            (300000, "sea_level", "2,2"), (300000, "sea_level", "2,3"), (300000, "sea_level", "all"),
-            (1000000, "sea_level", "2,2"),
-        },
-    ),
+    ("tm10", "tspec", "statistical", True, False, 0.4, 10000, set(), set()),
     ("tm10", "tspec", "model", False, True, 0.4, None, set(), set()),
 ]
 

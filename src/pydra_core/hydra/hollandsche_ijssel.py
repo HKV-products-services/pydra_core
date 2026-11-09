@@ -50,6 +50,7 @@ class HydraHollandscheIJsselIllustrationPoint(HydraRhineMeuseDeltaIllustrationPo
         qcrit: float | None = None,
         crest_level_table=None,
         hollandsche_ijssel_state: int = 1,
+        wind_speed_step: float | None = None,
     ):
         if hollandsche_ijssel_state not in HOLLANDSCHE_IJSSEL_STATES:
             raise ValueError(
@@ -63,7 +64,8 @@ class HydraHollandscheIJsselIllustrationPoint(HydraRhineMeuseDeltaIllustrationPo
         settings = copy.deepcopy(settings)
         settings.u_step = None
         super().__init__(
-            hrd, settings, statistical_uncertainty, model_uncertainty, response, profile, qcrit, crest_level_table
+            hrd, settings, statistical_uncertainty, model_uncertainty, response, profile, qcrit, crest_level_table,
+            wind_speed_step,
         )
 
     def check(self, stats) -> None:
@@ -111,7 +113,7 @@ class HydraHollandscheIJsselIllustrationPoint(HydraRhineMeuseDeltaIllustrationPo
         self._weighted_joint_cache: dict[int, np.ndarray] = {}
         self._weighted_bracket_east_cache: dict[int, np.ndarray] = {}
 
-    def europoort_probability(self, r: float, closing_situation: int) -> np.ndarray:
+    def europoort_probability(self, r: float, closing_situation: int, given: tuple[str, ...] = ()) -> np.ndarray:
         """
         Return pydra's probability mass of a state of the Europoort barrier, without the weight of the Hollandsche
         IJssel barrier: that weight depends on the closing function and is put on the block grids in 'joint_umqk'.
@@ -122,13 +124,17 @@ class HydraHollandscheIJsselIllustrationPoint(HydraRhineMeuseDeltaIllustrationPo
             The wind direction
         closing_situation : int
             1 (Europoort barrier open) or 2 (closed)
+        given : tuple[str, ...], optional
+            The stochastics whose probability is left out, as 'given' of 'calculate_probability'
 
         Returns
         -------
         np.ndarray
             The probability mass on the statistics grids (u, q, m)
         """
-        return StatisticsLowerRiver.calculate_probability(self._stats, r, closing_situation=closing_situation)
+        return StatisticsLowerRiver.calculate_probability(
+            self._stats, r, closing_situation=closing_situation, given=list(given)
+        )
 
     def joint_umqk(self, ir: int) -> np.ndarray:
         """

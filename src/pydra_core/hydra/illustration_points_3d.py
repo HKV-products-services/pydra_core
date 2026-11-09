@@ -209,6 +209,7 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
         profile=None,
         qcrit: float | None = None,
         crest_level_table: Callable | None = None,
+        wind_speed_step: float | None = None,
     ):
         """
         Prepare the illustration point on the 3D loading field of one location.
@@ -234,8 +235,12 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
             The function that calculates the crest level on a loading grid, with the signature of
             'core.crest_level_tables.crest_level_table'. By default the tables are kept in 'core.memory'; a caller that
             keeps its tables passes its own function here, and the object is then not kept either.
+        wind_speed_step : float, optional
+            The step of the wind speed block grid from 0 to UMAX, as the breakdown of Hydra-NL uses it. By default the
+            block grid is the wind speed grid of the statistics, as the illustration point of Hydra-NL uses it.
         """
         self.statistical_uncertainty = statistical_uncertainty
+        self._wind_speed_step = wind_speed_step
         self.model_uncertainty = model_uncertainty
         self.response = response
         self._profile = profile
@@ -323,7 +328,10 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
         # Block grids (DEELVECTOR of the statistics grids within the range of the loading)
         if loading0 is None:
             loading0 = next(iter(self._loading.values()))
-        self._ublock = Grid.sub_vector(self._u_stat, float(loading0["u"][0]), float(loading0["u"][-1]))
+        u_grid = self._u_stat
+        if self._wind_speed_step is not None:
+            u_grid = np.linspace(0.0, self._u_max, round(self._u_max / self._wind_speed_step) + 1)
+        self._ublock = Grid.sub_vector(u_grid, float(loading0["u"][0]), float(loading0["u"][-1]))
         self._mblock = Grid.sub_vector(self._mstat, float(loading0["m"][0]), float(loading0["m"][-1]))
         self._qblock = Grid.sub_vector(self._qstat, float(loading0["q"][0]), float(loading0["q"][-1]))
         self.after_block_grids()

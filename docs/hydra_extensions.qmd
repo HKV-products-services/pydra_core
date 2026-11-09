@@ -703,35 +703,42 @@ but the HIJK can close; 'HydraHollandscheIJsselIllustrationPoint.bracket_umqk' p
 
 ### Grids
 
-The breakdown uses the block grids of the illustration point. Rekenhart_HIJ splits on a wind speed grid of 0.5 m/s from
-0 to UMAX, finer above 42 m/s. Interpolating the bracket linearly to that grid left the percentages and nearly all
-percentiles of the states with at least 1 % of the frequency unchanged, and it is not what Rekenhart_HIJ does (it
-calculates the density in every point), so it is not done. The discharge
-grid of Rekenhart_HIJ ends with 21750 and 22000, pydra_core has 21950 as well.
+The breakdown uses the sea level and discharge block grids of the illustration point, and the wind speed grid of
+Rekenhart_HIJ: 0 to UMAX in steps of 0.5 m/s ('alloceren_HIJ.f90'), passed to the illustration point as
+'wind_speed_step'. On that grid the density of the wind speed given the sea level is calculated as KANSWINDSNELHEID
+('kanswindsnelheid.f90'): the truncated Gumbel distribution of the transformed wind speed, differentiated centrally on
+the grid itself ('HydraRhineMeuseDeltaIllustrationPoint.wind_speed_density'). The closing probability and the densities
+of sea level and discharge are interpolated from the statistics grids, as FREQ_HIJ does.
+
+Derived from pydra's probability masses on the statistics grid, with steps of 1 m/s above 42 m/s, the density was
+smeared where the truncation sets the nonexceedance probability to 1, the upper edge of the wind speeds that occur at a
+sea level. Where that edge lay in the limit state (45 to 50 m/s at a low discharge, the EPK closed and the HIJK closed
+with water burden, T = 30000) the state got up to 1.8 times the mass of Rekenhart_HIJ at the lowest sea levels and 29 %
+more below 3000 m³/s. The illustration point keeps the statistics grid, as IPPUNTEN_HIJ does. The discharge grid of
+Rekenhart_HIJ ends with 21750 and 22000, pydra_core has 21950 as well.
+
+The breakdown of the Rhine-Meuse delta ('hydra/rhine_meuse_delta_percentiles.py') still derives the density from the
+masses on the statistics grid, although Rekenhart_Zoet splits on 0.5 m/s as well ('alloceren_Zoet.f90', REGIO 0). Its
+test compares with frozen results of pydra_core, not with Hydra-NL, so a change there cannot be shown to be better.
 
 ### Comparison with Rekenhart_HIJ
 
 'test_breakdown' compares eleven cases on the demo location, all eleven return periods: the water level without and
 with all uncertainties, and the crest level, Hm0 and Tm-1,0 each without uncertainties, with statistical uncertainty
-and with all model uncertainty (the last against the repaired build, see "hydra/hollandsche_ijssel.py"). The percentages per state and per
-wind direction must lie within 0.6 percentage point for the water level and 0.4 for the crest level, and the
-percentiles of discharge, sea level and wind speed within one grid step for every state with at least 1 % of the
-frequency, with the exceptions below.
+and with all model uncertainty (the last against the repaired build, see "hydra/hollandsche_ijssel.py"). The
+percentages per state and per wind direction must lie within 0.6 percentage point for the water level and 0.4 for the
+crest level, Hm0 and Tm-1,0, and the percentiles of discharge, sea level and wind speed within one grid step for every
+state with at least 1 % of the frequency, with the exceptions below.
 
-Crest level without uncertainties: the percentages within 0.2 percentage point; two percentiles beyond one grid step,
-both with the EPK closed:
-
-* T = 300000, the HIJK open (4.4 %): the cumulative discharge lies 0.002 to 0.003 from that of Hydra-NL, where it is
-  almost flat between 5750 and 6950 m³/s, so the 5 % percentile shifts 1500 m³/s;
-* T = 30000, the HIJK closed with water burden (2.2 %): for a low discharge the limit state lies at 45 to 50 m/s,
-  where the wind speed density of pydra_core, derived from its probability masses on the 1 m/s grid, is 12 to 40 %
-  higher than the density Rekenhart_HIJ calculates in every point (KANSWINDSNELHEID). Below 3000 m³/s the state gets
-  29 % more mass, and the discharge percentiles shift up to 300 m³/s.
+Crest level without uncertainties: the percentages within 0.2 percentage point; one percentile beyond one grid step, at
+T = 300000 with the EPK closed and the HIJK open (4.4 %): the cumulative discharge lies 0.002 to 0.003 from that of
+Hydra-NL, where it is almost flat between 5750 and 6950 m³/s, so the 5 % percentile shifts 1500 m³/s.
 
 Crest level with uncertainties: the EPK open and the HIJK open gets up to 0.35 percentage point too little (statistical
 uncertainty at T = 100000, model uncertainty at T = 10 and 30), every other percentage lies within 0.3. With statistical
-uncertainty the same two percentiles lie beyond one grid step as without uncertainties, plus the discharge of the EPK
-closed and the HIJK open at T = 1000000 (223 m³/s). With model uncertainty only the discharge of the EPK closed and the
+uncertainty the same percentile lies beyond one grid step as without uncertainties, plus at T = 30000 the discharge
+(460 m³/s) and the wind speed (1.13 m/s) of the EPK closed and the HIJK closed with water burden (2.5 %), and the
+discharge of the EPK closed and the HIJK open at T = 1000000 (223 m³/s). With model uncertainty only the discharge of the EPK closed and the
 HIJK open lies beyond one grid step, at T = 100, 300 and 1000 (405, 368 and 272 m³/s; 1.6 to 4.9 % of the frequency).
 These differences are not traced.
 
@@ -745,14 +752,14 @@ The level of each return period is taken from the frequency line of Hydra-NL, no
 decimals. For the water level without uncertainties that brought two discharge percentiles at T = 30 within one grid
 step.
 
-Hm0 and Tm-1,0: tolerance 0.4 percentage point. At T = 10000 the distribution of Hm0 over the wind
-directions shifts up to 4 percentage points per half millimetre, and the printed 0.603 instead of 0.6026 gave 3.5
-percentage points. With model uncertainty every percentage lies within the tolerance except two wind directions of
-Hm0 at T = 1000000 (0.64 and 0.46); one discharge percentile of Hm0 at T = 1000000 lies beyond one grid step.
-Without model uncertainty the wind directions west to north-northwest differ up to 6 percentage points at T = 30000
-and higher, 15 to 30 of the about 1300 percentages per case; there only the percentiles are tested. Beyond one grid
-step lie a few percentiles of states with 1.1 to 1.3 % of the frequency, and the sea level percentiles at T = 300000
-and 1000000 (0.11 to 0.24 m). These differences are not traced.
+Hm0 and Tm-1,0: at T = 10000 the distribution of Hm0 over the wind directions shifts up to 4 percentage points per
+half millimetre, and the printed 0.603 instead of 0.6026 gave 3.5 percentage points. With model uncertainty every
+percentage lies within the tolerance except two wind directions of Hm0 at T = 1000000 (0.64 and 0.46). Without model
+uncertainty the wind directions west to north-northwest differ up to 6 percentage points at T = 30000 and higher, 15 to
+30 of the about 1300 percentages per case; there only the percentiles are tested. Beyond one grid step lie for Hm0 a
+percentile of a state with 1.1 % of the frequency at T = 1000 (without uncertainties and with statistical uncertainty)
+and, with statistical uncertainty, the sea level percentiles at T = 1000000 (0.21 to 0.24 m). These differences are not
+traced.
 
 Measured with dumps of a build of Rekenhart_HIJ: f_Q(q) per closing type within 0.9 %, the weight of the HIJK and the
 mask equal, and the crest level tables within 0.4 mm once the table is repaired (see "hydra/hollandsche_ijssel.py").

@@ -11,6 +11,7 @@ from scipy.interpolate import RegularGridInterpolator
 
 from .illustration_points_3d import HydraIllustrationPoint3D
 from .library import Grid, HydraInterpolate
+from ..common.interpolate import Interpolate
 from ..location.model.statistics.water_systems.statistics_hollandsche_ijssel import StatisticsHollandscheIJssel
 
 # The column of the sea level in 'HydroDynamicInputData' (HRDInputColumnId 4, 'Waterlevel HvH')
@@ -164,7 +165,7 @@ class HydraRhineMeuseDeltaIllustrationPoint(HydraIllustrationPoint3D):
         """
         return None if HydraIllustrationPoint3D.sector_west(r) else self._m_east
 
-    def europoort_probability(self, r: float, closing_situation: int) -> np.ndarray:
+    def europoort_probability(self, r: float, closing_situation: int, given: tuple[str, ...] = ()) -> np.ndarray:
         """
         Return pydra's probability mass of a state of the Europoort barrier, on the statistics grids.
 
@@ -174,13 +175,48 @@ class HydraRhineMeuseDeltaIllustrationPoint(HydraIllustrationPoint3D):
             The wind direction
         closing_situation : int
             1 (open) or 2 (closed)
+        given : tuple[str, ...], optional
+            The stochastics whose probability is left out, as 'given' of 'calculate_probability'
 
         Returns
         -------
         np.ndarray
             The probability mass on the statistics grids (u, q, m)
         """
-        return self._stats.calculate_probability(r, closing_situation=closing_situation)
+        return self._stats.calculate_probability(r, closing_situation=closing_situation, given=list(given))
+
+    def wind_speed_density(self, r: float) -> np.ndarray:
+        """
+        Calculate the density of the wind speed given the sea level on the block grids, as KANSWINDSNELHEID: the
+        truncated Gumbel distribution of the transformed wind speed, differentiated centrally on the wind speed block
+        grid itself and one-sided at its ends.
+
+        Parameters
+        ----------
+        r : float
+            The wind direction
+
+        Returns
+        -------
+        np.ndarray
+            The density, with the shape (nu, nm)
+        """
+        stats = self._stats
+        u = np.asarray(self._ublock, float)
+        if stats.settings.transitional_wind == 0:
+            ir = stats.wind_direction.get_discretisation().tolist().index(r)
+            parameters = stats.sea_level.pwinds[:, ir]
+            kru = parameters[2] * u * u + parameters[3] * u + parameters[4]
+        else:
+            # BEREKENTRANSWIND interpolates the table on the statistics grid linearly, extrapolating at the ends
+            kru = Interpolate.inextrp1d(x=u, xp=self._u_stat, fp=stats.bereken_kru_tabel(r))
+        nonexceedance = stats.ondkanswindsnelheid(r, kru, np.asarray(self._mblock, float))
+
+        density = np.empty_like(nonexceedance)
+        density[0] = (nonexceedance[1] - nonexceedance[0]) / (u[1] - u[0])
+        density[-1] = (nonexceedance[-1] - nonexceedance[-2]) / (u[-1] - u[-2])
+        density[1:-1] = (nonexceedance[2:] - nonexceedance[:-2]) / (u[2:] - u[:-2])[:, None]
+        return density
 
     def joint_umqk(self, ir: int) -> np.ndarray:
         """
@@ -206,10 +242,23 @@ class HydraRhineMeuseDeltaIllustrationPoint(HydraIllustrationPoint3D):
         if ir in self._joint_cache:
             return self._joint_cache[ir]
         joint = np.empty((len(self._ublock), len(self._mblock), len(self._qblock), 2))
-        for ik, closing_situation in ((0, 1), (1, 2)):
-            mass = np.asarray(self.europoort_probability(r, closing_situation), float)
-            density = np.transpose(mass, (0, 2, 1)) / self._cell_volume
-            joint[..., ik] = self.to_block_grids(density)
+        if self._wind_speed_step is None:
+            for ik, closing_situation in ((0, 1), (1, 2)):
+                mass = np.asarray(self.europoort_probability(r, closing_situation), float)
+                density = np.transpose(mass, (0, 2, 1)) / self._cell_volume
+                joint[..., ik] = self.to_block_grids(density)
+        else:
+            # The breakdown of Hydra-NL (FREQ_HIJ, FREQ_B): the closing probability and the densities of the sea level
+            # and the discharge interpolated from the statistics grids, the density of the wind speed calculated on
+            # the block grid itself. Derived from pydra's masses on the statistics grid, with steps of 1 m/s above
+            # 42 m/s, the density is smeared where the truncation of the wind speed statistics sets the
+            # nonexceedance probability to 1.
+            wind_density = self.wind_speed_density(r)
+            cell_area = self._cell_volume / Grid.step_sizes(self._u_stat)[:, None, None]
+            for ik, closing_situation in ((0, 1), (1, 2)):
+                mass = np.asarray(self.europoort_probability(r, closing_situation, given=("u",)), float)
+                density = np.transpose(mass, (0, 2, 1)) / cell_area
+                joint[..., ik] = self.to_block_grids(density) * wind_density[:, :, None]
         self._joint_cache[ir] = joint
         return joint
 

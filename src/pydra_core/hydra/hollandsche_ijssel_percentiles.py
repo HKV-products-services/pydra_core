@@ -79,11 +79,12 @@ class HydraHollandscheIJsselPercentiles(metaclass=RememberedCalculation):
         # 'WaveShape' changes 'base_duration', so the wave shapes get their own copy of the settings as they came in
         fresh = copy.deepcopy(settings)
 
-        # One illustration point per HIJK state; they share the statistics and the block grids
+        # One illustration point per HIJK state; they share the statistics and the block grids. Rekenhart_HIJ splits on
+        # wind speeds from 0 to UMAX in steps of 0.5 m/s ('alloceren_HIJ.f90').
         self._ips = {
             state: HydraHollandscheIJsselIllustrationPoint(
                 hrd, settings, statistical_uncertainty, model_uncertainty, response=response, profile=profile,
-                qcrit=qcrit, crest_level_table=crest_level_table, hollandsche_ijssel_state=state,
+                qcrit=qcrit, crest_level_table=crest_level_table, hollandsche_ijssel_state=state, wind_speed_step=0.5,
             )
             for state in HOLLANDSCHE_IJSSEL_STATES
         }
