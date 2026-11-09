@@ -199,8 +199,8 @@ BREAKDOWN_ONE_STEP = {"discharge": 205.0, "sea_level": 0.105, "wind_speed": 1.05
 #
 # Water level: at T = 10 and 30 the HIJK closed without water burden gets up to 0.6 percentage point too little; its
 # frequency at the level of Hydra-NL is 6 % lower, about 2 mm in the water level, the known difference of the frequency
-# line. At T = 30 that also shifts the discharge percentiles of the HIJK open (up to 249 m3/s) and, without
-# uncertainties, of the HIJK closed without water burden (221 m3/s), both with the EPK open.
+# line. With all uncertainties that also shifts the discharge percentiles of the EPK open and the HIJK open at T = 30
+# (228 m3/s).
 #
 # Crest level: at T = 300000 the cumulative discharge of the EPK closed and the HIJK open lies 0.002 to 0.003 from that
 # of Hydra-NL, where it is almost flat between 5750 and 6950 m3/s; the 5 % percentile shifts 1500 m3/s. At T = 30000
@@ -212,13 +212,14 @@ BREAKDOWN_ONE_STEP = {"discharge": 205.0, "sea_level": 0.105, "wind_speed": 1.05
 # of the EPK closed and the HIJK open differs 223 m3/s at T = 1000000, with model uncertainty the discharge percentiles
 # of that state differ 272 to 405 m3/s at T = 100 to 1000.
 #
-# Wave height and wave period: the level is that of the frequency line of Hydra-NL, not the printed one with three
-# decimals; at T = 10000 the distribution of Hm0 over the wind directions shifts up to 4 percentage points per half
-# millimetre. Without model uncertainty the wind directions west to north-northwest differ up to 6 percentage points
-# at T = 30000 and higher, between 15 and 30 of the about 1300 percentages per case; there only the percentiles are
-# tested. The exceptions are not traced.
+# The level of every case is that of the frequency line of Hydra-NL, not the printed one with three decimals; at
+# T = 10000 the distribution of Hm0 over the wind directions shifts up to 4 percentage points per half millimetre.
+#
+# Wave height and wave period: without model uncertainty the wind directions west to north-northwest differ up to 6
+# percentage points at T = 30000 and higher, between 15 and 30 of the about 1300 percentages per case; there only the
+# percentiles are tested. The exceptions are not traced.
 BREAKDOWN_CASES = [
-    ("h", "h", "none", False, False, 0.6, None, set(), {(30, "discharge", "1,1"), (30, "discharge", "1,2")}),
+    ("h", "h", "none", False, False, 0.6, None, set(), set()),
     ("h", "h", "all", True, True, 0.6, None, set(), {(30, "discharge", "1,1")}),
     (
         "hbn", "hbn", "none", False, False, 0.4, None, set(),

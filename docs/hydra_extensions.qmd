@@ -737,13 +737,15 @@ These differences are not traced.
 
 Water level: at T = 10 and 30 the HIJK closed without water burden gets up to 0.6 percentage point too little, without
 uncertainties and with all uncertainties. A dump of a build of Rekenhart_HIJ shows that the frequency of that state at
-the level of Hydra-NL is 6 % lower, about 2 mm in the water level, the known difference of the frequency line. At
-T = 30 the discharge percentiles of the EPK open and the HIJK open lie beyond one grid step (249 m³/s without
-uncertainties, 228 m³/s with), and without uncertainties also those of the EPK open and the HIJK closed without water
-burden (221 m³/s).
+the level of Hydra-NL is 6 % lower, about 2 mm in the water level, the known difference of the frequency line. With
+all uncertainties the discharge percentiles of the EPK open and the HIJK open lie beyond one grid step at T = 30
+(228 m³/s).
 
-Hm0 and Tm-1,0: tolerance 0.4 percentage point. The level of each return period is taken from the frequency line of
-Hydra-NL, not from the printed level with three decimals: at T = 10000 the distribution of Hm0 over the wind
+The level of each return period is taken from the frequency line of Hydra-NL, not from the printed level with three
+decimals. For the water level without uncertainties that brought two discharge percentiles at T = 30 within one grid
+step.
+
+Hm0 and Tm-1,0: tolerance 0.4 percentage point. At T = 10000 the distribution of Hm0 over the wind
 directions shifts up to 4 percentage points per half millimetre, and the printed 0.603 instead of 0.6026 gave 3.5
 percentage points. With model uncertainty every percentage lies within the tolerance except two wind directions of
 Hm0 at T = 1000000 (0.64 and 0.46); one discharge percentile of Hm0 at T = 1000000 lies beyond one grid step.
