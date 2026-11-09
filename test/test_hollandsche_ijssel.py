@@ -37,18 +37,15 @@ uncertainties at T = 100 (+11 mm, where the Hydra-NL line has a kink).
 """
 
 import json
-
-from pathlib import Path
-
 import numpy as np
 import pytest
+
+from pathlib import Path
 
 from pydra_core import HBN, ExceedanceFrequencyLine, HRDatabase, Location, Profile
 from pydra_core.hydra.hollandsche_ijssel import HydraHollandscheIJsselIllustrationPoint
 from pydra_core.hydra.hollandsche_ijssel_percentiles import HydraHollandscheIJsselPercentiles
-from pydra_core.location.model.statistics.water_systems.statistics_lower_river import (
-    StatisticsLowerRiver,
-)
+from pydra_core.location.model.statistics.water_systems.statistics_lower_river import StatisticsLowerRiver
 
 DATA = Path(__file__).parent / "data" / "22_HOLLANDSCHE_IJSSEL"
 DATABASE = DATA / "DEMO_HollandscheIJssel.sqlite"

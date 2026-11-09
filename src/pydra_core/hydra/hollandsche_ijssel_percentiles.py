@@ -205,9 +205,9 @@ class HydraHollandscheIJsselPercentiles(metaclass=RememberedCalculation):
         """
         Calculate all breakdown arrays at a level, summed over the uncertainty combinations and the two closing types.
 
-        Rekenhart_HIJ calculates per closing type of the HIJK (without or with water burden, weight
-        1 - KANS_WATERBEZWAAR and KANS_WATERBEZWAAR) with the open state and the closed state of that type. Each closing type has its own
-        block probability p(q) and with it its own f_Q(q); the open state therefore gets a contribution from both.
+        Rekenhart_HIJ calculates per closing type of the HIJK (without or with water burden, weight 1 - KANS_WATERBEZWAAR
+        and KANS_WATERBEZWAAR) with the open state and the closed state of that type. Each closing type has its own block
+        probability p(q) and with it its own f_Q(q); the open state therefore gets a contribution from both.
 
         Parameters
         ----------

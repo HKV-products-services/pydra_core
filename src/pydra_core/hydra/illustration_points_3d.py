@@ -240,9 +240,9 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
             block grid is the wind speed grid of the statistics, as the illustration point of Hydra-NL uses it.
         """
         self.statistical_uncertainty = statistical_uncertainty
-        self._wind_speed_step = wind_speed_step
         self.model_uncertainty = model_uncertainty
         self.response = response
+        self._wind_speed_step = wind_speed_step
         self._profile = profile
         self._qcrit = float(qcrit) if qcrit is not None else None
         self._crest_level_table = (

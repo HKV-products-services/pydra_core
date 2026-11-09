@@ -27,10 +27,7 @@ HOLLANDSCHE_IJSSEL_STATES = {
 class HydraHollandscheIJsselIllustrationPoint(HydraRhineMeuseDeltaIllustrationPoint):
     """
     The Hydra-NL illustration point for one location at the Hollandsche IJssel, for one state of the Hollandsche
-    IJssel barrier ('hollandsche_ijssel_state', 1 to 3) and both states of the Europoort barrier (the closing
-    situation 1 or 2 of 'design_point').
-
-    The other parameters are those of 'HydraIllustrationPoint3D.__init__'.
+    IJssel barrier and both states of the Europoort barrier (the closing situation 1 or 2 of 'design_point').
     """
 
     # The water level is made non-decreasing again after the extension to UMAX, as Rekenhart_HIJ does ("Repareer
@@ -52,6 +49,17 @@ class HydraHollandscheIJsselIllustrationPoint(HydraRhineMeuseDeltaIllustrationPo
         hollandsche_ijssel_state: int = 1,
         wind_speed_step: float | None = None,
     ):
+        """
+        Prepare the illustration point for one state of the Hollandsche IJssel barrier. The parameters not listed here
+        are those of 'HydraIllustrationPoint3D.__init__'.
+
+        Parameters
+        ----------
+        hollandsche_ijssel_state : int
+            The state of the Hollandsche IJssel barrier, 1 to 3 as in 'HOLLANDSCHE_IJSSEL_STATES'
+        wind_speed_step : float, optional
+            The step of the wind speed block grid, as in 'HydraIllustrationPoint3D.__init__'
+        """
         if hollandsche_ijssel_state not in HOLLANDSCHE_IJSSEL_STATES:
             raise ValueError(
                 f"[ERROR] Unknown state {hollandsche_ijssel_state!r} of the Hollandsche IJssel barrier; choose from "
