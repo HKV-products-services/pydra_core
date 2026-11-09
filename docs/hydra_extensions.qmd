@@ -922,7 +922,8 @@ the same locations as 'coast_breakdown' (REGIO 5).
 * The loading field is put on the grid of the statistics, not on that of the loading table: for the sea Hydra-NL
   sets WATERSTANDEN%U = STATISTIEK%USTAT and WATERSTANDEN%M = STATISTIEK%MSTAT ('watersysteem_zee.f90'). The waves
   are interpolated to that grid first, and the crest level is calculated per cell afterwards; the other way round
-  (interpolating the crest level of the coarse grid) gives a different contour.
+  (interpolating the crest level of the coarse grid) gives a different contour. For the wave height and the wave
+  period the field is the wave parameter itself, as in the breakdown.
 * The field is repaired with REPAREER_ZOUT and the isoline is taken at the level.
 * Every segment of the contour is divided linearly into ten pieces; the last segment gets one point more, so that
   its end point is included.
@@ -941,6 +942,19 @@ direction index wins.
 The outer loop is over the uncertainty combinations, and per direction the point with the smallest total distance
 X^2 + Y^2 + AFSTONZ stays ('uitsplitsingen_Zout.f90'); on equal distances the first combination wins. A direction can
 therefore choose a different combination than its neighbour.
+
+For the wave height and the wave period the combinations are those of the breakdown: the classes of Hm0 only, or of
+Tm-1,0 only without the correlation with Hm0, with AFSTONZ = eps^2 of that one parameter. The field of a combination is
+the repaired field times its factor.
+
+### Comparison with Hydra-NL
+
+For Hm0 and Tm-1,0, without and with model uncertainty, on the nine locations of 'DEMO_HollandseKust' at return periods
+of 100 to 10000 years ('test_coast_wave_illustration_points.py'): the main illustration point and the winning factor in
+every direction equal the output of Hydra-NL up to its rounding. The design points of the other directions that
+contribute at least 1 % do so too, apart from a few within 0.1 m: where the contour is almost flat in the sea level, the
+point moves along it with a level change below the 0.001 that Hydra-NL prints. In directions without contribution, far
+in the tail, the design point can differ more.
 
 ### Influence factors
 
