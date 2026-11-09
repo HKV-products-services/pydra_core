@@ -24,8 +24,14 @@ says where each value comes from. What it reports for Hydra-NL 2.9.2:
 * The Meuse tidal is measured at Borgharen (river 4) instead of Lith (river 3).
 * Hydra-NL 2.9.2 has no discharge statistics of Olst for 2075 and 2125 (a dummy file), so the IJssel delta has no
   'discharge_probability' in those scenarios.
-* 'm_step' of the sea stays 0.01 as in WBI2017, except for the Eastern Scheldt (0.1, see below): Hydra-NL has 0.1 in
-  both versions, the coarser grid is a choice of the caller per quantity.
+* 'm_step' of the sea is 0.1 in all scenarios, as MSTAP in Hydra-NL, for the coast (Wadden Sea, Holland coast,
+  Western Scheldt) and the Eastern Scheldt. The frequency line of the coast is calculated on the multiples of 0.1, as
+  the levels Hydra-NL Zout generates with STAP_HULPDIJKEN = 0.1, and read at a return period by linear interpolation
+  against log(frequency), as VULLENUITVOER_ZOUT. With both, the water level, Hm0 and Tm-1,0 equal Hydra-NL 2.9.2
+  within 0.5 % in frequency and 0.5 mm in level on the nine locations of 'DEMO_HollandseKust'
+  ('test/test_coast_frequency_line.py'); in 'test/test_efl.py' the coast is within 0.1 mm for h and Hs, and within
+  2.3 mm for the crest level, which pydra_core sums in bins and Hydra-NL on the contour. The Eastern Scheldt keeps
+  its own levels: with the multiples of 0.1 its Hs deviates 3 cm from Hydra-NL.
 * The Hollandsche IJssel has no river index in pydra_core; its discharge numbers are looked up with river 2 (Rhine)
   of Hydra-NL.
 
@@ -861,8 +867,13 @@ Per wind direction:
 
 For a water level calculation the local water level at the coast is exactly the sea level, the isoline is always
 vertical and Hydra-NL takes route 3, in which the step size of the sea level drops out. For the crest level the loading
-depends on the wind, the isoline is slanted and route 4 applies. Route 4 depends on 'settings.m_step'; the caller sets
-it as Hydra-NL calculates (MSTAP), this module uses it as it comes in.
+depends on the wind, the isoline is slanted and route 4 applies. Route 4 depends on 'settings.m_step', which is 0.1 at
+the coast as MSTAP in Hydra-NL.
+
+For the wave height and the wave period this route does not reproduce Hydra-NL: on the nine locations of
+'DEMO_HollandseKust' the frequency on the levels of Hydra-NL deviates 0.3 to 6.8 % for Hm0 and 6 to 77 % for Tm-1,0.
+The frequency line of pydra_core, which sums the probability in bins on the same grid, deviates at most 0.16 and
+0.45 %. The breakdown of these two responses is therefore not yet checked against Hydra-NL.
 
 ### Repair
 

@@ -6,6 +6,7 @@ from scipy.stats import norm
 from .calculation import Calculation
 from .datamodels.frequency_line import FrequencyLine
 from ..location.location import Location
+from ..location.model.statistics.water_systems.statistics_coast import StatisticsCoast
 
 
 class ExceedanceFrequencyLine(Calculation):
@@ -86,9 +87,10 @@ class ExceedanceFrequencyLine(Calculation):
         #   the database starts at a higher sea level than the statistics).
         # - Upper bound: if the exceedance frequency at the highest level is larger than 1e-6 per year (e.g. the wave
         #   height with model uncertainty, where the factors exceed the 99% quantile of the database)
+        coast = isinstance(stats, StatisticsCoast)
         n_lower, n_upper = 0, 0
         while True:
-            levels = self.__get_levels(lower, upper)
+            levels = self.__get_levels(lower, upper, coast)
             exp = self.__calculate_exceedance_frequency(location, levels, weights, steps, use_monz)
 
             # Lower the lower bound (not below 0 for other result variables than the water level)
@@ -111,14 +113,19 @@ class ExceedanceFrequencyLine(Calculation):
 
         return FrequencyLine(levels, exp, self.result_variable)
 
-    def __get_levels(self, lower: float, upper: float) -> np.ndarray:
+    def __get_levels(self, lower: float, upper: float, coast: bool) -> np.ndarray:
         """
-        Levels between the lower and upper bound. Without a step size, the step size is 0.1 or smaller (at least 100 levels).
+        Levels between the lower and upper bound. Without a step size, the step size is 0.1 or smaller (at least 100
+        levels). At the coast (Wadden Sea, Holland coast, Western Scheldt) the levels are the multiples of 0.1, as the
+        levels that Hydra-NL Zout generates with STAP_HULPDIJKEN = 0.1 (GENEREER_HOOGTES_ZOUT, 'hulpdijken_Zout.f90');
+        the level at a return period is interpolated between them. The Eastern Scheldt does not reproduce Hydra-NL
+        with these levels and keeps the default.
         """
-        if self.step_size is None:
-            step_size = min(0.1, (upper - lower) / 100) if upper > lower else 0.1
-        else:
-            step_size = self.step_size
+        if self.step_size is not None:
+            return np.arange(lower, upper + 0.5 * self.step_size, self.step_size)
+        if coast:
+            return np.arange(np.floor(lower * 10 + 1e-9), np.ceil(upper * 10 - 1e-9) + 1) / 10
+        step_size = min(0.1, (upper - lower) / 100) if upper > lower else 0.1
         return np.arange(lower, upper + 0.5 * step_size, step_size)
 
     def __calculate_exceedance_frequency(self, location: Location, levels: np.ndarray, weights: np.ndarray, steps, use_monz: bool) -> np.ndarray:
