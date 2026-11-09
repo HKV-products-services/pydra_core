@@ -11,8 +11,16 @@ MSTAP = 0.1 and REP_ALLEEN_U = NEE.
 
 The frequencies are compared on the levels of Hydra-NL between 1e-6 and 0.2 per year, with a relative tolerance of
 0.5 %.
+
+The percentiles and the contribution per direction of the water level are compared with the table "Bijdragen en
+percentielen" of Hydra-NL at return periods of 100 to 10000 years ('hydranl/h_percentiles.json', from 'uitvoer.html'
+of the same demo calculations). Hydra-NL prints the sea level on 0.01 m, the wind speed on 0.1 m/s and the
+contribution on 0.01 %, so the tolerance is half of that plus a margin for the level, which it prints on 0.001 m. For
+the waves this comparison is not made: there the contour route jumps when the level passes a grid node, and the
+printed level falls on the other side of such a jump in a few cases.
 """
 
+import json
 from pathlib import Path
 
 import numpy as np
@@ -42,6 +50,9 @@ REFERENCE_FILES = {
 }
 FREQUENCY_RANGE = (1e-6, 0.2)
 TOLERANCE = 0.005
+PERCENTAGE_TOLERANCE = 0.02
+SEA_LEVEL_TOLERANCE = 0.006
+WIND_SPEED_TOLERANCE = 0.06
 
 
 def read_hydranl_frequency_line(path: Path) -> tuple[np.ndarray, np.ndarray]:
@@ -65,3 +76,21 @@ def test_coast_breakdown_frequency(location_name: str, response: str, model_unce
     calculated = np.array([breakdown.breakdown(level)["frequency"] for level in levels[compared]])
 
     np.testing.assert_allclose(calculated, frequencies[compared], rtol=TOLERANCE, atol=0.0)
+
+
+@pytest.mark.parametrize("location_name", LOCATIONS)
+def test_coast_water_level_percentiles(location_name: str):
+    cases = json.loads((DATA / "hydranl" / "h_percentiles.json").read_text())[location_name]
+
+    hrd = HRDatabase(DATABASE)
+    breakdown = HydraCoastBreakdown(hrd, hrd.get_settings(location_name), model_uncertainty=False, response="h")
+    for case in cases:
+        table = breakdown.percentiles(case["level"])
+        contributions = [direction["percentage"] for direction in table["directions"]]
+        message = f"return period {case['return_period']}"
+        np.testing.assert_allclose(contributions, case["directions"], rtol=0.0, atol=PERCENTAGE_TOLERANCE,
+                                   err_msg=message)
+        np.testing.assert_allclose(table["sea_level"], case["sea_level"], rtol=0.0, atol=SEA_LEVEL_TOLERANCE,
+                                   err_msg=message)
+        np.testing.assert_allclose(table["wind_speed"], case["wind_speed"], rtol=0.0, atol=WIND_SPEED_TOLERANCE,
+                                   err_msg=message)

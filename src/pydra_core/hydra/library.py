@@ -1109,6 +1109,48 @@ class Percentiles:
         return out
 
     @staticmethod
+    def percentiles_salt(s: np.ndarray, breakdown: np.ndarray) -> np.ndarray | None:
+        """
+        Calculate the percentiles of a breakdown as Hydra-NL Zout (PERCENTIELENS, 'percentielen_Zout.f90'). Unlike the
+        fresh water version, the value at S(i) is the mass of the bin between the midpoints with its neighbours, so the
+        cumulative probability lies on the bin edges (S(1), the midpoints and S(NS)) and the percentile is interpolated
+        between those edges.
+
+        Parameters
+        ----------
+        s : np.ndarray
+            The grid of the stochastic
+        breakdown : np.ndarray
+            The breakdown on the grid
+
+        Returns
+        -------
+        np.ndarray | None
+            The value of the stochastic per percentile in 'PERCENTILES'; None if there is no mass, where Hydra-NL prints
+            '-----'
+        """
+        s = np.asarray(s, float)
+        breakdown = np.asarray(breakdown, float)
+        total = float(breakdown.sum())
+        if total <= 0.0:
+            return None
+        edges = np.concatenate([[s[0]], (s[:-1] + s[1:]) / 2.0, [s[-1]]])
+        cumulative = np.concatenate([[0.0], np.cumsum(breakdown)]) / total
+
+        ns = len(s)
+        out = np.empty(len(PERCENTILES))
+        for ip, w in enumerate(PERCENTILES):
+            # Fortran D = NS + 1 and IS = 2 .. NS on the NS + 1 edges
+            d = ns
+            for i in range(1, ns):
+                if cumulative[i] > w:
+                    d = i
+                    break
+            f0, f1 = cumulative[d - 1], cumulative[d]
+            out[ip] = edges[d] if f1 == f0 else edges[d - 1] + (edges[d] - edges[d - 1]) * (w - f0) / (f1 - f0)
+        return out
+
+    @staticmethod
     def percentiles_per_barrier_state(s: np.ndarray, freqSK: np.ndarray) -> dict:
         """
         Calculate the percentiles in total and per barrier state (PERCENTIELEN_KERING).

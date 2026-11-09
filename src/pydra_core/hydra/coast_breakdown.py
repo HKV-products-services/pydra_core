@@ -590,10 +590,10 @@ class HydraCoastBreakdown(metaclass=RememberedCalculation):
         """
         freq_r = np.asarray(breakdown["freq_r"], float)
         total = float(freq_r.sum())
-        pm = Percentiles.percentiles(
+        pm = Percentiles.percentiles_salt(
             np.asarray(breakdown["sea_level"], float), np.asarray(breakdown["freq_mr"]).sum(axis=1)
         )
-        pu = Percentiles.percentiles(
+        pu = Percentiles.percentiles_salt(
             np.asarray(breakdown["wind_speed"], float), np.asarray(breakdown["freq_ur"]).sum(axis=1)
         )
         return {

@@ -878,9 +878,18 @@ of the breakdown equals the frequency line of Hydra-NL. On the nine locations of
 most 0.16 % for Hm0 and 0.45 % for Tm-1,0 without model uncertainty, and 0.07 and 0.05 % with it
 ('test_coast_breakdown_frequency.py'). On a coarser grid, that of the loading table, it deviates up to 6.8 and 77 %.
 
-The contribution per direction equals the output of Hydra-NL up to its rounding, apart from a few jumps. The
-percentiles of sea level and wind speed deviate about 0.035 m and 0.1 to 0.5 m/s, also for the water level; the
-reading of the percentiles is not yet that of Hydra-NL.
+### Percentiles
+
+The percentiles are read as PERCENTIELENS of Hydra-NL Zout ('percentielen_Zout.f90', 'Percentiles.percentiles_salt'),
+not as that of Zoet: the value at S(i) is the mass of the bin between the midpoints with its neighbours, so the
+cumulative probability lies on the bin edges and the percentile is interpolated between those edges. The Zoet reading
+puts the cumulative probability on the grid nodes, which shifts the percentiles about half a step: 0.035 m in the sea
+level and 0.1 to 0.5 m/s in the wind speed.
+
+For the water level the percentiles and the contribution per direction equal the table of Hydra-NL on the nine
+locations of 'DEMO_HollandseKust' up to its rounding ('test_coast_breakdown_frequency.py'). For the waves they do too,
+except where the level that Hydra-NL prints on 0.001 falls on the other side of a jump of the contour route: at the
+unrounded level the numbers are those of Hydra-NL again.
 
 ### Repair
 
