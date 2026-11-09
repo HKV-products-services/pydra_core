@@ -191,10 +191,11 @@ UNCERTAINTY_ROUNDING = 0.006
 # Breakdown: one grid step of the percentiles
 BREAKDOWN_ONE_STEP = {"discharge": 205.0, "sea_level": 0.105, "wind_speed": 1.05}
 
-# Breakdown cases: reference, result variable, statistical uncertainty, model uncertainty, tolerance of the
-# percentages in percentage points (Hydra-NL prints one decimal), percentages beyond that tolerance and percentiles
-# beyond one grid step. A percentage is (return period, EPK and HIJK state) for a state and (return period, wind
-# direction, column) for a wind direction; a percentile is (return period, stochastic, EPK and HIJK state).
+# Breakdown cases: result in the file name, response of pydra_core, case, statistical uncertainty, model uncertainty,
+# tolerance of the percentages in percentage points (Hydra-NL prints one decimal), highest return period with tested
+# percentages (None for all), percentages beyond that tolerance and percentiles beyond one grid step. A percentage is
+# (return period, EPK and HIJK state) for a state and (return period, wind direction, column) for a wind direction; a
+# percentile is (return period, stochastic, EPK and HIJK state).
 #
 # Water level: at T = 10 and 30 the HIJK closed without water burden gets up to 0.6 percentage point too little; its
 # frequency at the level of Hydra-NL is 6 % lower, about 2 mm in the water level, the known difference of the frequency
@@ -210,18 +211,51 @@ BREAKDOWN_ONE_STEP = {"discharge": 205.0, "sea_level": 0.105, "wind_speed": 1.05
 # percentage point too little; the other exceptions are not traced: with statistical uncertainty a discharge percentile
 # of the EPK closed and the HIJK open differs 223 m3/s at T = 1000000, with model uncertainty the discharge percentiles
 # of that state differ 272 to 405 m3/s at T = 100 to 1000.
+#
+# Wave height and wave period: the level is that of the frequency line of Hydra-NL, not the printed one with three
+# decimals; at T = 10000 the distribution of Hm0 over the wind directions shifts up to 4 percentage points per half
+# millimetre. Without model uncertainty the wind directions west to north-northwest differ up to 6 percentage points
+# at T = 30000 and higher, between 15 and 30 of the about 1300 percentages per case; there only the percentiles are
+# tested. The exceptions are not traced.
 BREAKDOWN_CASES = [
-    ("h", "none", False, False, 0.6, set(), {(30, "discharge", "1,1"), (30, "discharge", "1,2")}),
-    ("h", "all", True, True, 0.6, set(), {(30, "discharge", "1,1")}),
-    ("hbn", "none", False, False, 0.4, set(), {(30000, "discharge", "2,3"), (300000, "discharge", "2,1")}),
+    ("h", "h", "none", False, False, 0.6, None, set(), {(30, "discharge", "1,1"), (30, "discharge", "1,2")}),
+    ("h", "h", "all", True, True, 0.6, None, set(), {(30, "discharge", "1,1")}),
     (
-        "hbn", "statistical", True, False, 0.4, set(),
+        "hbn", "hbn", "none", False, False, 0.4, None, set(),
+        {(30000, "discharge", "2,3"), (300000, "discharge", "2,1")},
+    ),
+    (
+        "hbn", "hbn", "statistical", True, False, 0.4, None, set(),
         {(30000, "discharge", "2,3"), (300000, "discharge", "2,1"), (1000000, "discharge", "2,1")},
     ),
     (
-        "hbn", "model", False, True, 0.4, set(),
+        "hbn", "hbn", "model", False, True, 0.4, None, set(),
         {(100, "discharge", "2,1"), (300, "discharge", "2,1"), (1000, "discharge", "2,1")},
     ),
+    (
+        "hs", "hs", "none", False, False, 0.4, 10000, set(),
+        {(1000, "wind_speed", "1,2"), (100000, "wind_speed", "1,1"), (1000000, "sea_level", "2,3")},
+    ),
+    (
+        "hs", "hs", "statistical", True, False, 0.4, 10000, set(),
+        {
+            (1000, "sea_level", "1,2"), (100000, "discharge", "1,1"), (300000, "wind_speed", "1,1"),
+            (1000000, "sea_level", "2,2"), (1000000, "sea_level", "2,3"), (1000000, "sea_level", "all"),
+        },
+    ),
+    (
+        "hs", "hs", "model", False, True, 0.4, None, {(1000000, 315.0, "all"), (1000000, 337.5, "all")},
+        {(1000000, "discharge", "1,1")},
+    ),
+    ("tm10", "tspec", "none", False, False, 0.4, 10000, set(), set()),
+    (
+        "tm10", "tspec", "statistical", True, False, 0.4, 10000, set(),
+        {
+            (300000, "sea_level", "2,2"), (300000, "sea_level", "2,3"), (300000, "sea_level", "all"),
+            (1000000, "sea_level", "2,2"),
+        },
+    ),
+    ("tm10", "tspec", "model", False, True, 0.4, None, set(), set()),
 ]
 
 # Reference, result variable, statistical uncertainty, model uncertainty of the water level, of the waves
@@ -368,24 +402,26 @@ def test_illustration_points(result, response, case, statistical, model_uncertai
 
 
 @pytest.mark.parametrize(
-    "result, case, statistical, model_uncertainty, tolerance, beyond_tolerance_expected, beyond_one_step_expected",
+    "result, response, case, statistical, model_uncertainty, tolerance, last_return_period, beyond_tolerance_expected, "
+    "beyond_one_step_expected",
     BREAKDOWN_CASES,
-    ids=[f"{c[0]}_{c[1]}" for c in BREAKDOWN_CASES],
+    ids=[f"{c[0]}_{c[2]}" for c in BREAKDOWN_CASES],
 )
 def test_breakdown(
-    result, case, statistical, model_uncertainty, tolerance, beyond_tolerance_expected, beyond_one_step_expected
+    result, response, case, statistical, model_uncertainty, tolerance, last_return_period, beyond_tolerance_expected,
+    beyond_one_step_expected,
 ):
     """
     The breakdown against Rekenhart_HIJ ('breakdown_<result>_<case>.json'): the percentages per state of the EPK and
-    the HIJK and per wind direction within the tolerance of the case, and the percentiles of discharge, sea level and
-    wind speed within one grid step for every state with at least 1 % of the frequency, except the percentages and
-    percentiles listed in 'BREAKDOWN_CASES'.
+    the HIJK and per wind direction within the tolerance of the case, up to the highest return period of the case, and
+    the percentiles of discharge, sea level and wind speed within one grid step for every state with at least 1 % of
+    the frequency, except the percentages and percentiles listed in 'BREAKDOWN_CASES'.
     """
     hrd = HRDatabase(DATABASE)
-    crest_level = {"profile": dike_profile(), "qcrit": QCRIT} if result == "hbn" else {}
+    crest_level = {"profile": dike_profile(), "qcrit": QCRIT} if response == "hbn" else {}
     breakdown = HydraHollandscheIJsselPercentiles(
         hrd, hrd.get_settings(LOCATION), statistical_uncertainty=statistical, model_uncertainty=model_uncertainty,
-        response=result, **crest_level,
+        response=response, **crest_level,
     )
     reference = json.loads((DATA / "hydranl" / f"breakdown_{result}_{case}.json").read_text())
 
@@ -395,22 +431,23 @@ def test_breakdown(
         contributions = breakdown.state_contributions(hydranl["level"])
         percentiles = breakdown.percentiles(hydranl["level"])
 
-        # Percentages per state and per wind direction
-        for column, percentage in hydranl["states"].items():
-            epk, hijk = (int(x) for x in column.split(","))
-            pydra = contributions["states"][epk - 1, hijk - 1]
-            if abs(pydra - percentage) > tolerance:
-                beyond_tolerance.add((int(return_period), column))
-        for direction, columns in hydranl["directions"].items():
-            jr = int(np.argmin(np.abs(contributions["r"] - float(direction))))
-            for column, percentage in columns.items():
-                if column == "all":
-                    pydra = contributions["directions"][jr].sum()
-                else:
-                    epk, hijk = (int(x) for x in column.split(","))
-                    pydra = contributions["directions"][jr, epk - 1, hijk - 1]
+        # Percentages per state and per wind direction, up to the highest return period of the case
+        if last_return_period is None or int(return_period) <= last_return_period:
+            for column, percentage in hydranl["states"].items():
+                epk, hijk = (int(x) for x in column.split(","))
+                pydra = contributions["states"][epk - 1, hijk - 1]
                 if abs(pydra - percentage) > tolerance:
-                    beyond_tolerance.add((int(return_period), float(direction), column))
+                    beyond_tolerance.add((int(return_period), column))
+            for direction, columns in hydranl["directions"].items():
+                jr = int(np.argmin(np.abs(contributions["r"] - float(direction))))
+                for column, percentage in columns.items():
+                    if column == "all":
+                        pydra = contributions["directions"][jr].sum()
+                    else:
+                        epk, hijk = (int(x) for x in column.split(","))
+                        pydra = contributions["directions"][jr, epk - 1, hijk - 1]
+                    if abs(pydra - percentage) > tolerance:
+                        beyond_tolerance.add((int(return_period), float(direction), column))
 
         # Percentiles of the states with at least 1 % of the frequency
         for stochastic, step in BREAKDOWN_ONE_STEP.items():

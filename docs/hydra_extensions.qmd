@@ -711,9 +711,9 @@ grid of Rekenhart_HIJ ends with 21750 and 22000, pydra_core has 21950 as well.
 
 ### Comparison with Rekenhart_HIJ
 
-'test_breakdown' compares five cases on the demo location, all eleven return periods: the water level without and
-with all uncertainties, and the crest level without uncertainties, with statistical uncertainty and with all model
-uncertainty (the last against the repaired build, see "hydra/hollandsche_ijssel.py"). The percentages per state and per
+'test_breakdown' compares eleven cases on the demo location, all eleven return periods: the water level without and
+with all uncertainties, and the crest level, Hm0 and Tm-1,0 each without uncertainties, with statistical uncertainty
+and with all model uncertainty (the last against the repaired build, see "hydra/hollandsche_ijssel.py"). The percentages per state and per
 wind direction must lie within 0.6 percentage point for the water level and 0.4 for the crest level, and the
 percentiles of discharge, sea level and wind speed within one grid step for every state with at least 1 % of the
 frequency, with the exceptions below.
@@ -741,6 +741,16 @@ the level of Hydra-NL is 6 % lower, about 2 mm in the water level, the known dif
 T = 30 the discharge percentiles of the EPK open and the HIJK open lie beyond one grid step (249 m³/s without
 uncertainties, 228 m³/s with), and without uncertainties also those of the EPK open and the HIJK closed without water
 burden (221 m³/s).
+
+Hm0 and Tm-1,0: tolerance 0.4 percentage point. The level of each return period is taken from the frequency line of
+Hydra-NL, not from the printed level with three decimals: at T = 10000 the distribution of Hm0 over the wind
+directions shifts up to 4 percentage points per half millimetre, and the printed 0.603 instead of 0.6026 gave 3.5
+percentage points. With model uncertainty every percentage lies within the tolerance except two wind directions of
+Hm0 at T = 1000000 (0.64 and 0.46); one discharge percentile of Hm0 at T = 1000000 lies beyond one grid step.
+Without model uncertainty the wind directions west to north-northwest differ up to 6 percentage points at T = 30000
+and higher, 15 to 30 of the about 1300 percentages per case; there only the percentiles are tested. Beyond one grid
+step lie a few percentiles of states with 1.1 to 1.3 % of the frequency, and the sea level percentiles at T = 300000
+and 1000000 (0.11 to 0.24 m). These differences are not traced.
 
 Measured with dumps of a build of Rekenhart_HIJ: f_Q(q) per closing type within 0.9 %, the weight of the HIJK and the
 mask equal, and the crest level tables within 0.4 mm once the table is repaired (see "hydra/hollandsche_ijssel.py").
