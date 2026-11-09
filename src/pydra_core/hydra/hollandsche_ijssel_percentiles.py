@@ -63,8 +63,8 @@ class HydraHollandscheIJsselPercentiles(metaclass=RememberedCalculation):
         model_uncertainty : bool
             Whether the model uncertainty is integrated over
         response : str
-            "h" (water level), "hs" (significant wave height), "tspec" (spectral wave period Tm-1,0) or "hbn" (required
-            crest level; needs 'profile' and 'qcrit')
+            "h" (water level), "hs" (significant wave height), "tspec" (spectral wave period Tm-1,0), "tp" (peak
+            period) or "hbn" (required crest level; needs 'profile' and 'qcrit')
         profile : Profile
             The profile for the crest level
         qcrit : float
@@ -244,7 +244,12 @@ class HydraHollandscheIJsselPercentiles(metaclass=RememberedCalculation):
                 dh, f_hs, f_ts, _ = self._combinations[(piece.hollandsche_ijssel_state, piece.barrier_state)][ic]
                 ip = self._ips[piece.hollandsche_ijssel_state]
                 responses.append(ip.response_table(piece.loading, dh, f_hs, f_ts))
-                levels.append({"h": level - dh, "hs": level / f_hs, "tspec": level / f_ts, "hbn": level}[self.response])
+                # f_ts is the factor of the wave period of the response ('Scaling.uncertainty_combinations')
+                levels.append(
+                    {"h": level - dh, "hs": level / f_hs, "tspec": level / f_ts, "tp": level / f_ts, "hbn": level}[
+                        self.response
+                    ]
+                )
 
             for closed_state in CLOSING_TYPES:
                 type_probability = (

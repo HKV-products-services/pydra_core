@@ -1529,7 +1529,8 @@ class Scaling:
             The statistics of the location
         response : str
             The result variable: "h" uses the water level uncertainty, "hs" the uncertainty of Hm0, "tspec" those of
-            Hm0 and Tspec with their correlation, "hbn" all three
+            Hm0 and Tspec with their correlation, "tp" those of Hm0 and Tp with their correlation, "hbn" those of the
+            water level, Hm0 and Tspec
         model_uncertainty : bool
             False gives one combination with weight 1
         closing_situation : int, optional
@@ -1538,17 +1539,19 @@ class Scaling:
         Returns
         -------
         list[tuple[float, float, float, float]]
-            The combinations (delta_h, f_Hm0, f_Tspec, KANSONZ)
+            The combinations (delta_h, f_Hm0, f_T, KANSONZ), with f_T the factor of the wave period: of Tp for the
+            response "tp", of Tspec otherwise
         """
         if not model_uncertainty:
             return [(0.0, 1.0, 1.0, 1.0)]
         model_uncertainties = stats.get_model_uncertainties()
 
         # The wave height and the wave period do not depend on the water level, so delta_h = 0
-        if response in ("hs", "tspec"):
-            waves = list(model_uncertainties.iterate_model_uncertainty_wave_conditions(wave_period="tspec"))
-            if response == "tspec":
-                return [(0.0, float(fhs), float(fts), float(pw)) for fhs, fts, pw in waves]
+        if response in ("hs", "tspec", "tp"):
+            wave_period = "tp" if response == "tp" else "tspec"
+            waves = list(model_uncertainties.iterate_model_uncertainty_wave_conditions(wave_period=wave_period))
+            if response in ("tspec", "tp"):
+                return [(0.0, float(fhs), float(ft), float(pw)) for fhs, ft, pw in waves]
             # Only the factor on Hm0 counts: the probabilities of the wave periods per factor on Hm0 are summed
             per_hs: dict[float, float] = {}
             for fhs, _fts, pw in waves:

@@ -770,7 +770,7 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
         stats : Statistics
             The statistics of the location
         response : str
-            "h", "hs", "tspec" or "hbn"
+            "h", "hs", "tspec", "tp" or "hbn"
         model_uncertainty : bool
             False gives one combination without distance
         closing_situation : int, optional
@@ -779,10 +779,11 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
         Returns
         -------
         list[tuple[float, float, float, float, float, tuple[float, float, float]]]
-            Per combination (delta_h, f_Hm0, f_Tm-1,0, f_Tp, distance^2, (eps_h^2, eps_Hm0^2, eps_Tspec^2)). The last
+            Per combination (delta_h, f_Hm0, f_Tm-1,0, f_Tp, distance^2, (eps_h^2, eps_Hm0^2, eps_T^2)). The last
             element splits distance^2 over the three model uncertainty terms, for the influence factor alpha^2 per term;
-            which terms are not zero depends on the response (h: only eps_h; hs: only eps_Hm0; tspec: eps_Hm0 and
-            eps_Tspec; hbn: all three).
+            which terms are not zero depends on the response (h: only eps_h; hs: only eps_Hm0; tspec and tp: eps_Hm0
+            and eps_T; hbn: all three). eps_T is the coordinate on the standard normal grid of the wave periods, which
+            Tm-1,0 and Tp share (ONZ_GP(:,4)).
         """
         if not model_uncertainty:
             return [(0.0, 1.0, 1.0, 1.0, 0.0, (0.0, 0.0, 0.0))]
@@ -804,10 +805,10 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
             return combinations
 
         # Water level, with the coordinate eps = (delta - mu) / sigma. Not every HRD has a water level uncertainty; the
-        # coastal databases have none, and then delta_h = 0, as in 'Scaling.uncertainty_combinations'. The wave period
-        # does not depend on the water level, so for 'tspec' delta_h = 0 as well.
+        # coastal databases have none, and then delta_h = 0, as in 'Scaling.uncertainty_combinations'. The wave periods
+        # do not depend on the water level, so for 'tspec' and 'tp' delta_h = 0 as well.
         mu_h = model_uncertainties.get_model_uncertainty("h", closing_situation)
-        if mu_h is None or response == "tspec":
+        if mu_h is None or response in ("tspec", "tp"):
             dh, eps_h = np.array([0.0]), np.array([0.0])
         else:
             dh = np.atleast_1d(mu_h.discretise(model_uncertainties.step_size["h"])[0]).astype(float)

@@ -21,6 +21,9 @@ _MAXINT = 32767.0
 # The three meaningful sections through the 3D loading field; the first element is the horizontal axis
 _AXIS_PAIRS = {("M", "U"), ("Q", "U"), ("Q", "M")}
 
+# Responses that are a wave parameter of the database: their own table, with the level divided by the factor
+_WAVE_PARAMETERS = ("hs", "tspec", "tp")
+
 
 class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
     """
@@ -225,8 +228,8 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
         model_uncertainty : bool
             Whether the model uncertainty adds dimensions to the distance
         response : str
-            "h" (water level), "hs" (significant wave height), "tspec" (spectral wave period Tm-1,0) or "hbn" (required
-            crest level; needs 'profile' and 'qcrit')
+            "h" (water level), "hs" (significant wave height), "tspec" (spectral wave period Tm-1,0), "tp" (peak
+            period) or "hbn" (required crest level; needs 'profile' and 'qcrit')
         profile : Profile
             The profile for the crest level
         qcrit : float
@@ -248,8 +251,8 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
         self._crest_level_table = (
             crest_level_table if crest_level_table is not None else Memory.remembered_crest_level_table(settings)
         )
-        if response not in ("h", "hs", "tspec", "hbn"):
-            raise ValueError(f"[ERROR] Unknown response {response!r} (expected 'h', 'hs', 'tspec' or 'hbn').")
+        if response not in ("h", "hs", "tspec", "tp", "hbn"):
+            raise ValueError(f"[ERROR] Unknown response {response!r} (expected 'h', 'hs', 'tspec', 'tp' or 'hbn').")
         if response == "hbn" and (profile is None or qcrit is None):
             raise ValueError("[ERROR] The crest level needs a profile and a critical overtopping discharge (qcrit).")
 
@@ -260,7 +263,7 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
         self._settings = settings
         model = hrd.create_location(settings).get_model()
         loading = model.get_loading()
-        if response in ("hs", "tspec"):
+        if response in _WAVE_PARAMETERS:
             # Hydra-NL repairs the line of a wave parameter, so that wave parameter is repaired here as well
             loading.repair_loadingmodels(response)
         stats = model.get_statistics()
@@ -295,7 +298,8 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
                 continue
             iv = list(lm.input_variables)
             wanted = {
-                "h": ["h"], "hs": ["h", "hs"], "tspec": ["h", "tspec"], "hbn": ["h", "hs", "tspec", "dir"]
+                "h": ["h"], "hs": ["h", "hs"], "tspec": ["h", "tspec"], "tp": ["h", "tp"],
+                "hbn": ["h", "hs", "tspec", "dir"],
             }[response]
             arrays = {}
             if self._level_axis in iv:
@@ -313,7 +317,7 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
                     arrays[name] = np.repeat(flat[:, None, :], len(level_axis), axis=1)
             # Hydra-NL repairs the table of the response itself: for a wave parameter that is the table of that wave
             # parameter, also after the extension to UMAX
-            repaired = ["h", response] if response in ("hs", "tspec") else ["h"]
+            repaired = ["h", response] if response in _WAVE_PARAMETERS else ["h"]
             if self._hydra_repairs:
                 for name in repaired:
                     arrays[name] = HydraIllustrationPoint3D.repair_3d(arrays[name])
@@ -692,7 +696,7 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
         f_hs : float
             The factor for the significant wave height
         f_ts : float
-            The factor for the spectral wave period
+            The factor for the wave period: of Tp for the response "tp", of Tm-1,0 otherwise
 
         Returns
         -------
@@ -702,12 +706,9 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
         if self.response == "h":
             # The level shifts instead: level - delta
             return loading["h"]
-        if self.response == "hs":
-            # The level shifts instead: level / f_hs
-            return loading["hs"]
-        if self.response == "tspec":
-            # The level shifts instead: level / f_ts
-            return loading["tspec"]
+        if self.response in _WAVE_PARAMETERS:
+            # The level shifts instead: level / f_hs or level / f_ts
+            return loading[self.response]
         key = (id(loading), float(delta), float(f_hs), float(f_ts))
         crest = self._response_cache.get(key)
         if crest is None:
@@ -745,7 +746,7 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
         dict | None
             The keys 'r', 'closing_situation', 'design' ({"U", "M", "Q"}), 'beta', 'dh', 'alpha2'; for the wave
             parameters and the crest level also 'h' (the water level in the design point), for the wave height 'f_hs',
-            for the wave period 'f_hs' and 'f_tspec', and for the crest level 'waves' and 'uncertainty'. None if there
+            for the wave periods 'f_hs', 'f_tspec' and 'f_tp', and for the crest level 'waves' and 'uncertainty'. None if there
             is none, and always for k = 2 at an easterly direction, where the barrier never closes.
         """
         ir = self.nearest_ir(R)
@@ -766,7 +767,9 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
                 # Sorted on distance: the remaining combinations cannot give a smaller distance
                 break
             resp = self.response_table(loading, delta, f_hs, f_ts)
-            lvl = {"h": level - delta, "hs": level / f_hs, "tspec": level / f_ts, "hbn": level}[self.response]
+            lvl = {
+                "h": level - delta, "hs": level / f_hs, "tspec": level / f_ts, "tp": level / f_tp, "hbn": level
+            }[self.response]
             candidate = None
             if len(self._mblock) > 1 and len(self._ublock) > 1:
                 candidate = HydraIllustrationPoint3D.smallest(
@@ -803,14 +806,15 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
             ),
         }
         pt = np.array([U, M, Q])
-        if self.response in ("hs", "tspec", "hbn"):
+        if self.response in (*_WAVE_PARAMETERS, "hbn"):
             out["h"] = float(
                 HydraIllustrationPoint3D.trilinear(loading["u"], loading["m"], loading["q"], loading["h"], pt)
             ) + (delta if self.response == "hbn" else 0.0)
-        if self.response in ("hs", "tspec"):
+        if self.response in _WAVE_PARAMETERS:
             out["f_hs"] = f_hs
-        if self.response == "tspec":
+        if self.response in ("tspec", "tp"):
             out["f_tspec"] = f_ts
+            out["f_tp"] = f_tp
         if self.response == "hbn":
             sin = np.sin(np.pi * loading["dir"] / 180.0)
             cos = np.cos(np.pi * loading["dir"] / 180.0)
@@ -985,7 +989,8 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
         ik : int
             The barrier state index (0 open, 1 closed)
         combination : tuple[float, float, float]
-            The uncertainty combination (delta_h, f_hs, f_ts)
+            The uncertainty combination (delta_h, f_hs, f_ts), with f_ts the factor of the wave period of the response
+            ('Scaling.uncertainty_combinations')
 
         Returns
         -------
@@ -1054,7 +1059,9 @@ class HydraIllustrationPoint3D(metaclass=RememberedCalculation):
                 # The delta (and the wave factors) come from the table of this barrier state; the weight is the same,
                 # KANSONZ does not depend on the state
                 dh, f_hs, f_ts, _ = self.uncertainty_combinations(ik + 1)[ic]
-                lvl = {"h": level - dh, "hs": level / f_hs, "tspec": level / f_ts, "hbn": level}[self.response]
+                lvl = {
+                    "h": level - dh, "hs": level / f_hs, "tspec": level / f_ts, "tp": level / f_ts, "hbn": level
+                }[self.response]
                 failure = self.response_on_blocks(ir, ik, (dh, f_hs, f_ts)) > lvl
                 t = float(np.einsum("umq,u,m,q->", joint[..., ik] * failure, du, dm, dq))
                 numerator[ik] += p_combination * t

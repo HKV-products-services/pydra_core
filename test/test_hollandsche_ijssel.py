@@ -19,9 +19,10 @@ source with that order repaired; unrepaired it lies 5.5 to 6.5 cm higher.
 
 'ip_<result>_<case>.txt' hold the illustration points per state of the EPK and the HIJK, as Rekenhart_HIJ prints them
 (sea level, Rhine discharge and wind speed, at the level of each return period), for the water level ('h': none, all),
-the wave height ('hs'), the wave period Tm-1,0 ('tm10') and the crest level ('hbn'), the last three without
-uncertainties ('none'), with statistical uncertainty ('statistical') and with all model uncertainty ('model'). The files
-with model uncertainty also hold the uncertainty values in each point (water level, factor on Hm0 and on Tm-1,0); for
+the wave height ('hs'), the wave periods Tm-1,0 ('tm10') and Tp ('tp') and the crest level ('hbn'), the last four
+without uncertainties ('none'), with statistical uncertainty ('statistical') and with all model uncertainty ('model').
+The files with model uncertainty also hold the uncertainty values in each point (water level, factor on Hm0 and on the
+wave period); for
 the wave parameters and the crest level they come from the repaired build. Apart from the result variable, the input
 of each illustration point calculation equals that of the frequency line with the same uncertainties.
 
@@ -133,6 +134,26 @@ BEYOND_ONE_STEP = {
         (300000, 1, 2, 292.5),
         (300000, 1, 3, 225.0),
     },
+    ("tp", "none"): {
+        (10, 2, 3, 225.0),
+        (30, 1, 1, 247.5),
+        (1000, 1, 2, 225.0),
+        (1000, 1, 3, 225.0),
+        (1000, 2, 2, 225.0),
+        (1000, 2, 3, 225.0),
+        (1000000, 1, 1, 270.0),
+        (1000000, 1, 1, 337.5),
+        (1000000, 2, 2, 337.5),
+        (1000000, 2, 3, 337.5),
+    },
+    ("tp", "statistical"): {
+        (10, 1, 1, 337.5),
+        (1000, 1, 2, 225.0),
+        (1000, 1, 3, 225.0),
+        (1000000, 1, 1, 270.0),
+        (1000000, 1, 1, 337.5),
+    },
+    ("tp", "model"): set(),
     ("hbn", "none"): {
         (10, 2, 1, 360.0),
         (30, 2, 1, 337.5),
@@ -243,6 +264,8 @@ BREAKDOWN_CASES = [
     ("tm10", "tspec", "none", False, False, 0.4, 10000, set(), set()),
     ("tm10", "tspec", "statistical", True, False, 0.4, 10000, set(), set()),
     ("tm10", "tspec", "model", False, True, 0.4, None, set(), set()),
+    ("tp", "tp", "none", False, False, 0.4, 10000, set(), set()),
+    ("tp", "tp", "statistical", True, False, 0.4, 10000, set(), {(1000000, "sea_level", "all")}),
 ]
 
 # Reference, result variable, statistical uncertainty, model uncertainty of the water level, of the waves
@@ -328,6 +351,8 @@ ILLUSTRATION_POINT_CASES = [
     ("tm10", "tspec", "none", False, False),
     ("tm10", "tspec", "statistical", True, False),
     ("tm10", "tspec", "model", False, True),
+    ("tp", "tp", "none", False, False),
+    ("tp", "tp", "statistical", True, False),
     ("hbn", "hbn", "none", False, False),
     ("hbn", "hbn", "statistical", True, False),
     ("hbn", "hbn", "model", False, True),
@@ -378,8 +403,8 @@ def test_illustration_points(result, response, case, statistical, model_uncertai
                 pydra, hydranl = [design_point["dh"]], row[8:9]
             elif response == "hs":
                 pydra, hydranl = [design_point["f_hs"]], row[9:10]
-            elif response == "tspec":
-                pydra, hydranl = [design_point["f_hs"], design_point["f_tspec"]], row[9:11]
+            elif response in ("tspec", "tp"):
+                pydra, hydranl = [design_point["f_hs"], design_point[f"f_{response}"]], row[9:11]
             else:
                 uncertainty = design_point["uncertainty"]
                 pydra, hydranl = [uncertainty["h"], uncertainty["f_hs"], uncertainty["f_tspec"]], row[8:11]
