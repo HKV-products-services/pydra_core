@@ -857,8 +857,11 @@ The coast has no slow stochastic: sea level and wind speed are both fast within 
 
 Per wind direction:
 
-1. ISOLIJN on the loading field B(u, m) at the requested level gives the contour (WU, WM), on the grid of the
-  loading table;
+1. ISOLIJN on the loading field B(u, m) at the requested level gives the contour (WU, WM). For the water level and the
+  crest level the field is on the grid of the loading table. For the wave height and the wave period it is on the
+  grid of the statistics, USTAT x MSTAT: Hydra-NL fills the water levels of the coast on that grid
+  (WATERSTAND_IS_ZEE) and interpolates the wave parameter of the database to it (PLAATS_GOLFPARAMETER) before the
+  repair;
 2. if the contour contains the sentinel, CONTOUREN_SAMENVOEGEN;
 3. if the contour is vertical (min(WM) equals max(WM)), ZUIVER_ZEEWS and KANSEN_ZUIVER_ZEE: the probability is read
   from the exceedance curve of the sea level at the contour level;
@@ -870,10 +873,14 @@ vertical and Hydra-NL takes route 3, in which the step size of the sea level dro
 depends on the wind, the isoline is slanted and route 4 applies. Route 4 depends on 'settings.m_step', which is 0.1 at
 the coast as MSTAP in Hydra-NL.
 
-For the wave height and the wave period this route does not reproduce Hydra-NL: on the nine locations of
-'DEMO_HollandseKust' the frequency on the levels of Hydra-NL deviates 0.3 to 6.8 % for Hm0 and 6 to 77 % for Tm-1,0.
-The frequency line of pydra_core, which sums the probability in bins on the same grid, deviates at most 0.16 and
-0.45 %. The breakdown of these two responses is therefore not yet checked against Hydra-NL.
+For the wave height and the wave period Hydra-NL calculates the frequency line with this same route, so the frequency
+of the breakdown equals the frequency line of Hydra-NL. On the nine locations of 'DEMO_HollandseKust' it deviates at
+most 0.16 % for Hm0 and 0.45 % for Tm-1,0 without model uncertainty, and 0.07 and 0.05 % with it
+('test_coast_breakdown_frequency.py'). On a coarser grid, that of the loading table, it deviates up to 6.8 and 77 %.
+
+The contribution per direction equals the output of Hydra-NL up to its rounding, apart from a few jumps. The
+percentiles of sea level and wind speed deviate about 0.035 m and 0.1 to 0.5 m/s, also for the water level; the
+reading of the percentiles is not yet that of Hydra-NL.
 
 ### Repair
 
@@ -885,8 +892,13 @@ thereby the choice between route 3 and route 4. The vertical test therefore allo
 
 As in Hydra-NL the outer loop is over the uncertainty combinations ('rekenen_onzekerheden.f90'): per combination the
 whole loading chain again, and the breakdowns summed with the weight KANSONZ. The coastal databases have no water level
-uncertainty, so a water level calculation has a single combination. For the wave height and the wave period Hydra-NL
-applies the model uncertainty to the level instead of to the loading field; that route is not covered.
+uncertainty, so a water level calculation has a single combination.
+
+For the wave height and the wave period Hydra-NL multiplies the waves of the database by the factor of the
+combination before PLAATS_GOLFPARAMETER. Interpolation, the cut-off at 0 and the repair commute with a positive factor,
+so pydra_core refines and repairs the field once and multiplies it per combination. Hydra-NL Zout switches off the
+uncertainty of the other wave parameter ('invoer_Zout.f90'): for Hm0 only the classes of Hm0 remain, and for Tm-1,0
+ONZWAARDEN discretises Tm-1,0 on its own, without the correlation with Hm0.
 
 ## hydra/coast_illustration_points.py
 

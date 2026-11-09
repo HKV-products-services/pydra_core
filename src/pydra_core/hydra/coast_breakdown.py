@@ -5,6 +5,7 @@ and the Western Scheldt. The method, the repair and the model uncertainty are de
 
 import copy
 import numpy as np
+from scipy.stats import norm
 
 from .library import Contour, HydraInterpolate, Percentiles, Scaling
 from ..core.memory import RememberedCalculation
@@ -19,10 +20,10 @@ _REPAIR_EPS = 1.0e-6
 # Contour values at or below this are the separators between the parts of a contour
 _SENTINEL = -9999.0
 
-# Responses for which the outer loop over the model uncertainty is covered
-_MODEL_UNCERTAINTY_RESPONSES = ("h", "hbn")
-
 _RESPONSES = ("h", "hs", "tspec", "hbn")
+
+# Responses whose loading field Hydra-NL places on the grid of the statistics (PLAATS_GOLFPARAMETER)
+_STATISTICS_GRID_RESPONSES = ("hs", "tspec")
 
 
 class HydraCoastBreakdown(metaclass=RememberedCalculation):
@@ -54,7 +55,7 @@ class HydraCoastBreakdown(metaclass=RememberedCalculation):
         statistical_uncertainty : bool
             Whether the statistics include the statistical uncertainty
         model_uncertainty : bool
-            Whether the model uncertainty of the waves is integrated out; only for "h" and "hbn"
+            Whether the model uncertainty of the waves is integrated out
         response : str
             "h" (water level), "hs" (significant wave height), "tspec" (spectral wave period) or "hbn" (required crest
             level; needs 'profile' and 'qcrit')
@@ -63,7 +64,7 @@ class HydraCoastBreakdown(metaclass=RememberedCalculation):
         qcrit : float
             The critical overtopping discharge for the crest level
         """
-        HydraCoastBreakdown.check_response(response, model_uncertainty)
+        HydraCoastBreakdown.check_response(response)
         if response == "hbn" and (profile is None or qcrit is None):
             raise ValueError("[ERROR] The crest level needs a profile and a critical overtopping discharge (qcrit).")
         self.statistical_uncertainty = statistical_uncertainty
@@ -110,19 +111,34 @@ class HydraCoastBreakdown(metaclass=RememberedCalculation):
         """
         if self._fields is not None:
             return self._fields
+        directions = [float(r) for ir, r in enumerate(self.directions) if self._kansr[ir] > 0.0]
         self._fields = []
+
+        # A wave parameter on the grid of the statistics. Hydra-NL multiplies the waves of the database by the factor
+        # of the combination before PLAATS_GOLFPARAMETER; interpolation, the cut-off at 0 and the repair commute with a
+        # positive factor, so the repaired field is refined once and multiplied per combination.
+        if self.response in _STATISTICS_GRID_RESPONSES:
+            base_fields = {}
+            for r in directions:
+                u, m, field = HydraCoastBreakdown.statistics_grid_field(
+                    self._loading.model[self._keys[r]], self.response, self.u_stat, self.m_stat
+                )
+                base_fields[r] = (u, m, HydraCoastBreakdown.repair_coast(field))
+            for f_hs, f_tspec, _probability in self.combinations:
+                factor = f_hs if self.response == "hs" else f_tspec
+                self._fields.append({r: (u, m, factor * field) for r, (u, m, field) in base_fields.items()})
+            return self._fields
+
         for f_hs, f_tspec, _probability in self.combinations:
-            # The loading per combination: the crest level on the raw waves of that combination, then the repair. For
-            # the other responses the loading is already in the model.
+            # The crest level on the raw waves of the combination, then the repair. The water level is already in the
+            # model.
             if self.response == "hbn":
                 for _, loading_model in self._loading.iter_models():
                     loading_model.calculate_hbn(self._profile, self._qcrit, f_hs, f_tspec)
             fields = {}
-            for ir, r in enumerate(self.directions):
-                if self._kansr[ir] <= 0.0:
-                    continue
+            for r in directions:
                 u, m, field = HydraCoastBreakdown.loading_field(self._loading.model[self._keys[r]], self.response)
-                fields[float(r)] = (u, m, HydraCoastBreakdown.repair_coast(field))
+                fields[r] = (u, m, HydraCoastBreakdown.repair_coast(field))
             self._fields.append(fields)
         return self._fields
 
@@ -275,24 +291,17 @@ class HydraCoastBreakdown(metaclass=RememberedCalculation):
             )
 
     @staticmethod
-    def check_response(response: str, model_uncertainty: bool) -> None:
+    def check_response(response: str) -> None:
         """
-        Raise for a response that is not covered, or not covered with model uncertainty.
+        Raise for a response that is not covered.
 
         Parameters
         ----------
         response : str
             The response
-        model_uncertainty : bool
-            Whether the model uncertainty is integrated out
         """
         if response not in _RESPONSES:
             raise ValueError(f"[ERROR] Unknown response {response!r} (expected one of {_RESPONSES}).")
-        if model_uncertainty and response not in _MODEL_UNCERTAINTY_RESPONSES:
-            raise NotImplementedError(
-                f"[ERROR] The coast does not cover {response!r} with model uncertainty: Hydra-NL applies the wave "
-                f"uncertainty for this response to the level and not to the loading field."
-            )
 
     @staticmethod
     def repair_coast(field: np.ndarray, repair_only_u: bool = False) -> np.ndarray:
@@ -357,6 +366,20 @@ class HydraCoastBreakdown(metaclass=RememberedCalculation):
         list[tuple[float, float, float]]
             The combinations (f_Hm0, f_Tm-1,0, KANSONZ)
         """
+        # Hydra-NL Zout switches off the uncertainty of Hm0 for a wave period (invoer_Zout.f90), so ONZWAARDEN
+        # discretises Tm-1,0 on its own, without the correlation with Hm0
+        if model_uncertainty and response == "tspec":
+            uncertainties = stats.get_model_uncertainties()
+            uncertainty = uncertainties.get_model_uncertainty("tspec")
+            if uncertainty is None:
+                return [(1.0, 1.0, 1.0)]
+            factors, edges = uncertainty.discretise(uncertainties.step_size["tspec"])
+            probabilities = np.diff(norm.cdf(edges))
+            return [
+                (1.0, max(0.0, float(f)), float(p))
+                for f, p in zip(np.atleast_1d(factors), probabilities, strict=True)
+            ]
+
         combinations = Scaling.uncertainty_combinations(stats, response, model_uncertainty)
         shifted = [d for d, _f, _t, _k in combinations if d != 0.0]
         if shifted:
@@ -519,6 +542,36 @@ class HydraCoastBreakdown(metaclass=RememberedCalculation):
         if loading_model.input_variables.index("u") > loading_model.input_variables.index(m_axis):
             field = field.T
         return np.asarray(loading_model.u, float), np.asarray(getattr(loading_model, m_axis), float), np.squeeze(field)
+
+    @staticmethod
+    def statistics_grid_field(
+        loading_model, response: str, u_stat: np.ndarray, m_stat: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Return the field of a wave parameter B(u, m) of one wind direction on the grid of the statistics. Hydra-NL fills
+        the water levels of the coast on USTAT x MSTAT (WATERSTAND_IS_ZEE) and interpolates the wave parameter of the
+        database to that grid (PLAATS_GOLFPARAMETER) before the repair and the contour.
+
+        Parameters
+        ----------
+        loading_model : LoadingModel
+            The loading model of the wind direction
+        response : str
+            "hs" or "tspec"
+        u_stat : np.ndarray
+            The wind speeds of the statistics
+        m_stat : np.ndarray
+            The sea levels of the statistics
+
+        Returns
+        -------
+        tuple[np.ndarray, np.ndarray, np.ndarray]
+            The wind speeds, the sea levels and the field B(u, m)
+        """
+        field = np.asarray(loading_model.refine(response, {"u": u_stat, "m": m_stat}), float)
+        if loading_model.input_variables.index("u") > loading_model.input_variables.index("m"):
+            field = field.T
+        return u_stat, m_stat, np.squeeze(field)
 
     @staticmethod
     def breakdown_percentiles(breakdown: dict) -> dict:

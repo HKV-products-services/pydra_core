@@ -2,8 +2,10 @@
 The Hydra-NL breakdown, percentiles and illustration points of the coast ('hydra.coast_breakdown' and
 'hydra.coast_illustration_points') against frozen results in 'test/data/hydra/'. The frozen results come from these
 ports with the default scenario BOI2023_2035, made after they were found equal bit for bit to the implementation they
-were ported from, and written again with the sea level grid of 0.1 m of Hydra-NL ('m_step'). A relative tolerance of
-1e-12 leaves room for rounding on another platform, not for a change in the calculation.
+were ported from, and written again with the sea level grid of 0.1 m of Hydra-NL ('m_step'). The cases of the wave
+height are written with the field on the grid of the statistics, whose frequency 'test_coast_breakdown_frequency.py'
+checks against Hydra-NL. A relative tolerance of 1e-12 leaves room for rounding on another platform, not for a change
+in the calculation.
 
 The levels are those of Hydra-NL v2.9.2 at a return period of 10000 years, in the first case of each response. The
 Holland coast central has falling loading lines that the repair changes, the Holland coast south has none.
@@ -44,6 +46,7 @@ CASES = [
     ("central", "h", "none"),
     ("central", "h", "all"),
     ("central", "hs", "none"),
+    ("central", "hs", "all"),
     ("central", "hbn", "none"),
     ("south", "h", "all"),
     ("south", "hs", "none"),

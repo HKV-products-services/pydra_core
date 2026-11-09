@@ -72,7 +72,7 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
         """
         if response not in _RESPONSES:
             raise ValueError(f"[ERROR] Unknown response {response!r} (expected one of {_RESPONSES}).")
-        HydraCoastBreakdown.check_response(response, model_uncertainty)
+        HydraCoastBreakdown.check_response(response)
         if response == "hbn" and (profile is None or qcrit is None):
             raise ValueError("[ERROR] The crest level needs a profile and a critical overtopping discharge (qcrit).")
         self.statistical_uncertainty = statistical_uncertainty
