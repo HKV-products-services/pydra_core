@@ -1486,7 +1486,8 @@ class Scaling:
         stats : Statistics
             The statistics of the location
         response : str
-            The result variable; only "hbn" uses the wave uncertainties
+            The result variable: "h" uses the water level uncertainty, "hs" the uncertainty of Hm0, "tspec" those of
+            Hm0 and Tspec with their correlation, "hbn" all three
         model_uncertainty : bool
             False gives one combination with weight 1
         closing_situation : int, optional
@@ -1500,6 +1501,18 @@ class Scaling:
         if not model_uncertainty:
             return [(0.0, 1.0, 1.0, 1.0)]
         model_uncertainties = stats.get_model_uncertainties()
+
+        # The wave height and the wave period do not depend on the water level, so delta_h = 0
+        if response in ("hs", "tspec"):
+            waves = list(model_uncertainties.iterate_model_uncertainty_wave_conditions(wave_period="tspec"))
+            if response == "tspec":
+                return [(0.0, float(fhs), float(fts), float(pw)) for fhs, fts, pw in waves]
+            # Only the factor on Hm0 counts: the probabilities of the wave periods per factor on Hm0 are summed
+            per_hs: dict[float, float] = {}
+            for fhs, _fts, pw in waves:
+                per_hs[float(fhs)] = per_hs.get(float(fhs), 0.0) + float(pw)
+            return [(0.0, fhs, 1.0, p) for fhs, p in per_hs.items()]
+
         mu_h = model_uncertainties.get_model_uncertainty("h", closing_situation)
         if mu_h is None:
             dh, p_dh = np.array([0.0]), np.array([1.0])
