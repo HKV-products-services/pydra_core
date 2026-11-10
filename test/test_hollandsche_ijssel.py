@@ -153,7 +153,16 @@ BEYOND_ONE_STEP = {
         (1000000, 1, 1, 270.0),
         (1000000, 1, 1, 337.5),
     },
-    ("tp", "model"): set(),
+    ("tp", "model"): {
+        (100, 2, 2, 360.0),
+        (3000, 1, 3, 225.0),
+        (30000, 2, 2, 225.0),
+        (30000, 2, 3, 225.0),
+        (100000, 1, 3, 315.0),
+        (300000, 1, 2, 225.0),
+        (300000, 1, 2, 292.5),
+        (300000, 1, 3, 225.0),
+    },
     ("hbn", "none"): {
         (10, 2, 1, 360.0),
         (30, 2, 1, 337.5),
@@ -266,6 +275,7 @@ BREAKDOWN_CASES = [
     ("tm10", "tspec", "model", False, True, 0.4, None, set(), set()),
     ("tp", "tp", "none", False, False, 0.4, 10000, set(), set()),
     ("tp", "tp", "statistical", True, False, 0.4, 10000, set(), {(1000000, "sea_level", "all")}),
+    ("tp", "tp", "model", False, True, 0.4, None, set(), set()),
 ]
 
 # Reference, result variable, statistical uncertainty, model uncertainty of the water level, of the waves
@@ -353,6 +363,7 @@ ILLUSTRATION_POINT_CASES = [
     ("tm10", "tspec", "model", False, True),
     ("tp", "tp", "none", False, False),
     ("tp", "tp", "statistical", True, False),
+    ("tp", "tp", "model", False, True),
     ("hbn", "hbn", "none", False, False),
     ("hbn", "hbn", "statistical", True, False),
     ("hbn", "hbn", "model", False, True),
@@ -370,7 +381,8 @@ def test_illustration_points(result, response, case, statistical, model_uncertai
     point lies within one grid step of Hydra-NL (MSTAP, QSTAP, 1 m/s), except the points in 'BEYOND_ONE_STEP': near
     ties, places on the limit state with almost the same beta where pydra_core and Hydra-NL choose differently. With
     model uncertainty every point within one grid step also has the uncertainty values of Hydra-NL that count for the
-    result: the water level for 'h', the factor on Hm0 for 'hs', both wave factors for 'tm10' and all three for 'hbn'.
+    result: the water level for 'h', the factor on Hm0 for 'hs', the factors on Hm0 and the wave period for 'tm10' and 'tp', and the water level and both
+    factors on Hm0 and Tm-1,0 for 'hbn'.
     """
     hrd = HRDatabase(DATABASE)
     settings = hrd.get_settings(LOCATION)
@@ -403,8 +415,10 @@ def test_illustration_points(result, response, case, statistical, model_uncertai
                 pydra, hydranl = [design_point["dh"]], row[8:9]
             elif response == "hs":
                 pydra, hydranl = [design_point["f_hs"]], row[9:10]
-            elif response in ("tspec", "tp"):
-                pydra, hydranl = [design_point["f_hs"], design_point[f"f_{response}"]], row[9:11]
+            elif response == "tspec":
+                pydra, hydranl = [design_point["f_hs"], design_point["f_tspec"]], row[9:11]
+            elif response == "tp":
+                pydra, hydranl = [design_point["f_hs"], design_point["f_tp"]], row[[9, 11]]
             else:
                 uncertainty = design_point["uncertainty"]
                 pydra, hydranl = [uncertainty["h"], uncertainty["f_hs"], uncertainty["f_tspec"]], row[8:11]
