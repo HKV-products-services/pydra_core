@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from typing import Tuple, Union
 
 from ...settings.settings import Settings
+from ....common.enum import WaterSystem
 from ....common.interpolate import InterpStruct
 # from ....io.database_hr import DatabaseHR
 
@@ -56,6 +57,16 @@ class Loading(ABC):
         Preprocess the LoadingModels.
         Makes sure the discretisations in every LoadingModel are the same.
         """
+        # A database with only one wave period: derive the other one (Tp = Tm-1,0 * factor)
+        factor = self.settings.factor_tp_tspec
+        for _, model in self.iter_models():
+            if hasattr(model, "tspec") and not hasattr(model, "tp"):
+                model.tp = model.tspec * factor
+                model.result_variables = [*model.result_variables, "tp"]
+            elif hasattr(model, "tp") and not hasattr(model, "tspec"):
+                model.tspec = model.tp / factor
+                model.result_variables = [*model.result_variables, "tspec"]
+
         # Obtain the wind directions and closing situations
         self.r = sorted(set([r[0] for r in list(self.model.keys())]))
         self.k = sorted(set([k[1] for k in list(self.model.keys())]))
@@ -104,6 +115,15 @@ class Loading(ABC):
         epsilon : float
             The minimum increase when repairing (default : 0.0, a running maximum as in Hydra-NL)
         """
+        # A list is the repair of all result variables while reading the loading; a string is the explicitly
+        # requested repair of one result variable (a frequency line or the HBN)
+        while_reading = not isinstance(result_variables, str)
+
+        # In the IJssel and Vecht delta only the water level is repaired while reading; the raw waves enter the
+        # overtopping calculation and only the crest level is repaired
+        if while_reading and self.settings.watersystem in [WaterSystem.IJSSEL_DELTA, WaterSystem.VECHT_DELTA]:
+            result_variables = [rv for rv in result_variables if rv not in ["hs", "tspec"]]
+
         # For each LoadingModel (wind direction and closing situation)
         for _, model in self.iter_models():
             # Loop over the inputvariables
@@ -120,6 +140,11 @@ class Loading(ABC):
                 for rv in np.atleast_1d(result_variables):
                     # If the result variable from the argument is not in the LoadingModel or if it the wave direction, skip
                     if (rv not in model.result_variables) or (rv == "dir"):
+                        continue
+
+                    # The raw wave period enters the overtopping calculation; at sheltered locations it decreases
+                    # with the wind speed. Only an explicitly requested repair of the wave period is done.
+                    if while_reading and inpvar == "u" and rv == "tspec":
                         continue
 
                     # Repair the LoadingModel
@@ -277,9 +302,9 @@ class Loading(ABC):
                     parts.append(getattr(model, resvar))
                 else:
                     if (resvar == "tp") and hasattr(model, "tspec"):
-                        parts.append(getattr(model, "tspec") * 1.1)
+                        parts.append(getattr(model, "tspec") * self.settings.factor_tp_tspec)
                     elif (resvar == "tspec") and hasattr(model, "tp"):
-                        parts.append(getattr(model, "tp") / 1.1)
+                        parts.append(getattr(model, "tp") / self.settings.factor_tp_tspec)
                     else:
                         raise KeyError(f'"{resvar}" not present.')
 

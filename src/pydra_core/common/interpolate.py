@@ -31,9 +31,15 @@ class Interpolate:
 
         # Determine interpolation fractions
         fracs = (x - xp[intidx]) / (xp[intidx + 1] - xp[intidx])
+        f_low, f_up = fp[intidx], fp[intidx + 1]
 
-        # Interpolate (1-frac) * f_low + frac * f_up
-        f = (1 - fracs) * fp[intidx] + fp[intidx + 1] * fracs
+        # Interpolate (1-frac) * f_low + frac * f_up. A weight of exactly 0 does not contribute (0 * -inf would give
+        # NaN for a probability of 0), and two -inf neighbours give -inf. np.where evaluates both branches, hence the
+        # errstate.
+        with np.errstate(invalid="ignore"):
+            low = np.where(fracs == 1.0, 0.0, (1.0 - fracs) * f_low)
+            up = np.where(fracs == 0.0, 0.0, f_up * fracs)
+            f = np.where(np.isneginf(f_low) & np.isneginf(f_up), -np.inf, low + up)
 
         return f
 

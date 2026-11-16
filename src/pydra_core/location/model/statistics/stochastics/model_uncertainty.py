@@ -1,7 +1,7 @@
 import numpy as np
 
 from dataclasses import dataclass
-from scipy.stats import multivariate_normal, norm
+from scipy.stats import norm
 
 from ....settings.settings import Settings
 from .....io.hrdatabase_reader import HRDReader
@@ -51,6 +51,18 @@ class ModelUncertainty:
         if cu is not None:
             for comb, correlation in cu.groupby(["k", "rvid", "rvid2"]):
                 self.correlations[comb] = CorrelationUncertainty(correlation.to_numpy()[0])
+
+        # A database with only one wave period: the derived wave period gets the model uncertainty of the present one,
+        # and so does its correlation with the wave height
+        for (k, rvid), distribution in list(self.model_uncertainties.items()):
+            other = {"tspec": "tp", "tp": "tspec"}.get(rvid)
+            if other and (k, other) not in self.model_uncertainties:
+                self.model_uncertainties[k, other] = DistributionUncertainty([k, other, distribution.mu, distribution.sigma])
+        for (k, rvid, rvid2), correlation in list(self.correlations.items()):
+            period = rvid2 if rvid == "hs" else rvid
+            other = {"tspec": "tp", "tp": "tspec"}.get(period)
+            if other and self.get_correlation("hs", other, k) is None:
+                self.correlations[k, "hs", other] = CorrelationUncertainty([k, "hs", other, correlation.rho])
 
     def iterate_model_uncertainty(self, closing_situation=1, wave_period: str = "tspec"):
         """
@@ -124,29 +136,25 @@ class ModelUncertainty:
         else:
             t, p_t = [1.0], np.array([1.0])
 
-        # Multiply the probabilities (assuming independence)
+        # Wave period factors per wave height factor; without correlation the same for every wave height
         combined_probability = p_hs[:, None] * p_t[None, :]
+        t_given_hs = np.tile(np.atleast_1d(t), (len(np.atleast_1d(hs)), 1))
 
         # Obtain the correlation between wave height and period (optional, otherwise None)
         corr_hs_t = self.get_correlation("hs", wave_period)
 
-        # If rho is defined, apply correlation
+        # With correlation, the wave period is discretised given each wave height: a normal distribution with mean
+        # 1 + rho * sigma_t * z_hs and standard deviation sigma_t * sqrt(1 - rho^2) (at least 0.001), on the same
+        # standardised grid, multiplied by the bias. The probabilities are those of the wave height times those of the
+        # standardised grid
         if corr_hs_t is not None:
             # Correlation can only be applied when both the wave height and period are defined
             if (mu_hs is not None) and (mu_t is not None):
-                # Apply correlation
-                exc_probs = np.zeros((len(hsedges), len(tedges)))
-                for i, x in enumerate(hsedges):
-                    for j, y in enumerate(tedges):
-                        exc_probs[i, j] = multivariate_normal.cdf(
-                            [x, y],
-                            mean=(0, 0),
-                            cov=[[1, corr_hs_t.rho], [corr_hs_t.rho, 1]],
-                        )
-
-                # Take the difference in both directions
-                combined_probability = exc_probs[1:] - exc_probs[:-1]
-                combined_probability = combined_probability[:, 1:] - combined_probability[:, :-1]
+                rho = corr_hs_t.rho
+                z_hs = (np.atleast_1d(hs) / mu_hs.mu - 1.0) / mu_hs.sigma
+                z_t = (np.atleast_1d(t) / mu_t.mu - 1.0) / mu_t.sigma
+                sigma_given_hs = max(0.001, mu_t.sigma * np.sqrt(1.0 - rho * rho))
+                t_given_hs = mu_t.mu * (1.0 + rho * mu_t.sigma * z_hs[:, None] + sigma_given_hs * z_t[None, :])
 
             # Otherwise give a warning
             else:
@@ -155,10 +163,10 @@ class ModelUncertainty:
         # Check
         assert abs(combined_probability.sum() - 1) < 1e-6
 
-        # Iterator
-        for i, fh in enumerate(hs):
-            for j, ft in enumerate(t):
-                yield fh, ft, combined_probability[i, j]
+        # Iterator; negative factors are set to 0
+        for i, fh in enumerate(np.atleast_1d(hs)):
+            for j, ft in enumerate(t_given_hs[i]):
+                yield max(0.0, fh), max(0.0, ft), combined_probability[i, j]
 
     def get_model_uncertainty(self, result_variable: str, closing_situation: int = 1):
         """
@@ -278,8 +286,9 @@ class ModelUncertainty:
         klassekansen = []
 
         # Bereken per niveau (waterstand) de kans dat de waterstand door onzekerheid in een andere klasse valt
+        # The factor is mu * (1 + sigma * eps), so the applied spread is mu * sigma
         for niveau in niveaus:
-            grenskansen = norm.cdf(hgrens / niveau, loc=mu, scale=sigma)
+            grenskansen = norm.cdf(hgrens / niveau, loc=mu, scale=mu * sigma)
             klassekansen.append(grenskansen[1:] - grenskansen[:-1])
         klassekansen = np.array(klassekansen)
 
@@ -316,7 +325,16 @@ class DistributionUncertainty:
             List of the probabilities for each bin
         edges : list
             List with the edges of each bin
+
+        Raises
+        ------
+        KeyError
+            If the result variable is neither additive (h) nor multiplicative (hs, tspec, tp)
         """
+        # Additive or multiplicative, the same split as process_model_uncertainty
+        if self.rvid not in ["h", "hs", "tspec", "tp"]:
+            raise KeyError(f"[ERROR] Unknown model uncertainty '{self.rvid}': not additive (h) or multiplicative (hs, tspec, tp).")
+
         # If nsteps is 1, there is no need to discretise
         if nsteps == 1:
             return self.mu, [self.mu - 100 * self.sigma, self.mu + 100 * self.sigma]

@@ -35,9 +35,7 @@ class LoadingUpperRiver(Loading):
             ivids = database.get_input_variables()
             rvids = database.get_result_variables()
 
-        # Check if there are wave conditions present or whether they should be derived with Bretschneider
-        if "hs" not in table.columns:
-            raise NotImplementedError("[ERROR] Bretschneider")
+        # A database without wave conditions only has the result variables that are present (e.g. the water level)
 
         # Init LoadingModels for each combination of wind direction (r) and closing situation (k)
         for comb, deeltabel in table.groupby(["r", "k"]):
