@@ -44,7 +44,7 @@ class Foreshore:
         self.alpha_c = c_double(1.0)
         self.fc_c = c_double(0.021)
         self.ratiodepth_c = c_double(0.5)
-        self.minstepsize_c = c_double(1.0)
+        self.minstepsize_c = c_double(0.5)
         self.invalid_c = c_double(-999.99)
         self.logging_c = c_int(int(log))
         self.loggingfilename_buffer = create_string_buffer(b"dlldaf_log.txt", 256)
@@ -162,6 +162,15 @@ class Foreshore:
         res = self.rm5(*rm5_args)
         message = message_buffer.value.decode("utf-8", errors="ignore")
         message = message.rstrip()
+
+        # A rejected foreshore or breakwater stops the calculation. Without waves (N = 0) the DLL also returns an
+        # error code, but then there is nothing to transform.
+        if res != 0 and N > 0:
+            if self.profile.foreshore_x is None:
+                points = "none"
+            else:
+                points = ", ".join(f"({float(x):.2f}; {float(z):.2f})" for x, z in zip(self.profile.foreshore_x, self.profile.foreshore_y))
+            raise ValueError(f"[ERROR] The Dam and Foreshore module rejects the foreshore: '{message}'. Foreshore (x; z) = {points}, breakwater type {self.profile.breakwater_type.value}.")
 
         if res != 0:
             print(message + " - Using uncorrected wave parameters.")

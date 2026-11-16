@@ -81,6 +81,7 @@ class Settings:
     # Lower riviers (and VZM)
     transitional_wind = None  # TRANSWIND
     fu = None  # FU
+    sea_level_translation = None  # Sea level shift from Hoek van Holland to Maasmond: 0.02 m in WBI2017 and OI2014, 0 in BOI2023
 
     # IJssel-Vechtdelta
     failure_probability_ramspol = None  # FAALKANSKERING
@@ -89,6 +90,9 @@ class Settings:
     model_uncertainty_water_level_steps = None  # WS_ONZ_AANTAL
     model_uncertainty_wave_height_steps = None  # GH_ONZ_AANTAL
     model_uncertainty_wave_period_steps = None  # GP_ONZ_AANTAL
+
+    # Factor Tp / Tm-1,0 for a database with only one wave period
+    factor_tp_tspec = None  # FACTOR_TP_TM
 
     # File paths
     # Database
@@ -173,6 +177,18 @@ class Settings:
             else:
                 raise ValueError(f"[ERROR] Key '{key}' not defined in Settings.")
 
+        # A coastal database can cover more than one sub area, while its label holds only one. The wind
+        # statistics and the sigma function of the sub area of the location itself are used.
+        sub_area = self.__determine_coastal_sub_area()
+        if sub_area is not self.watersystem:
+            self.watersystem = sub_area
+            with CalculationSettingsReader() as database:
+                settings = database.get_settings(self.watersystem)
+            for _, row in settings.iterrows():
+                key = row["SettingName"]
+                if isinstance(key, str) and key.lower() in ["wind_speed_probability", "sigma_function"]:
+                    setattr(self, key.lower(), row["SettingValue"])
+
         # Collect all settings with statistical uncertainty (with '_metOnzHeid')
         self.__vars_with_statistical_uncertainty = {}
         for variable in [var for var in dir(self) if not callable(getattr(self, var)) and not var.startswith("__")]:
@@ -194,6 +210,28 @@ class Settings:
         for setting in self.__vars_with_statistical_uncertainty.keys():
             value = self.__vars_with_statistical_uncertainty[setting]
             setattr(self, setting, value if include else value.replace("_metOnzHeid", ""))
+
+    def __determine_coastal_sub_area(self) -> WaterSystem:
+        """
+        Determine the sub area of the Dutch coast or the Wadden Sea in which
+        the location lies. Other water systems are returned unchanged.
+
+        Returns
+        -------
+        WaterSystem
+            The water system of the sub area
+        """
+        # Dutch coast: south below y = 480000, north above y = 540000, central in between
+        if self.watersystem in [WaterSystem.COAST_NORTH, WaterSystem.COAST_CENTRAL, WaterSystem.COAST_SOUTH]:
+            if self.y_coordinate < 480000.0:
+                return WaterSystem.COAST_SOUTH
+            return WaterSystem.COAST_NORTH if self.y_coordinate > 540000.0 else WaterSystem.COAST_CENTRAL
+
+        # Wadden Sea: west below x = 160000, east otherwise
+        if self.watersystem in [WaterSystem.WADDEN_SEA_EAST, WaterSystem.WADDEN_SEA_WEST]:
+            return WaterSystem.WADDEN_SEA_WEST if self.x_coordinate < 160000.0 else WaterSystem.WADDEN_SEA_EAST
+
+        return self.watersystem
 
     def __determine_sea_level_statistics_points(self):
         """
@@ -219,7 +257,12 @@ class Settings:
                 [refpoints.loc["Den Oever"].values, refpoints.loc["Den Helder"].values],
             ):
                 subregion = 1
-            elif self.y_coordinate > refpoints.loc["IJmuiden"].values[1]:
+            # The boundary between subregions 2 and 3 is the line through IJmuiden and IJmuiden virtueel
+            elif CommonFunctions.position_from_line(
+                "north",
+                (self.x_coordinate, self.y_coordinate),
+                [refpoints.loc["IJmuiden"].values, refpoints.loc["IJmuiden virtueel"].values],
+            ):
                 subregion = 2
             elif self.y_coordinate > refpoints.loc["Hoek van Holland"].values[1]:
                 subregion = 3
