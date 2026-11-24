@@ -218,6 +218,72 @@ class Grid:
         y.append(min(ymax, float(x[-1])))
         return np.asarray(y, float)
 
+    @staticmethod
+    def extension_nodes(first: float, second: float, edge: float) -> np.ndarray:
+        """
+        Return the nodes of UITBREIDING_R between the edge of the database grid and a bound beyond it: as many equal
+        steps as the last interval of the database fits in (NINT, at least one), the database node excluded and the
+        bound included.
+
+        Parameters
+        ----------
+        first : float
+            The node of the database at the edge
+        second : float
+            Its neighbour in the database
+        edge : float
+            The bound beyond the database (QMIN, QMAX or UMAX)
+
+        Returns
+        -------
+        np.ndarray
+            The extra nodes, from the database node outward
+        """
+        n = max(1, Grid.nint32((edge - first) / (first - second)))
+        return first + (edge - first) * np.arange(1, n + 1) / n
+
+    @staticmethod
+    def extend_river_table(loading, q_min: float, q_max: float, u_max: float) -> None:
+        """
+        Put the loading tables of an upper river on the grid of UITBREIDING_R ('uitbreiding_Zoet.f90'): the discharges
+        and wind speeds of the database, with equal steps down to QMIN, up to QMAX and up to UMAX where the database does
+        not reach them. Beyond the database the water level and the wave parameters run linearly with the last interval
+        (wave parameters at least 0), and the wave direction is copied from the edge of the database. The tables are
+        changed in place.
+
+        The values inside the database range do not change; the grid does, and so does every contour (ISOLIJN), which
+        draws straight lines per cell. pydra adds q_min and q_max as nodes even inside the database range; Hydra-NL
+        does not, so those nodes are removed again.
+
+        Parameters
+        ----------
+        loading : Loading
+            The loading of the location
+        q_min, q_max : float
+            The bounds of the discharge (QMIN, QMAX)
+        u_max : float
+            The largest wind speed (UMAX)
+        """
+        for _, model in loading.iter_models():
+            q_database = model.database_grid["q"]
+            u_database = np.asarray(model.u, dtype=float)
+            q_lower = (
+                Grid.extension_nodes(q_database[0], q_database[1], q_min)[::-1] if q_min < q_database[0] else []
+            )
+            q_upper = Grid.extension_nodes(q_database[-1], q_database[-2], q_max) if q_max > q_database[-1] else []
+            u_upper = Grid.extension_nodes(u_database[-1], u_database[-2], u_max) if u_max > u_database[-1] else []
+            model.extend("q", np.concatenate([q_lower, q_database, q_upper]), merge_grid=False)
+            model.extend("u", np.concatenate([u_database, u_upper]), merge_grid=False)
+
+            # The wave direction is copied beyond the database, not extrapolated
+            if hasattr(model, "dir"):
+                axis_q = model.input_variables.index("q")
+                axis_u = model.input_variables.index("u")
+                n_lower, n_database = len(q_lower), len(q_database)
+                q_index = np.clip(np.arange(len(model.q)), n_lower, n_lower + n_database - 1)
+                u_index = np.minimum(np.arange(len(model.u)), len(u_database) - 1)
+                model.dir = np.take(np.take(model.dir, q_index, axis=axis_q), u_index, axis=axis_u)
+
 
 class HydraInterpolate:
     """
@@ -1500,7 +1566,10 @@ class Scaling:
 
     @staticmethod
     def uncertainty_combinations(
-        stats, response: str, model_uncertainty: bool, closing_situation: int = 1
+        stats,
+        response: str,
+        model_uncertainty: bool,
+        closing_situation: int = 1,
     ) -> list[tuple[float, float, float, float]]:
         """
         Return the combinations of model uncertainties with their probability, with the probabilities summing to 1. This is the integration table of Hydra-NL (ONZWAARDEN and KANSONZ). The
@@ -1523,14 +1592,30 @@ class Scaling:
         Not every HRD has a water level uncertainty; the coastal databases have none, and there
         'get_model_uncertainty("h")' returns None. Then delta_h = 0, as in the HBN calculation of pydra.
 
+        A wave period (Tm-1,0 or Tp) gets only its own model uncertainty, not that of Hm0, in every water system.
+        This deliberately deviates from Hydra-NL 2.9.2 at the Hollandsche IJssel:
+
+        - Rekenhart_Zoet and Rekenhart_Zout switch off the uncertainty of Hm0 when the result is a wave period
+          (BERTYPE 7 or 8; 'ONZ_GOLFHOOGTE = .FALSE.' in 'invoer_Zoet.f90' and 'invoer_Zout.f90'). ONZWAARDEN then
+          sets the correlation between Hm0 and the wave period to 0 and discretises the wave period on its own.
+        - Rekenhart_HIJ lacks that line ('invoer_HIJ.f90'). The uncertainty of Hm0 stays on, and ONZWAARDEN spreads
+          the wave period over the classes of Hm0 through their correlation.
+        - Hm0 is not part of the result when the result is a wave period, so the uncertainty of Hm0 has no business in
+          it. In theory both routes give the same distribution of the wave period; they differ in how it is cut into
+          grid values, which shows in the illustration points (the distance beta gets a term for Hm0).
+        - Nothing in the source explains why Rekenhart_HIJ differs. We suspect the missing line in Rekenhart_HIJ is an
+          omission, and follow Zoet and Zout everywhere. The illustration points of Tm-1,0 and Tp with model
+          uncertainty at the Hollandsche IJssel therefore differ from Rekenhart_HIJ 2.9.2.
+
+        For the crest level all three take the uncertainties of Hm0 and the wave period with their correlation.
+
         Parameters
         ----------
         stats : Statistics
             The statistics of the location
         response : str
-            The result variable: "h" uses the water level uncertainty, "hs" the uncertainty of Hm0, "tspec" those of
-            Hm0 and Tspec with their correlation, "tp" those of Hm0 and Tp with their correlation, "hbn" those of the
-            water level, Hm0 and Tspec
+            The result variable: "h" uses the water level uncertainty, "hs" the uncertainty of Hm0, "tspec" and "tp"
+            that of the wave period, "hbn" those of the water level, Hm0 and Tspec with their correlation
         model_uncertainty : bool
             False gives one combination with weight 1
         closing_situation : int, optional
@@ -1546,12 +1631,24 @@ class Scaling:
             return [(0.0, 1.0, 1.0, 1.0)]
         model_uncertainties = stats.get_model_uncertainties()
 
-        # The wave height and the wave period do not depend on the water level, so delta_h = 0
-        if response in ("hs", "tspec", "tp"):
-            wave_period = "tp" if response == "tp" else "tspec"
-            waves = list(model_uncertainties.iterate_model_uncertainty_wave_conditions(wave_period=wave_period))
-            if response in ("tspec", "tp"):
-                return [(0.0, float(fhs), float(ft), float(pw)) for fhs, ft, pw in waves]
+        # Imported here, so that the worker processes for crest levels do not load scipy.stats
+        from scipy.stats import norm
+
+        # The wave period on its own, without the uncertainty of Hm0 (deviation from Rekenhart_HIJ, see above)
+        if response in ("tspec", "tp"):
+            uncertainty = model_uncertainties.get_model_uncertainty(response)
+            if uncertainty is None:
+                return [(0.0, 1.0, 1.0, 1.0)]
+            factors, edges = uncertainty.discretise(model_uncertainties.step_size[response])
+            probabilities = np.diff(norm.cdf(np.asarray(edges, dtype=float)))
+            return [
+                (0.0, 1.0, max(0.0, float(f)), float(p))
+                for f, p in zip(np.atleast_1d(factors), probabilities, strict=True)
+            ]
+
+        # The wave height does not depend on the water level, so delta_h = 0
+        if response == "hs":
+            waves = list(model_uncertainties.iterate_model_uncertainty_wave_conditions(wave_period="tspec"))
             # Only the factor on Hm0 counts: the probabilities of the wave periods per factor on Hm0 are summed
             per_hs: dict[float, float] = {}
             for fhs, _fts, pw in waves:
@@ -1564,9 +1661,6 @@ class Scaling:
         else:
             dh, edges = mu_h.discretise(model_uncertainties.step_size["h"])
             dh = np.atleast_1d(dh).astype(float)
-            # Imported here, so that the worker processes for crest levels do not load scipy.stats
-            from scipy.stats import norm
-
             cdf = norm.cdf(np.asarray(edges, dtype=float))
             p_dh = cdf[1:] - cdf[:-1]
         if response == "hbn":

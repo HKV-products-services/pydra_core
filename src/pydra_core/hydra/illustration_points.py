@@ -1,6 +1,6 @@
 """
-The Hydra-NL illustration point (ILLU_PUNTQ) for the lakes and the upper rivers. The method and the treatment of the
-model uncertainty are described in docs/hydra_extensions.qmd.
+The Hydra-NL illustration point (ILLU_PUNTQ for the lakes, ILLU_PUNTM for the upper rivers). The method and the
+treatment of the model uncertainty are described in docs/hydra_extensions.qmd.
 """
 
 import copy
@@ -12,17 +12,14 @@ from scipy.interpolate import RegularGridInterpolator
 from scipy.special import ndtri
 from scipy.stats import norm
 
-from .library import Scaling
+from .compiled_contour import SENTINEL
+from .library import Contour, Grid, Scaling
 from ..core.memory import Memory, RememberedCalculation
 
-# 'isoline' takes scipy's internal fast route of 'RegularGridInterpolator' ('_rgi_cython.evaluate_linear_2d',
-# '_find_indices', '_values', '_grid'). If that route is not there, the public call gives the same interpolation.
-try:
-    from scipy.interpolate._rgi_cython import evaluate_linear_2d
-except ImportError:
-    evaluate_linear_2d = None
-
 _EPS = 1e-12
+
+# Number of points per part of the limit state line (FACTOR in ILLU_PUNTQ and ILLU_PUNTM)
+_POINTS_PER_PART = 10
 
 # Cap for Phi^-1, as the MAXINT clip in the Fortran
 _BIG = 40.0
@@ -32,6 +29,9 @@ _KEUZERESTKANS = 0.05
 
 # Labels of the model uncertainty terms (Hydra-NL notation) per grid key
 _MODEL_LABEL = {"h": "δh", "hs": "f_Hm0", "tspec": "f_Tspec", "tp": "f_Tp"}
+
+# Responses that are a wave parameter of the database: their own table, with the level divided by the factor
+_WAVE_PARAMETERS = ("hs", "tspec", "tp")
 
 
 @dataclass(frozen=True)
@@ -85,9 +85,11 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
             Whether the statistics include the statistical uncertainty
         model_uncertainty : bool
             Whether the model uncertainty adds dimensions to the distance: the water level for the water level, the wave
-            height for the wave height, and water level, wave height and wave period for the crest level
+            height for the wave height, wave height and wave period for the wave periods, and water level, wave height
+            and wave period for the crest level
         response : str
-            "h" (water level), "hs" (significant wave height) or "hbn" (required crest level; needs 'profile' and 'qcrit')
+            "h" (water level), "hs" (significant wave height), "tspec" (spectral wave period Tm-1,0), "tp" (peak
+            period) or "hbn" (required crest level; needs 'profile' and 'qcrit')
         profile : Profile
             The profile for the crest level
         qcrit : float
@@ -105,8 +107,8 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
         self._crest_level_table = (
             crest_level_table if crest_level_table is not None else Memory.remembered_crest_level_table(settings)
         )
-        if response not in ("h", "hs", "hbn"):
-            raise ValueError(f"[ERROR] Unknown response {response!r} (expected 'h', 'hs' or 'hbn').")
+        if response not in ("h", *_WAVE_PARAMETERS, "hbn"):
+            raise ValueError(f"[ERROR] Unknown response {response!r} (expected 'h', 'hs', 'tspec', 'tp' or 'hbn').")
         if response == "hbn" and (profile is None or qcrit is None):
             raise ValueError("[ERROR] The crest level needs a profile and a critical overtopping discharge (qcrit).")
 
@@ -126,6 +128,15 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
         self._slow = _SLOW.get(slow_keys[0])
         if self._slow is None:
             raise NotImplementedError(f"[ERROR] The slow stochastic {slow_keys[0]!r} is not covered.")
+
+        # Hydra-NL puts the table of an upper river on its own grid up to QMIN, QMAX and UMAX and repairs the water
+        # level again (UITBREIDING_R). It then repairs the table of the response (REPAREREN_ZOET on 'belasting'), so a
+        # wave parameter is repaired here as well.
+        if self._slow.key == "q":
+            Grid.extend_river_table(loading, float(settings.q_min), float(settings.q_max), float(settings.u_max))
+            loading.repair_loadingmodels("h")
+        if response in _WAVE_PARAMETERS:
+            loading.repair_loadingmodels(response)
         n_closing_situations = len({k for (_r, k) in loading.model})
         if n_closing_situations != 1:
             raise NotImplementedError(
@@ -150,10 +161,9 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
                 f"16 sectors, the default WBI2017 statistics have 12."
             )
 
-        # Per direction: the response interpolator for the water level and the wave height, the raw tables for the
+        # Per direction: the response interpolator for the water level and the wave parameters, the raw tables for the
         # crest level (which depends on the uncertainty factors and is therefore calculated per combination), and
         # interpolators of every loading field for the display
-        response_field = {"h": "h", "hs": "hs"}.get(response)
         self._response: dict[float, RegularGridInterpolator] = {}
         self._raw: dict[float, tuple] = {}
         self._wave: dict[float, dict[str, RegularGridInterpolator]] = {}
@@ -193,7 +203,7 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
             }
             if response != "hbn":
                 self._response[float(r)] = RegularGridInterpolator(
-                    (u, s), np.asarray(getattr(lm, response_field), dtype=float),
+                    (u, s), np.asarray(getattr(lm, response), dtype=float),
                     method="linear", bounds_error=False, fill_value=None,
                 )
 
@@ -205,9 +215,6 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
         self.combinations_with_probability = Scaling.uncertainty_combinations(
             stats, self.response, self.model_uncertainty
         )
-        # Interpolation indices and distances of 'isoline' per (direction, fine grid): they only depend on the loading
-        # grid of the direction, not on the uncertainty combination
-        self._grid_cache: dict[tuple, tuple[np.ndarray, np.ndarray]] = {}
 
     @property
     def slow_label(self) -> str:
@@ -310,84 +317,43 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
         crest = np.array(self._crest_level_table(self._profile, self._qcrit, h + delta, hs, ts, dr, f_hs, f_ts))
         return RegularGridInterpolator((u, s), crest, method="linear", bounds_error=False, fill_value=None)
 
-    def isoline(
-        self,
-        interp: RegularGridInterpolator,
-        r: float,
-        level: float,
-        n_u: int = 200,
-        n_s: int = 250,
-        u_max: float | None = None,
-    ) -> tuple[np.ndarray, np.ndarray]:
+    @staticmethod
+    def limit_state_line(interp: RegularGridInterpolator, level: float) -> tuple[np.ndarray, np.ndarray]:
         """
-        Find the points (u, s) on the contour response(u, s) = level: per fine u the value of s where the response
-        crosses.
+        Find the points (u, s) on the limit state response(u, s) = level as ILLU_PUNTQ (lakes) and ILLU_PUNTM (upper
+        rivers): the contour on the loading grid (ISOLIJN), its parts merged into one line (CONTOUREN_SAMENVOEGEN), and
+        every part of that line divided into ten pieces.
 
-        The loading grid is coarse (about 10 x 6), so this refinement is ample: the design point agrees within a
-        centimetre and 0.1 m/s with a 300 x 400 refinement, at half the time.
-
-        'u_max' extends the wind speed scan beyond the loading table (the interpolator extrapolates linearly). That is
-        only for the displayed isoline, so that the limit state line runs as far as the extrapolated field behind it;
-        the search for the illustration point keeps the edge of the table.
+        The response need not increase with the slow stochastic: a wave parameter can already exceed the level at the
+        lowest lake level or discharge, and the contour then runs through parts of the grid that one crossing per wind
+        speed would miss.
 
         Parameters
         ----------
         interp : RegularGridInterpolator
             The interpolator of the response on the (u, s) grid
-        r : float
-            The wind direction
         level : float
             The level
-        n_u : int, optional
-            The number of wind speeds of the refinement. Default is 200.
-        n_s : int, optional
-            The number of values of the slow stochastic of the refinement. Default is 250.
-        u_max : float | None, optional
-            The largest wind speed of the scan, None for the edge of the table. Default is None.
 
         Returns
         -------
         tuple[np.ndarray, np.ndarray]
-            The wind speeds and the values of the slow stochastic on the contour
+            The wind speeds and the values of the slow stochastic on the limit state, empty if the contour has fewer
+            than two points
         """
-        ulo, uhi = self._u_bounds[r]
-        slo, shi = self._s_bounds[r]
-        if u_max is not None:
-            uhi = max(uhi, float(u_max))
-        ug = np.linspace(ulo, uhi, n_u)
-        sg = np.linspace(slo, shi, n_s)
-        UU, SS = np.meshgrid(ug, sg, indexing="ij")
-        points = np.column_stack([UU.ravel(), SS.ravel()])
+        u, s = (np.asarray(axis, dtype=float) for axis in interp.grid)
+        wu, ws = Contour.isoline(u, s, np.asarray(interp.values, dtype=float), level)
+        if ws.size and (ws.min() <= SENTINEL or wu.min() <= SENTINEL):
+            wu, ws = Contour.merge_contours(wu, ws, float(s[0]), float(s[-1]))
+        if wu is None or len(wu) < 2:
+            return np.empty(0), np.empty(0)
 
-        # The same steps as 'interp(points)', but with the indices and distances only once per direction: they are
-        # equal for all uncertainty combinations
-        values = interp._values
-        fast = (
-            evaluate_linear_2d is not None
-            and hasattr(interp, "_find_indices")
-            and values.ndim == 2
-            and values.flags.writeable
-            and values.dtype == np.float64
-            and values.dtype.byteorder == "="
-        )
-        if fast:
-            key = (r, n_u, n_s, uhi)
-            if key not in self._grid_cache:
-                self._grid_cache[key] = interp._find_indices(points.T)
-            indices, distances = self._grid_cache[key]
-            H = evaluate_linear_2d(values, indices, distances, interp._grid, np.empty(len(points)))
-            H = H.reshape(UU.shape)
-        else:
-            H = interp(points).reshape(UU.shape)
-        us, ss = [], []
-        for j in range(n_u):
-            col = H[j]
-            if col[0] >= level or col[-1] <= level:
-                # The response does not cross the level within the range of s at this wind speed
-                continue
-            ss.append(float(np.interp(level, col, sg)))
-            us.append(float(ug[j]))
-        return np.asarray(us), np.asarray(ss)
+        # Each part from its start in ten steps; the last part also gets its end point
+        wu, ws = np.asarray(wu, dtype=float), np.asarray(ws, dtype=float)
+        fractions = np.arange(_POINTS_PER_PART) / _POINTS_PER_PART
+        us = (wu[:-1, None] + (wu[1:] - wu[:-1])[:, None] * fractions).ravel()
+        ss = (ws[:-1, None] + (ws[1:] - ws[:-1])[:, None] * fractions).ravel()
+        return np.append(us, wu[-1]), np.append(ss, ws[-1])
 
     def design_point(self, R: float, level: float) -> dict | None:
         """
@@ -406,7 +372,8 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
         dict | None
             The keys 'r', 'design' ({slow label: s*, "U": u*}), 'dh', 'beta', 'p', 'u' (the standard normal
             coordinates), 'alpha2', 'uncertainty' (the factors of the winning combination: 'h', 'f_hs', 'f_tspec',
-            'f_tp'), for the wave height also 'f_hs', and for the crest level 'waves' (the wave conditions at the toe).
+            'f_tp'), for the wave parameters also 'f_hs', for the wave periods also 'f_tspec' and 'f_tp', and for the
+            crest level 'waves' (the wave conditions at the toe).
             None if the isoline is not within the loading table for any combination.
         """
         r = self.nearest(R)
@@ -417,13 +384,14 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
                 # Sorted on distance: the remaining combinations cannot give a smaller distance
                 break
             if self.response == "hbn":
-                us, ss = self.isoline(self.crest_interp(r, delta, f_hs, f_ts), r, level)
-            elif self.response == "hs":
-                # The wave height times f_hs equals the isoline at level / f_hs of the unchanged wave height
-                us, ss = self.isoline(self._response[r], r, level / float(f_hs))
+                us, ss = self.limit_state_line(self.crest_interp(r, delta, f_hs, f_ts), level)
+            elif self.response in _WAVE_PARAMETERS:
+                # The wave parameter times its factor equals the isoline at level / factor of the unchanged parameter
+                factor = {"hs": f_hs, "tspec": f_ts, "tp": f_tp}[self.response]
+                us, ss = self.limit_state_line(self._response[r], level / float(factor))
             else:
                 # The water level plus delta equals the isoline at level - delta of the unchanged water level
-                us, ss = self.isoline(self._response[r], r, level - float(delta))
+                us, ss = self.limit_state_line(self._response[r], level - float(delta))
             if us.size == 0:
                 continue
             Y = self.zS(ss)
@@ -452,8 +420,11 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
                 phys, best["comps"], best["distance2"], self.response, self.model_uncertainty
             ),
         }
-        if self.response == "hs":
+        if self.response in _WAVE_PARAMETERS:
             out["f_hs"] = best["f_hs"]
+        if self.response in ("tspec", "tp"):
+            out["f_tspec"] = best["f_ts"]
+            out["f_tp"] = best["f_tp"]
         # 'design_grid' applies these factors to every loading field it returns, so they always come with the point
         out["uncertainty"] = {"h": best["delta"], "f_hs": best["f_hs"], "f_tspec": best["f_ts"], "f_tp": best["f_tp"]}
         if self.response == "hbn":
@@ -519,9 +490,10 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
     def design_grid(self, R: float, level: float, n_u: int = 100, n_s: int = 100) -> dict | None:
         """
         Calculate the limit state field with the design point for a wind direction at a level. The field is the
-        response of the winning uncertainty combination: h(u, s) + delta* for the water level, the required crest level
-        with the winning (delta*, f_Hm0*, f_Tspec*) for the crest level. The contour 'level' of this field therefore
-        coincides with the isoline of the design point, and the design point lies on it.
+        response of the winning uncertainty combination: h(u, s) + delta* for the water level, the wave parameter times
+        its winning factor for a wave parameter, the required crest level with the winning (delta*, f_Hm0*, f_Tspec*)
+        for the crest level. The contour 'level' of this field therefore coincides with the isoline of the design point,
+        and the design point lies on it.
 
         Parameters
         ----------
@@ -555,6 +527,9 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
         if self.response == "hbn":
             o = dp["uncertainty"]
             H = self.crest_interp(r, o["h"], o["f_hs"], o["f_tspec"])(pts).reshape(UU.shape)
+        elif self.response in _WAVE_PARAMETERS:
+            factor = dp["uncertainty"][{"hs": "f_hs", "tspec": "f_tspec", "tp": "f_tp"}[self.response]]
+            H = self._response[r](pts).reshape(UU.shape) * float(factor)
         else:
             H = self._response[r](pts).reshape(UU.shape) + float(dp.get("dh", 0.0))
         label = self._slow.label
@@ -718,8 +693,8 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
         beta2 : float
             The squared distance of the design point
         response : str
-            The response; it decides which model uncertainty terms count (h: delta_h; hs: f_Hm0; tspec: f_Hm0 and
-            f_Tspec; tp: f_Hm0 and f_Tp; hbn: delta_h, f_Hm0 and f_Tspec)
+            The response; it decides which model uncertainty terms count (h: delta_h; hs: f_Hm0; tspec: f_Tspec; tp:
+            f_Tp; hbn: delta_h, f_Hm0 and f_Tspec)
         model_uncertainty : bool
             Without model uncertainty there are no model uncertainty terms
 
@@ -734,7 +709,7 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
             terms = []
             if response in ("h", "hbn"):
                 terms.append(("h", comps[0]))
-            if response in ("hs", "tspec", "tp", "hbn"):
+            if response in ("hs", "hbn"):
                 terms.append(("hs", comps[1]))
             if response in ("tspec", "hbn"):
                 terms.append(("tspec", comps[2]))
@@ -747,7 +722,10 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
 
     @staticmethod
     def uncertainty_combinations_by_distance(
-        stats, response: str, model_uncertainty: bool, closing_situation: int = 1
+        stats,
+        response: str,
+        model_uncertainty: bool,
+        closing_situation: int = 1,
     ) -> list[tuple[float, float, float, float, float, tuple[float, float, float]]]:
         """
         Return the uncertainty combinations with their distance contribution (Hydra-NL ONZWAARDEN), sorted on
@@ -765,6 +743,11 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
         ONZ_GP come from one column without barrier state ('modelonzekerheden.f90'). The wave uncertainties are
         therefore taken from state 1.
 
+        A wave period gets only its own uncertainty, not that of Hm0, in every water system: Tm-1,0 (ONZ_GP(:,1)) and
+        Tp (ONZ_GP(:,2)) on the same standard normal grid, with the coordinate eps = (f / mu - 1) / sigma. That is
+        Rekenhart_Zoet and Rekenhart_Zout, and a deliberate deviation from Rekenhart_HIJ; the reasons are in
+        'Scaling.uncertainty_combinations'.
+
         Parameters
         ----------
         stats : Statistics
@@ -781,14 +764,33 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
         list[tuple[float, float, float, float, float, tuple[float, float, float]]]
             Per combination (delta_h, f_Hm0, f_Tm-1,0, f_Tp, distance^2, (eps_h^2, eps_Hm0^2, eps_T^2)). The last
             element splits distance^2 over the three model uncertainty terms, for the influence factor alpha^2 per term;
-            which terms are not zero depends on the response (h: only eps_h; hs: only eps_Hm0; tspec and tp: eps_Hm0
-            and eps_T; hbn: all three). eps_T is the coordinate on the standard normal grid of the wave periods, which
+            which terms are not zero depends on the response (h: only eps_h; hs: only eps_Hm0; tspec and tp: only
+            eps_T; hbn: all three). eps_T is the coordinate on the standard normal grid of the wave periods, which
             Tm-1,0 and Tp share (ONZ_GP(:,4)).
         """
         if not model_uncertainty:
             return [(0.0, 1.0, 1.0, 1.0, 0.0, (0.0, 0.0, 0.0))]
 
         model_uncertainties = stats.get_model_uncertainties()
+
+        # Wave period on its own: both periods on the grid of the response, without the uncertainty of Hm0
+        if response in ("tspec", "tp"):
+            uncertainty = model_uncertainties.get_model_uncertainty(response)
+            if uncertainty is None:
+                return [(0.0, 1.0, 1.0, 1.0, 0.0, (0.0, 0.0, 0.0))]
+            factors = {
+                period: np.atleast_1d(
+                    model_uncertainties.get_model_uncertainty(period).discretise(model_uncertainties.step_size[period])[0]
+                ).astype(float)
+                for period in ("tspec", "tp")
+            }
+            eps = (factors[response] / uncertainty.mu - 1.0) / uncertainty.sigma
+            combinations = [
+                (0.0, 1.0, float(max(0.0, f_tspec)), float(max(0.0, f_tp)), float(e * e), (0.0, 0.0, float(e * e)))
+                for f_tspec, f_tp, e in zip(factors["tspec"], factors["tp"], eps, strict=True)
+            ]
+            combinations.sort(key=lambda c: c[4])
+            return combinations
 
         # Wave height: only the uncertainty of Hs counts, with the coordinate eps = (value / mu - 1) / sigma
         if response == "hs":
@@ -805,10 +807,9 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
             return combinations
 
         # Water level, with the coordinate eps = (delta - mu) / sigma. Not every HRD has a water level uncertainty; the
-        # coastal databases have none, and then delta_h = 0, as in 'Scaling.uncertainty_combinations'. The wave periods
-        # do not depend on the water level, so for 'tspec' and 'tp' delta_h = 0 as well.
+        # coastal databases have none, and then delta_h = 0, as in 'Scaling.uncertainty_combinations'.
         mu_h = model_uncertainties.get_model_uncertainty("h", closing_situation)
-        if mu_h is None or response in ("tspec", "tp"):
+        if mu_h is None:
             dh, eps_h = np.array([0.0]), np.array([0.0])
         else:
             dh = np.atleast_1d(mu_h.discretise(model_uncertainties.step_size["h"])[0]).astype(float)
@@ -824,8 +825,8 @@ class HydraIllustrationPoint(metaclass=RememberedCalculation):
             combinations.sort(key=lambda c: c[4])
             return combinations
 
-        # Crest level and wave period: the wave uncertainties. Tspec and Tp are conditional on the bin of Hs through the
-        # correlation, so their grid is built with 'onzwaarden_vector'
+        # Crest level: the wave uncertainties. Tspec and Tp are conditional on the bin of Hs through the correlation, so
+        # their grid is built with 'onzwaarden_vector'
         mu_hs = model_uncertainties.get_model_uncertainty("hs")
         mu_ts = model_uncertainties.get_model_uncertainty("tspec")
         mu_tp = model_uncertainties.get_model_uncertainty("tp")

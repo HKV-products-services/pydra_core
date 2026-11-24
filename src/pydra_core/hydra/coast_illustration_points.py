@@ -307,12 +307,8 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
         factors = HydraIllustrationPoint.alpha2_decomposition(
             phys, comps, float(distance2), self.response, self.model_uncertainty
         )
-        # The coast has no water level uncertainty, and for the wave period no uncertainty of Hm0 (invoer_Zout.f90)
-        return [
-            f
-            for f in factors
-            if not (f["key"] == "h" and f["alpha2"] == 0.0) and not (self.response in _WAVE_PERIODS and f["key"] == "hs")
-        ]
+        # The coast has no water level uncertainty
+        return [f for f in factors if not (f["key"] == "h" and f["alpha2"] == 0.0)]
 
     @staticmethod
     def coast_combinations_by_distance(
@@ -321,11 +317,10 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
         """
         Return the uncertainty combinations of the coast with their distance contribution, sorted on distance^2.
 
-        Hydra-NL Zout switches off the uncertainty of Hm0 for a wave period (invoer_Zout.f90), so for Tm-1,0 and Tp
-        ONZWAARDEN discretises the wave periods on their own, without the correlation with Hm0: Tm-1,0 (ONZ_GP(:,1)) and
-        Tp (ONZ_GP(:,2)) on the same standard normal grid, with the coordinate eps = (f / mu - 1) / sigma. Without an
-        uncertainty of Tp in the database Tp takes that of Tm-1,0 (KIES_ONZ_ZEE). The other responses take the
-        combinations of 'HydraIllustrationPoint.uncertainty_combinations_by_distance'.
+        The combinations of 'HydraIllustrationPoint.uncertainty_combinations_by_distance', without the water level
+        uncertainty, which the coast does not have. For Tm-1,0 and Tp that is the wave period on its own, without the
+        uncertainty of Hm0, as Hydra-NL Zout (invoer_Zout.f90). Without an uncertainty of Tp in the database Tp takes
+        that of Tm-1,0 (KIES_ONZ_ZEE).
 
         Parameters
         ----------
@@ -342,25 +337,6 @@ class HydraCoastIllustrationPoints(metaclass=RememberedCalculation):
             Per combination (f_Hm0, f_Tm-1,0, f_Tp, distance^2, (eps_h^2, eps_Hm0^2, eps_T^2)), with eps_T the
             coordinate of the wave period
         """
-        if model_uncertainty and response in _WAVE_PERIODS:
-            uncertainties = stats.get_model_uncertainties()
-            uncertainty = uncertainties.get_model_uncertainty(response)
-            if uncertainty is None:
-                return [(1.0, 1.0, 1.0, 0.0, (0.0, 0.0, 0.0))]
-            factors = {
-                period: np.atleast_1d(
-                    uncertainties.get_model_uncertainty(period).discretise(uncertainties.step_size[period])[0]
-                ).astype(float)
-                for period in _WAVE_PERIODS
-            }
-            eps = (factors[response] / uncertainty.mu - 1.0) / uncertainty.sigma
-            combinations = [
-                (1.0, float(max(0.0, f_tspec)), float(max(0.0, f_tp)), float(e * e), (0.0, 0.0, float(e * e)))
-                for f_tspec, f_tp, e in zip(factors["tspec"], factors["tp"], eps, strict=True)
-            ]
-            combinations.sort(key=lambda c: c[3])
-            return combinations
-
         by_distance = HydraIllustrationPoint.uncertainty_combinations_by_distance(stats, response, model_uncertainty)
         return [
             (float(f_hs), float(f_tspec), float(f_tp), float(distance2), comps)

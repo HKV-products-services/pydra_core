@@ -5,7 +5,6 @@ and the Western Scheldt. The method, the repair and the model uncertainty are de
 
 import copy
 import numpy as np
-from scipy.stats import norm
 
 from .library import Contour, HydraInterpolate, Percentiles, Scaling
 from ..core.memory import RememberedCalculation
@@ -370,22 +369,8 @@ class HydraCoastBreakdown(metaclass=RememberedCalculation):
             The combinations (f_Hm0, f_T, KANSONZ), with f_T the factor of the wave period: of Tp for the response
             "tp", of Tm-1,0 otherwise
         """
-        # Hydra-NL Zout switches off the uncertainty of Hm0 for a wave period (invoer_Zout.f90), so ONZWAARDEN
-        # discretises the wave period on its own, without the correlation with Hm0. Tp takes the column ONZ_GP(:,2),
-        # on the same standard normal grid as Tm-1,0, and without an uncertainty of Tp in the database that of Tm-1,0
-        # (KIES_ONZ_ZEE).
-        if model_uncertainty and response in _WAVE_PERIODS:
-            uncertainties = stats.get_model_uncertainties()
-            uncertainty = uncertainties.get_model_uncertainty(response)
-            if uncertainty is None:
-                return [(1.0, 1.0, 1.0)]
-            factors, edges = uncertainty.discretise(uncertainties.step_size[response])
-            probabilities = np.diff(norm.cdf(edges))
-            return [
-                (1.0, max(0.0, float(f)), float(p))
-                for f, p in zip(np.atleast_1d(factors), probabilities, strict=True)
-            ]
-
+        # For a wave period this is the wave period on its own, without the uncertainty of Hm0, as Hydra-NL Zout
+        # (invoer_Zout.f90); without an uncertainty of Tp in the database Tp takes that of Tm-1,0 (KIES_ONZ_ZEE)
         combinations = Scaling.uncertainty_combinations(stats, response, model_uncertainty)
         shifted = [d for d, _f, _t, _k in combinations if d != 0.0]
         if shifted:

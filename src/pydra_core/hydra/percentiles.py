@@ -13,6 +13,9 @@ from dataclasses import dataclass
 from .library import Contour, Grid, HydraInterpolate, Percentiles, Scaling, WaveProcessing
 from ..core.memory import Memory, RememberedCalculation
 
+# Responses that are a wave period of the database: their own table, times the factor of the combination
+_WAVE_PERIODS = ("tspec", "tp")
+
 
 @dataclass(frozen=True)
 class _SlowPeak:
@@ -81,7 +84,8 @@ class HydraPercentiles(metaclass=RememberedCalculation):
         model_uncertainty : bool
             Whether the model uncertainty is integrated out
         response : str
-            "h" (water level) or "hbn" (required crest level; needs 'profile' and 'qcrit')
+            "h" (water level), "tspec" (spectral wave period Tm-1,0), "tp" (peak period) or "hbn" (required crest
+            level; needs 'profile' and 'qcrit')
         profile : Profile
             The profile for the crest level
         qcrit : float
@@ -119,6 +123,15 @@ class HydraPercentiles(metaclass=RememberedCalculation):
         self._slow = _SLOW.get(slow_keys[0])
         if self._slow is None:
             raise NotImplementedError(f"[ERROR] The slow stochastic {slow_keys[0]!r} is not covered.")
+
+        # Hydra-NL puts the table of an upper river on its own grid up to QMIN, QMAX and UMAX and repairs the water
+        # level again (UITBREIDING_R). It then repairs the table of the response (REPAREREN_ZOET on 'belasting'), so a
+        # wave period is repaired here as well.
+        if self._slow.key == "q":
+            Grid.extend_river_table(loading, float(fresh.q_min), float(fresh.q_max), float(fresh.u_max))
+            loading.repair_loadingmodels("h")
+        if response in _WAVE_PERIODS:
+            loading.repair_loadingmodels(response)
         n_closing_situations = len({k for (_r, k) in loading.model})
         if n_closing_situations != 1:
             raise NotImplementedError(
@@ -172,10 +185,12 @@ class HydraPercentiles(metaclass=RememberedCalculation):
                     u, s, h, np.asarray(lm.hs, dtype=float), np.asarray(lm.tspec, dtype=float),
                     np.asarray(lm.dir, dtype=float),
                 )
+            elif response in _WAVE_PERIODS:
+                self._table[float(r)] = (u, s, np.asarray(getattr(lm, response), dtype=float))
             else:
                 self._table[float(r)] = (u, s, h)
 
-        # ONZWAARDEN with KANSONZ: (delta_h, f_hs, f_tspec, probability)
+        # ONZWAARDEN with KANSONZ: (delta_h, f_hs, f_T, probability), f_T the factor of the wave period of the response
         self._combinations = Scaling.uncertainty_combinations(stats, self.response, self.model_uncertainty)
 
         # The response tables do not depend on the level, and for the crest level every table is a call of the
@@ -184,8 +199,8 @@ class HydraPercentiles(metaclass=RememberedCalculation):
 
     def response_table(self, ic: int, r: float) -> np.ndarray:
         """
-        Return the response on the (u, s) grid: h + delta_h for the water level, the required crest level at
-        (h + delta_h, Hm0 * f_hs, Tspec * f_tspec) for the crest level.
+        Return the response on the (u, s) grid: h + delta_h for the water level, the wave period times f_T for a wave
+        period, the required crest level at (h + delta_h, Hm0 * f_hs, Tspec * f_tspec) for the crest level.
 
         Parameters
         ----------
@@ -207,6 +222,9 @@ class HydraPercentiles(metaclass=RememberedCalculation):
                 self._response_tables[key] = self._crest_level_table(
                     self._profile, self._qcrit, h + dh, hs, ts, dr, f_hs, f_ts
                 )
+            elif self.response in _WAVE_PERIODS:
+                _u, _s, wave_period = self._table[r]
+                self._response_tables[key] = wave_period * f_ts
             else:
                 _u, _s, h = self._table[r]
                 self._response_tables[key] = h + dh

@@ -71,6 +71,12 @@ class Loading(ABC):
         self.r = sorted(set([r[0] for r in list(self.model.keys())]))
         self.k = sorted(set([k[1] for k in list(self.model.keys())]))
 
+        # The grid as the database delivers it, before the extensions below. The Hydra-NL routes that rebuild the grid
+        # of UITBREIDING_R ('Grid.extend_river_table') need it: after the extensions a node of the database cannot be
+        # told apart from one added for q_min or q_max.
+        for _, model in self.iter_models():
+            model.database_grid = {name: np.array(getattr(model, name), dtype=float) for name in model.input_variables}
+
         # Collect all unique wind speeds from all loadingmodels
         utot = sorted(set([u for _, model in self.iter_models() for u in model.u]))
 
